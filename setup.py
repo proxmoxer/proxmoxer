@@ -1,13 +1,25 @@
 #!/usr/bin/env python
+import codecs
+import re
+import proxmoxer
 
 try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
 
+
+def long_description():
+    """Pre-process the README so that PyPi can render it properly."""
+    with codecs.open('README.rst', encoding='utf8') as f:
+        rst = f.read()
+    code_block = '(:\n\n)?\.\. code-block::.*'
+    rst = re.sub(code_block, '::', rst)
+    return rst
+
 setup(
     name = 'proxmoxer',
-    version = '0.1.0',
+    version = proxmoxer.__version__,
     description = 'Python Wrapper for the Proxmox 2.x API (HTTP and SSH)',
     author = 'Oleg Butovich',
     author_email = 'obutovich@gmail.com',
@@ -26,33 +38,5 @@ setup(
         "Operating System :: OS Independent",
         "Topic :: Software Development :: Libraries :: Python Modules",
         ],
-    long_description = """
-A python wrapper for the Proxmox 2.x API.
-
-Usage example:
-
-1) Create an instance of the ProxmoxAPI class by passing in the
-url or ip of a server, backend, username (and password if it is needed):
-
-proxmox = ProxmoxAPI('node01.example.org', user='user@pve', password='secretPassword')
-or
-proxmox = ProxmoxAPI('node01.example.org', user='admin')
-
-2) Call methods according http://pve.proxmox.com/pve2-api-doc/ like:
-
-node = p.nodes('node01')
-node.openvz.create(vmid=800,
-                   ostemplate='local:vztmpl/debian-6-turnkey-core_12.0-1_i386.tar.gz',
-                   hostname='test_host',
-                   storage='local',
-                   memory=512,
-                   swap=512,
-                   cpus=1,
-                   disk=4,
-                   password='secret',
-                   ip_address='10.0.0.100')
-resources = p.cluster.resources.get()
-
-For more information see http://pypi.python.org/pypi/proxmoxer
-"""
+    long_description = long_description()
 )

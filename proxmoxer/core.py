@@ -4,8 +4,6 @@ import imp
 import urlparse
 import posixpath
 
-__version__ = '0.1.0'
-
 
 class ProxmoxResourceBase(object):
 

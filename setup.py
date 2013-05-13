@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import codecs
 import re
+import proxmoxer
 
 try:
     from setuptools import setup
@@ -18,7 +19,7 @@ def long_description():
 
 setup(
     name = 'proxmoxer',
-    version = '0.1.0',
+    version = proxmoxer.__version__,
     description = 'Python Wrapper for the Proxmox 2.x API (HTTP and SSH)',
     author = 'Oleg Butovich',
     author_email = 'obutovich@gmail.com',

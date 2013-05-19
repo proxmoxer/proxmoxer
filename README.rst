@@ -143,5 +143,6 @@ Roadmap
 -------
 
 * write tests
+* support other actual python versions
 * add optional validation of requests
 * add some shortcuts for convenience

@@ -143,13 +143,14 @@ Roadmap
 -------
 
 * write tests
+* support other actual python versions
 * add optional validation of requests
 * add some shortcuts for convenience
 
 History
 -------
 
-
 0.1.1 Initial try! (2013-05-13)
 ...............................
 * Initial try.
+

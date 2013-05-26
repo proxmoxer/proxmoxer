@@ -1,0 +1,10 @@
+language: python
+python:
+  - 2.7
+install:
+  - pip install -r test_requirements.txt --use-mirrors
+  - pip install . --use-mirrors
+script:
+  - coverage run --source=proxmoxer `which nosetests` tests
+after_success:
+  - coveralls

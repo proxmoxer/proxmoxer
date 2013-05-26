@@ -61,11 +61,12 @@ class ProxmoxHttpSession(requests.Session):
 
 
 class Backend(object):
-    def __init__(self, host, user, password, port=8006, verify_ssl=True, mode='json'):
+    def __init__(self, host, user, password, port=8006, verify_ssl=True, mode='json', timeout=5):
         self.base_url = "https://{0}:{1}/api2/{2}".format(host, port, mode)
         self.auth = ProxmoxHTTPAuth(self.base_url, user, password)
         self.verify_ssl = verify_ssl
         self.mode = mode
+        self.timeout = timeout
 
     def get_session(self):
         session = ProxmoxHttpSession()

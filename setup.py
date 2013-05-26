@@ -1,21 +1,27 @@
 #!/usr/bin/env python
 import codecs
 import re
+import sys
 import proxmoxer
-
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+import os
+from setuptools import setup
 
 
-def long_description():
-    """Pre-process the README so that PyPi can render it properly."""
+if not os.path.exists('README.txt') and 'sdist' in sys.argv:
     with codecs.open('README.rst', encoding='utf8') as f:
         rst = f.read()
     code_block = '(:\n\n)?\.\. code-block::.*'
     rst = re.sub(code_block, '::', rst)
-    return rst
+    with codecs.open('README.txt', encoding='utf8', mode='wb') as f:
+        f.write(rst)
+
+
+try:
+    readme = 'README.txt' if os.path.exists('README.txt') else 'README.rst'
+    long_description = codecs.open(readme, encoding='utf-8').read()
+except:
+    long_description = 'Could not read README.txt'
+
 
 setup(
     name = 'proxmoxer',
@@ -31,6 +37,7 @@ setup(
     classifiers = [
         "Development Status :: 3 - Alpha",
         "Programming Language :: Python",
+        "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.7",
         "Intended Audience :: Developers",
         "Intended Audience :: System Administrators",
@@ -38,5 +45,5 @@ setup(
         "Operating System :: OS Independent",
         "Topic :: Software Development :: Libraries :: Python Modules",
         ],
-    long_description = long_description()
+    long_description = long_description
 )

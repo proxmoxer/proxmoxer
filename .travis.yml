@@ -1,0 +1,10 @@
+language: python
+python:
+  - 2.7
+install:
+  - pip install . --use-mirrors
+  - pip install -r test_requirements.txt --use-mirrors
+script:
+  - nosetests --with-coverage --cover-erase --cover-branches --cover-package=proxmoxer.backends -w tests
+after_success:
+  - coveralls

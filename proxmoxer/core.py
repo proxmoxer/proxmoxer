@@ -39,7 +39,7 @@ class ProxmoxResource(ProxmoxResourceBase):
         if isinstance(resource_id, basestring):
             resource_id = resource_id.split("/")
         elif not isinstance(resource_id, (tuple, list)):
-            resource_id = str(resource_id)
+            resource_id = [str(resource_id)]
 
         kwargs = self._store.copy()
         if resource_id is not None:

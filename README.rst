@@ -2,6 +2,11 @@
 Proxmoxer: A wrapper for Proxmox REST API
 =========================================
 
+master branch:  |master_build_status| |master_coverage_status| |pypi_version| |pypi_downloads|
+
+develop branch: |develop_build_status| |develop_coverage_status| 
+
+
 What does it do and what's different?
 -------------------------------------
 
@@ -143,5 +148,38 @@ Roadmap
 -------
 
 * write tests
+* support other actual python versions
 * add optional validation of requests
 * add some shortcuts for convenience
+
+History
+-------
+
+0.1.2 (2013-05-27)
+..................
+* Added first tests
+* Added support for travis and coveralls
+* Bugfixes
+
+0.1.1 (2013-05-13)
+..................
+* Initial try.
+
+.. |master_build_status| image:: https://travis-ci.org/swayf/proxmoxer.png?branch=master
+    :target: https://travis-ci.org/swayf/proxmoxer
+
+.. |master_coverage_status| image:: https://coveralls.io/repos/swayf/proxmoxer/badge.png?branch=master
+    :target: https://coveralls.io/r/swayf/proxmoxer
+
+.. |develop_build_status| image:: https://travis-ci.org/swayf/proxmoxer.png?branch=develop
+    :target: https://travis-ci.org/swayf/proxmoxer
+
+.. |develop_coverage_status| image:: https://coveralls.io/repos/swayf/proxmoxer/badge.png?branch=develop
+    :target: https://coveralls.io/r/swayf/proxmoxer
+
+.. |pypi_version| image:: https://pypip.in/v/proxmoxer/badge.png
+    :target: https://pypi.python.org/pypi/proxmoxer
+
+.. |pypi_downloads| image:: https://pypip.in/d/proxmoxer/badge.png
+    :target: https://pypi.python.org/pypi/proxmoxer
+

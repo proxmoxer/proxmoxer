@@ -99,8 +99,12 @@ class JsonSimpleSerializer(object):
 
 
 class Backend(object):
-    def __init__(self, host, user, password=None, private_key_file=None, port=22):
-        self.session = ProxmoxParamikoSession(host, user, password, private_key_file, port)
+    def __init__(self, host, user, password=None, private_key_file=None, port=22, timeout=5):
+        self.session = ProxmoxParamikoSession(host, user,
+                                              password=password,
+                                              private_key_file=private_key_file,
+                                              port=port,
+                                              timeout=timeout)
 
     def get_session(self):
         return self.session

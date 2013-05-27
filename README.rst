@@ -155,8 +155,14 @@ Roadmap
 History
 -------
 
+0.1.2 (2013-05-27)
+..................
+* Added first tests
+* Added support for travis and coveralls
+* Bugfixes
+
 0.1.1 (2013-05-13)
-...............................
+..................
 * Initial try.
 
 .. |master_build_status| image:: https://travis-ci.org/swayf/proxmoxer.png?branch=master

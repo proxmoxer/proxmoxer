@@ -4,7 +4,7 @@ Proxmoxer: A wrapper for Proxmox REST API
 
 master branch:  |master_build_status| |master_coverage_status| |pypi_version| |pypi_downloads|
 
-develop branch: |develop_build_status| |develop_coverage_status| 
+develop branch: |develop_build_status| |develop_coverage_status|
 
 
 What does it do and what's different?
@@ -178,8 +178,8 @@ History
     :target: https://coveralls.io/r/swayf/proxmoxer
 
 .. |pypi_version| image:: https://pypip.in/v/proxmoxer/badge.png
-    :target: https://pypi.python.org/pypi/proxmoxer
+    :target: https://crate.io/packages/proxmoxer
 
 .. |pypi_downloads| image:: https://pypip.in/d/proxmoxer/badge.png
-    :target: https://pypi.python.org/pypi/proxmoxer
+    :target: https://crate.io/packages/proxmoxer
 

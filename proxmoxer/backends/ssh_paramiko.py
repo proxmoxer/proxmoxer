@@ -47,7 +47,6 @@ class ProxmoxParamikoSession(object):
         return ssh_client
 
     def _exec(self, cmd):
-        print cmd
         session = self.ssh_client.get_transport().open_session()
 
         session.exec_command(cmd)
@@ -62,6 +61,7 @@ class ProxmoxParamikoSession(object):
         method = method.lower()
         data = data or {}
         params = params or {}
+        url = url.strip()
 
         cmd = {'post': 'create',
                'put': 'set'}.get(method, method)
@@ -77,7 +77,7 @@ class ProxmoxParamikoSession(object):
             data['tmpfilename'] = tmp_filename
 
         translated_data = ' '.join(["-{0} {1}".format(k, v) for k, v in chain(data.iteritems(), params.iteritems())])
-        full_cmd = 'pvesh {0} {1} {2}'.format(cmd, url, translated_data)
+        full_cmd = 'pvesh {0}'.format(' '.join(filter(None, (cmd, url, translated_data))))
 
         stdout, stderr = self._exec(full_cmd)
         return Response(stdout, int(stderr.split()[0]))

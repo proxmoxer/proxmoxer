@@ -155,6 +155,11 @@ Roadmap
 History
 -------
 
+0.1.3 (2013-05-30)
+..................
+* Added next tests
+* Bugfixes
+
 0.1.2 (2013-05-27)
 ..................
 * Added first tests

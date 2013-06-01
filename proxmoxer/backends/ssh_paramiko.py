@@ -1,17 +1,20 @@
-from itertools import chain
-import json
+__author__ = 'Oleg Butovich'
+__copyright__ = '(c) Oleg Butovich 2013'
+__licence__ = 'MIT'
+
+
 import os
-import paramiko
+from proxmoxer.backends.base_ssh import ProxmoxBaseSSHSession, BaseBackend
+
+try:
+    import paramiko
+except ImportError:
+    import sys
+    sys.stderr.write("Chosen backend requires 'paramiko' module\n")
+    sys.exit(1)
 
 
-class Response(object):
-    def __init__(self, content, status_code):
-        self.status_code = status_code
-        self.content = content
-        self.headers = {"content-type": "application/json"}
-
-
-class ProxmoxParamikoSession(object):
+class ProxmoxParamikoSession(ProxmoxBaseSSHSession):
     def __init__(self, host,
                  username,
                  password=None,
@@ -48,39 +51,10 @@ class ProxmoxParamikoSession(object):
 
     def _exec(self, cmd):
         session = self.ssh_client.get_transport().open_session()
-
         session.exec_command(cmd)
-
-        size = 4096
-        stdout = ''.join(session.makefile('rb', size))
-        stderr = ''.join(session.makefile_stderr('rb', size))
+        stdout = ''.join(session.makefile('rb', -1))
+        stderr = ''.join(session.makefile_stderr('rb', -1))
         return stdout, stderr
-
-    # noinspection PyUnusedLocal
-    def request(self, method, url, data=None, params=None, headers=None):
-        method = method.lower()
-        data = data or {}
-        params = params or {}
-        url = url.strip()
-
-        cmd = {'post': 'create',
-               'put': 'set'}.get(method, method)
-
-        #for 'upload' call some workaround
-        tmp_filename = ''
-        if url.endswith('upload'):
-            #copy file to temporary location on proxmox host
-            tmp_filename, _ = self._exec(
-                "python -c 'import tempfile; tf = tempfile.NamedTemporaryFile(); print tf.name'")
-            self.upload_file_obj(data['filename'], tmp_filename)
-            data['filename'] = data['filename'].name
-            data['tmpfilename'] = tmp_filename
-
-        translated_data = ' '.join(["-{0} {1}".format(k, v) for k, v in chain(data.iteritems(), params.iteritems())])
-        full_cmd = 'pvesh {0}'.format(' '.join(filter(None, (cmd, url, translated_data))))
-
-        stdout, stderr = self._exec(full_cmd)
-        return Response(stdout, int(stderr.split()[0]))
 
     def upload_file_obj(self, file_obj, remote_path):
         sftp = self.ssh_client.open_sftp()
@@ -89,16 +63,7 @@ class ProxmoxParamikoSession(object):
         remote_file.close()
 
 
-class JsonSimpleSerializer(object):
-
-    def loads(self, response):
-        try:
-            return json.loads(response.content)
-        except ValueError:
-            return response.content
-
-
-class Backend(object):
+class Backend(BaseBackend):
     def __init__(self, host, user, password=None, private_key_file=None, port=22, timeout=5):
         self.session = ProxmoxParamikoSession(host, user,
                                               password=password,
@@ -106,12 +71,4 @@ class Backend(object):
                                               port=port,
                                               timeout=timeout)
 
-    def get_session(self):
-        return self.session
-
-    def get_base_url(self):
-        return ''
-
-    def get_serializer(self):
-        return JsonSimpleSerializer()
 

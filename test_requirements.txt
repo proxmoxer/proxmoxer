@@ -3,3 +3,5 @@ nose
 requests
 coveralls
 paramiko
+openssh_wrapper
+

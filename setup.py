@@ -34,8 +34,8 @@ setup(
     download_url = 'http://pypi.python.org/pypi/proxmoxer',
     keywords = ['proxmox', 'api'],
     packages=['proxmoxer', 'proxmoxer.backends'],
-    classifiers = [
-        "Development Status :: 3 - Alpha",
+    classifiers = [ #http://pypi.python.org/pypi?%3Aaction=list_classifiers
+        "Development Status :: 4 - Beta",
         "Programming Language :: Python",
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.7",

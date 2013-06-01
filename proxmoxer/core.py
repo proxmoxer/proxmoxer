@@ -1,8 +1,15 @@
+__author__ = 'Oleg Butovich'
+__copyright__ = '(c) Oleg Butovich 2013'
+__licence__ = 'MIT'
+
 import httplib
 import os
 import imp
 import urlparse
 import posixpath
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class ProxmoxResourceBase(object):
@@ -49,7 +56,12 @@ class ProxmoxResource(ProxmoxResourceBase):
 
     def _request(self, method, data=None, params=None):
         url = self._store["base_url"]
+        if data:
+            logger.info('%s %s %r', method, url, data)
+        else:
+            logger.info('%s %s', method, url)
         resp = self._store["session"].request(method, url, data=data or None, params=params)
+        logger.debug('Status code: %s, output: %s', resp.status_code, resp.content)
 
         if resp.status_code >= 400:
             raise ResourceException("{0} {1}".format(resp.status_code, httplib.responses[resp.status_code]))

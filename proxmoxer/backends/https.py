@@ -1,7 +1,18 @@
+__author__ = 'Oleg Butovich'
+__copyright__ = '(c) Oleg Butovich 2013'
+__licence__ = 'MIT'
+
+
 import json
-import requests
-from requests.auth import AuthBase
-from requests.cookies import cookiejar_from_dict
+
+try:
+    import requests
+    from requests.auth import AuthBase
+    from requests.cookies import cookiejar_from_dict
+except ImportError:
+    import sys
+    sys.stderr.write("Chosen backend requires 'requests' module\n")
+    sys.exit(1)
 
 
 class ProxmoxHTTPAuth(AuthBase):

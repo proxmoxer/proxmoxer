@@ -67,7 +67,7 @@ synonyms: **create** for **post**, and **set** for **put**.
 .. code-block:: python
 
     for node in proxmox.nodes.get():
-        for vm in proxmox.nodes(node['node']).openvz.get()):
+        for vm in proxmox.nodes(node['node']).openvz.get():
             print "{0}. {1} => {2}" .format(vm['vmid'], vm['name'], vm['status'])
 
     >>> 141. puppet-2.london.baseblack.com => running

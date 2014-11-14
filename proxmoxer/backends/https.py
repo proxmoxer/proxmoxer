@@ -19,7 +19,7 @@ class ProxmoxHTTPAuth(AuthBase):
     def __init__(self, base_url, username, password):
         response_data = requests.post(base_url + "/access/ticket",
                                       verify=False,
-                                      data={"username": username, "password": password}).json["data"]
+                                      data={"username": username, "password": password}).json()["data"]
 
         self.pve_auth_cookie = response_data["ticket"]
         self.csrf_prevention_token = response_data["CSRFPreventionToken"]

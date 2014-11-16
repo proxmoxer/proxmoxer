@@ -163,6 +163,10 @@ Roadmap
 History
 -------
 
+0.1.6 (2014-11-16)
+..................
+* Added ignore of "InsecureRequestWarning: Unverified HTTPS request is being made..." warning while using https (requests) backend.
+
 0.1.4 (2013-06-01)
 ..................
 * Added logging

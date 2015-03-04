@@ -2,12 +2,24 @@ __author__ = 'Oleg Butovich'
 __copyright__ = '(c) Oleg Butovich 2013'
 __licence__ = 'MIT'
 
-import httplib
 import os
 import imp
-import urlparse
 import posixpath
 import logging
+
+# Python 3 compatibility:
+try:
+    import httplib
+except ImportError:  # py3
+    from http import client as httplib
+try:
+    import urlparse
+except ImportError:  # py3
+    from urllib import parse as urlparse
+try:
+    basestring
+except NameError:  # py3
+    basestring = (bytes, str)
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +42,7 @@ class ProxmoxResourceBase(object):
         return urlparse.urlunsplit([scheme, netloc, path, query, fragment])
 
 
-class ResourceException(StandardError):
+class ResourceException(Exception):
     pass
 
 

@@ -100,6 +100,12 @@ Some more examples:
 
 .. code-block:: python
 
+    for vm in proxmox.cluster.resources.get(type='vm'):
+        print("{0}. {1} => {2}" .format(vm['vmid'], vm['name'], vm['status']))
+
+
+.. code-block:: python
+
     node = proxmox.nodes('proxmox_node')
     pprint(node.storage('local').content.get())
 

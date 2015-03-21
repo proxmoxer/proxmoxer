@@ -39,7 +39,7 @@ class ProxmoxBaseSSHSession(object):
             data['filename'] = data['filename'].name
             data['tmpfilename'] = tmp_filename
 
-        translated_data = ' '.join(["-{0} {1}".format(k, v) for k, v in chain(data.iteritems(), params.iteritems())])
+        translated_data = ' '.join(["-{0} {1}".format(k, v) for k, v in chain(data.items(), params.items())])
         full_cmd = 'pvesh {0}'.format(' '.join(filter(None, (cmd, url, translated_data))))
 
         stdout, stderr = self._exec(full_cmd)

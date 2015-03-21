@@ -5,7 +5,7 @@ __licence__ = 'MIT'
 from mock import patch
 from nose.tools import eq_
 from proxmoxer import ProxmoxAPI
-from base.base_ssh_suite import BaseSSHSuite
+from .base.base_ssh_suite import BaseSSHSuite
 
 
 @patch('paramiko.SSHClient')

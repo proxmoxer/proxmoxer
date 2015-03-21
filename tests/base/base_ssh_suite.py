@@ -2,7 +2,13 @@ __author__ = 'Oleg Butovich'
 __copyright__ = '(c) Oleg Butovich 2013'
 __licence__ = 'MIT'
 
-from itertools import izip, islice
+from itertools import islice
+
+try:
+    import itertools.izip as zip
+except ImportError:
+    pass
+
 from nose.tools import eq_, ok_
 
 
@@ -15,7 +21,7 @@ class BaseSSHSuite():
         splitted = cmd.split()
         eq_(splitted[0], 'pvesh')
         options_set = set((' '.join((k, v)) for k, v in
-                           izip(islice(splitted, 3, None, 2), islice(splitted, 4, None, 2))))
+                           zip(islice(splitted, 3, None, 2), islice(splitted, 4, None, 2))))
         return ' '.join(splitted[1:3]), options_set
 
     def _get_called_cmd(self):

@@ -169,6 +169,12 @@ Roadmap
 History
 -------
 
+0.2.0 (2015-03-21)
+..................
+* Https will now raise AuthenticationError when appropriate. (`scap1784 <https://github.com/scap1784>`_)
+* Preliminary python 3 compatibility. (`wdoekes <https://github.com/wdoekes>`_)
+* Additional example. (`wdoekes <https://github.com/wdoekes>`_)
+
 0.1.7 (2014-11-16)
 ..................
 * Added ignore of "InsecureRequestWarning: Unverified HTTPS request is being made..." warning while using https (requests) backend.

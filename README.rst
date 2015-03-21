@@ -188,17 +188,17 @@ History
 ..................
 * Initial try.
 
-.. |master_build_status| image:: https://travis-ci.org/scap1784/proxmoxer.png?branch=master
-    :target: https://travis-ci.org/scap1784/proxmoxer
+.. |master_build_status| image:: https://travis-ci.org/swayf/proxmoxer.png?branch=master
+    :target: https://travis-ci.org/swayf/proxmoxer
 
 .. |master_coverage_status| image:: https://coveralls.io/repos/swayf/proxmoxer/badge.png?branch=master
-    :target: https://coveralls.io/r/scap1784/proxmoxer
+    :target: https://coveralls.io/r/swayf/proxmoxer
 
 .. |develop_build_status| image:: https://travis-ci.org/swayf/proxmoxer.png?branch=develop
-    :target: https://travis-ci.org/scap1784/proxmoxer
+    :target: https://travis-ci.org/swayf/proxmoxer
 
 .. |develop_coverage_status| image:: https://coveralls.io/repos/swayf/proxmoxer/badge.png?branch=develop
-    :target: https://coveralls.io/r/scap1784/proxmoxer
+    :target: https://coveralls.io/r/swayf/proxmoxer
 
 .. |pypi_version| image:: https://pypip.in/v/proxmoxer/badge.png
     :target: https://crate.io/packages/proxmoxer

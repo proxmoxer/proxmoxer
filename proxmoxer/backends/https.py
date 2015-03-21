@@ -52,7 +52,7 @@ class JsonSerializer(object):
         "application/x-javascript",
         "text/javascript",
         "text/x-javascript",
-        "text/x-json",
+        "text/x-json"
         ]
 
     def get_accept_types(self):

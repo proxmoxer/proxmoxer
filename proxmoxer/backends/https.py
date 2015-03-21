@@ -56,12 +56,12 @@ class JsonSerializer(object):
         ]
 
     def get_accept_types(self):
-        return self.content_types
+        return ", ".join(self.content_types)
 
     def loads(self, response):
         try:
-            return json.loads(response.content)['data']
-        except ValueError:
+            return json.loads(response.content.decode('utf-8'))['data']
+        except (UnicodeDecodeError, ValueError):
             return response.content
 
 
@@ -74,7 +74,7 @@ class ProxmoxHttpSession(requests.Session):
         #filter out streams
         files = files or {}
         data = data or {}
-        for k, v in data.copy().iteritems():
+        for k, v in data.copy().items():
             if isinstance(v, file):
                 files[k] = v
                 del data[k]

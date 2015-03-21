@@ -17,11 +17,25 @@ except ImportError:
     sys.exit(1)
 
 
+class AuthenticationError(Exception):
+    def __init__(self, msg):
+        super(AuthenticationError, self).__init__(msg)
+        self.msg = msg
+
+    def __str__(self):
+        return self.msg
+
+    def __repr__(self):
+        return self.__str__()
+
+
 class ProxmoxHTTPAuth(AuthBase):
     def __init__(self, base_url, username, password):
         response_data = requests.post(base_url + "/access/ticket",
                                       verify=False,
                                       data={"username": username, "password": password}).json()["data"]
+        if response_data is None:
+            raise AuthenticationError("Couldn't authenticate user: {0} to {1}".format(username, base_url + "/access/ticket"))
 
         self.pve_auth_cookie = response_data["ticket"]
         self.csrf_prevention_token = response_data["CSRFPreventionToken"]
@@ -38,16 +52,16 @@ class JsonSerializer(object):
         "application/x-javascript",
         "text/javascript",
         "text/x-javascript",
-        "text/x-json",
-    ]
+        "text/x-json"
+        ]
 
     def get_accept_types(self):
-        return self.content_types
+        return ", ".join(self.content_types)
 
     def loads(self, response):
         try:
-            return json.loads(response.content)['data']
-        except ValueError:
+            return json.loads(response.content.decode('utf-8'))['data']
+        except (UnicodeDecodeError, ValueError):
             return response.content
 
 
@@ -60,7 +74,7 @@ class ProxmoxHttpSession(requests.Session):
         #filter out streams
         files = files or {}
         data = data or {}
-        for k, v in data.copy().iteritems():
+        for k, v in data.copy().items():
             if isinstance(v, file):
                 files[k] = v
                 del data[k]

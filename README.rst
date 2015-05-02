@@ -169,6 +169,10 @@ Roadmap
 History
 -------
 
+0.2.1 (2015-05-02)
+..................
+* fix for python 3.4 (`kokuev <https://github.com/kokuev>`_)
+
 0.2.0 (2015-03-21)
 ..................
 * Https will now raise AuthenticationError when appropriate. (`scap1784 <https://github.com/scap1784>`_)

@@ -4,6 +4,7 @@ __licence__ = 'MIT'
 
 
 import json
+import sys
 
 try:
     import requests
@@ -15,6 +16,13 @@ except ImportError:
     import sys
     sys.stderr.write("Chosen backend requires 'requests' module\n")
     sys.exit(1)
+
+
+if sys.version_info[0] >= 3:
+    import io
+    def is_file(obj): return isinstance(obj, io.IOBase)
+else:
+    def is_file(obj): return isinstance(obj, file)
 
 
 class AuthenticationError(Exception):
@@ -75,7 +83,7 @@ class ProxmoxHttpSession(requests.Session):
         files = files or {}
         data = data or {}
         for k, v in data.copy().items():
-            if isinstance(v, file):
+            if is_file(v):
                 files[k] = v
                 del data[k]
 

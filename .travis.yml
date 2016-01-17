@@ -6,6 +6,6 @@ install:
   - pip install . --use-mirrors
   - pip install -r test_requirements.txt --use-mirrors
 script:
-  - nosetests --with-coverage --cover-erase --cover-branches --cover-package=proxmoxer.backends.https  -w tests
+  - nosetests --with-coverage --cover-erase --cover-branches --cover-package=proxmoxer  -w tests
 after_success:
   - coveralls

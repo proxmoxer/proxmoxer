@@ -169,6 +169,11 @@ Roadmap
 History
 -------
 
+0.2.2 (2016-01-19)
+..................
+* Adding sudo to execute pvesh CLI in openssh backend (`Wei Tie <https://github.com/TieWei>`_, `Srinivas Sakhamuri <https://github.com/srsakhamuri>`_)
+* Add support to specify an identity file for ssh connections (`Srinivas Sakhamuri <https://github.com/srsakhamuri>`_)
+
 0.2.1 (2015-05-02)
 ..................
 * fix for python 3.4 (`kokuev <https://github.com/kokuev>`_)

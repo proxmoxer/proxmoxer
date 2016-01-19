@@ -20,7 +20,8 @@ class ProxmoxOpenSSHSession(ProxmoxBaseSSHSession):
                  port=22,
                  timeout=5,
                  forward_ssh_agent=False,
-                 sudo=False):
+                 sudo=False,
+                 identity_file=None):
         self.host = host
         self.username = username
         self.configfile = configfile
@@ -28,10 +29,12 @@ class ProxmoxOpenSSHSession(ProxmoxBaseSSHSession):
         self.timeout = timeout
         self.forward_ssh_agent = forward_ssh_agent
         self.sudo = sudo
+        self.identify_file = identity_file
         self.ssh_client = openssh_wrapper.SSHConnection(self.host,
                                                         login=self.username,
                                                         port=self.port,
-                                                        timeout=self.timeout)
+                                                        timeout=self.timeout,
+                                                        identify_file=self.identify_file)
 
     def _exec(self, cmd):
         if self.sudo:
@@ -44,10 +47,11 @@ class ProxmoxOpenSSHSession(ProxmoxBaseSSHSession):
 
 
 class Backend(BaseBackend):
-    def __init__(self, host, user, configfile=None, port=22, timeout=5, forward_ssh_agent=False, sudo=False):
+    def __init__(self, host, user, configfile=None, port=22, timeout=5, forward_ssh_agent=False, sudo=False, identity_file=None):
         self.session = ProxmoxOpenSSHSession(host, user,
                                              configfile=configfile,
                                              port=port,
                                              timeout=timeout,
                                              forward_ssh_agent=forward_ssh_agent,
-                                             sudo=sudo)
+                                             sudo=sudo,
+                                             identity_file=identity_file)

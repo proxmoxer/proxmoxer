@@ -29,12 +29,12 @@ class ProxmoxOpenSSHSession(ProxmoxBaseSSHSession):
         self.timeout = timeout
         self.forward_ssh_agent = forward_ssh_agent
         self.sudo = sudo
-        self.identify_file = identity_file
+        self.identity_file = identity_file
         self.ssh_client = openssh_wrapper.SSHConnection(self.host,
                                                         login=self.username,
                                                         port=self.port,
                                                         timeout=self.timeout,
-                                                        identify_file=self.identify_file)
+                                                        identity_file=self.identity_file)
 
     def _exec(self, cmd):
         if self.sudo:

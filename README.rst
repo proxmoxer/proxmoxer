@@ -169,6 +169,10 @@ Roadmap
 History
 -------
 
+0.2.3 (2016-01-20)
+..................
+* Minor typo fix (`Srinivas Sakhamuri <https://github.com/srsakhamuri>`_)
+
 0.2.2 (2016-01-19)
 ..................
 * Adding sudo to execute pvesh CLI in openssh backend (`Wei Tie <https://github.com/TieWei>`_, `Srinivas Sakhamuri <https://github.com/srsakhamuri>`_)
@@ -221,9 +225,9 @@ History
 .. |develop_coverage_status| image:: https://coveralls.io/repos/swayf/proxmoxer/badge.png?branch=develop
     :target: https://coveralls.io/r/swayf/proxmoxer
 
-.. |pypi_version| image:: https://pypip.in/v/proxmoxer/badge.png
-    :target: https://crate.io/packages/proxmoxer
+.. |pypi_version| image:: https://img.shields.io/pypi/v/proxmoxer.svg
+    :target: https://pypi.python.org/pypi/proxmoxer
 
-.. |pypi_downloads| image:: https://pypip.in/d/proxmoxer/badge.png
-    :target: https://crate.io/packages/proxmoxer
+.. |pypi_downloads| image:: https://img.shields.io/pypi/dm/proxmoxer.svg
+    :target: https://pypi.python.org/pypi/proxmoxer
 

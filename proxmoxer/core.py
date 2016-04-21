@@ -3,7 +3,7 @@ __copyright__ = '(c) Oleg Butovich 2013-2016'
 __licence__ = 'MIT'
 
 import os
-import imp
+import importlib
 import posixpath
 import logging
 
@@ -103,8 +103,7 @@ class ProxmoxAPI(ProxmoxResourceBase):
     def __init__(self, host, backend='https', **kwargs):
 
         #load backend module
-        found_module = imp.find_module(backend, [os.path.join(os.path.dirname(__file__), 'backends')])
-        self._backend = imp.load_module(backend, *found_module).Backend(host, **kwargs)
+        self._backend = importlib.import_module('.backends.%s' % backend, 'proxmoxer').Backend(host, **kwargs)
 
         self._store = {
             "base_url": self._backend.get_base_url(),

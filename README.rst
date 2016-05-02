@@ -169,6 +169,11 @@ Roadmap
 History
 -------
 
+0.2.4 (2016-05-02)
+..................
+* Removed newline in tmp_filename string (`Jérôme Schneider <https://github.com/merinos>`)
+* Fix to avoid module reloading (`jklang <https://github.com/jklang>`)
+
 0.2.3 (2016-01-20)
 ..................
 * Minor typo fix (`Srinivas Sakhamuri <https://github.com/srsakhamuri>`_)

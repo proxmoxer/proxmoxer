@@ -34,7 +34,7 @@ class ProxmoxBaseSSHSession(object):
         if url.endswith('upload'):
             #copy file to temporary location on proxmox host
             tmp_filename, _ = self._exec(
-                "python -c 'import tempfile; tf = tempfile.NamedTemporaryFile(); print tf.name'")
+                "python -c 'import tempfile; import sys; tf = tempfile.NamedTemporaryFile(); sys.stdout.write(tf.name)'")
             self.upload_file_obj(data['filename'], tmp_filename)
             data['filename'] = data['filename'].name
             data['tmpfilename'] = tmp_filename

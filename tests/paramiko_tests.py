@@ -42,3 +42,24 @@ class TestParamikoSuite(BaseSSHSuite):
     def _set_stderr(self, stderr):
         self.session.makefile_stderr.return_value = [stderr]
 
+
+class TestParamikoSuiteWithSudo(BaseSSHSuite):
+
+    # noinspection PyMethodOverriding
+    @patch('paramiko.SSHClient')
+    def setUp(self, _):
+        super(TestParamikoSuiteWithSudo, self).__init__(sudo=True)
+        self.proxmox = ProxmoxAPI('proxmox', user='root', backend='ssh_paramiko', port=123, sudo=True)
+        self.client = self.proxmox._store['session'].ssh_client
+        self.session = self.client.get_transport().open_session()
+        self._set_stderr('200 OK')
+        self._set_stdout('')
+
+    def _get_called_cmd(self):
+        return self.session.exec_command.call_args[0][0]
+
+    def _set_stdout(self, stdout):
+        self.session.makefile.return_value = [stdout]
+
+    def _set_stderr(self, stderr):
+        self.session.makefile_stderr.return_value = [stderr]

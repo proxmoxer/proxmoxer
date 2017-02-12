@@ -3,8 +3,8 @@ python:
   - 2.7
   - 3.4
 install:
-  - pip install . --use-mirrors
-  - pip install -r test_requirements.txt --use-mirrors
+  - pip install .
+  - pip install -r test_requirements.txt
 script:
   - nosetests --with-coverage --cover-erase --cover-branches --cover-package=proxmoxer  -w tests
 after_success:

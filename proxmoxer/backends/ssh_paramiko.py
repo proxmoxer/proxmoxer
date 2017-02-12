@@ -20,13 +20,15 @@ class ProxmoxParamikoSession(ProxmoxBaseSSHSession):
                  password=None,
                  private_key_file=None,
                  port=22,
-                 timeout=5):
+                 timeout=5,
+                 sudo=False):
         self.host = host
         self.username = username
         self.password = password
         self.private_key_file = private_key_file
         self.port = port
         self.timeout = timeout
+        self.sudo = sudo
         self.ssh_client = self._connect()
 
     def _connect(self):
@@ -50,6 +52,8 @@ class ProxmoxParamikoSession(ProxmoxBaseSSHSession):
         return ssh_client
 
     def _exec(self, cmd):
+        if self.sudo:
+            cmd = 'sudo ' + cmd
         session = self.ssh_client.get_transport().open_session()
         session.exec_command(cmd)
         stdout = ''.join(session.makefile('rb', -1))
@@ -64,11 +68,12 @@ class ProxmoxParamikoSession(ProxmoxBaseSSHSession):
 
 
 class Backend(BaseBackend):
-    def __init__(self, host, user, password=None, private_key_file=None, port=22, timeout=5):
+    def __init__(self, host, user, password=None, private_key_file=None, port=22, timeout=5, sudo=False):
         self.session = ProxmoxParamikoSession(host, user,
                                               password=password,
                                               private_key_file=private_key_file,
                                               port=port,
-                                              timeout=timeout)
+                                              timeout=timeout,
+                                              sudo=sudo)
 
 

@@ -1,0 +1,11 @@
+.env/
+*.egg-info/
+*.pyc
+.idea
+dist
+build
+.venv
+.coverage
+README.txt
+test.py
+upload.sh

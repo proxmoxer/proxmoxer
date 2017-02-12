@@ -1,5 +1,5 @@
 __author__ = 'Oleg Butovich'
-__copyright__ = '(c) Oleg Butovich 2013-2016'
+__copyright__ = '(c) Oleg Butovich 2013-2017'
 __licence__ = 'MIT'
 
 from itertools import islice
@@ -12,16 +12,25 @@ except ImportError:
 from nose.tools import eq_, ok_
 
 
-class BaseSSHSuite():
+class BaseSSHSuite(object):
     proxmox = None
     client = None
     session = None
 
+    def __init__(self, sudo=False):
+        self.sudo = sudo
+
     def _split_cmd(self, cmd):
         splitted = cmd.split()
-        eq_(splitted[0], 'pvesh')
+        if not self.sudo:
+            eq_(splitted[0], 'pvesh')
+        else:
+            eq_(splitted[0], 'sudo')
+            eq_(splitted[1], 'pvesh')
+            splitted.pop(0)
         options_set = set((' '.join((k, v)) for k, v in
-                           zip(islice(splitted, 3, None, 2), islice(splitted, 4, None, 2))))
+                           zip(islice(splitted, 3, None, 2),
+                               islice(splitted, 4, None, 2))))
         return ' '.join(splitted[1:3]), options_set
 
     def _get_called_cmd(self):
@@ -53,7 +62,7 @@ class BaseSSHSuite():
                }
             ]""")
         result = self.proxmox.nodes('proxmox').storage('local').get()
-        eq_(self._get_called_cmd(), 'pvesh get /nodes/proxmox/storage/local')
+        eq_(self._get_called_cmd(), self._called_cmd('pvesh get /nodes/proxmox/storage/local'))
         eq_(result[0]['subdir'], 'status')
         eq_(result[1]['subdir'], 'content')
         eq_(result[2]['subdir'], 'upload')
@@ -62,11 +71,11 @@ class BaseSSHSuite():
 
     def test_delete(self):
         self.proxmox.nodes('proxmox').openvz(100).delete()
-        eq_(self._get_called_cmd(), 'pvesh delete /nodes/proxmox/openvz/100')
+        eq_(self._get_called_cmd(), self._called_cmd('pvesh delete /nodes/proxmox/openvz/100'))
         self.proxmox.nodes('proxmox').openvz('101').delete()
-        eq_(self._get_called_cmd(), 'pvesh delete /nodes/proxmox/openvz/101')
+        eq_(self._get_called_cmd(), self._called_cmd('pvesh delete /nodes/proxmox/openvz/101'))
         self.proxmox.nodes('proxmox').openvz.delete('102')
-        eq_(self._get_called_cmd(), 'pvesh delete /nodes/proxmox/openvz/102')
+        eq_(self._get_called_cmd(), self._called_cmd('pvesh delete /nodes/proxmox/openvz/102'))
 
     def test_post(self):
         node = self.proxmox.nodes('proxmox')
@@ -135,3 +144,9 @@ class BaseSSHSuite():
         ok_('-ip_address 10.0.100.200' in options)
         ok_('-onboot False' in options)
         ok_('-cpus 2' in options)
+
+    def _called_cmd(self, cmd):
+        called_cmd = cmd
+        if self.sudo:
+            called_cmd = 'sudo ' + cmd
+        return called_cmd

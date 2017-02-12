@@ -62,9 +62,8 @@ class ProxmoxParamikoSession(ProxmoxBaseSSHSession):
 
     def upload_file_obj(self, file_obj, remote_path):
         sftp = self.ssh_client.open_sftp()
-        remote_file = sftp.open(remote_path, 'wb')
-        remote_file.write(file_obj.read())
-        remote_file.close()
+        sftp.putfo(file_obj, remote_path)
+        sftp.close()
 
 
 class Backend(BaseBackend):

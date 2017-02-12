@@ -169,6 +169,11 @@ Roadmap
 History
 -------
 
+0.2.5 (2017-02-12)
+..................
+* Adding sudo to execute CLI with paramiko ssh backend (`Jason Meridth <https://github.com/jmeridth>`)
+* Proxmoxer/backends/ssh_paramiko: improve file upload (`Jérôme Schneider <https://github.com/merinos>`)
+
 0.2.4 (2016-05-02)
 ..................
 * Removed newline in tmp_filename string (`Jérôme Schneider <https://github.com/merinos>`)

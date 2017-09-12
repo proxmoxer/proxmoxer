@@ -117,21 +117,20 @@ or the with same results
     pprint(node.storage.local.content.get())
 
 
-Example of creation of openvz container:
+Example of creation of lxc container:
 
 .. code-block:: python
 
     node = proxmox.nodes('proxmox_node')
-    node.openvz.create(vmid=202,
-                       ostemplate='local:vztmpl/debian-6-turnkey-core_12.0-1_i386.tar.gz',
-                       hostname='turnkey',
-                       storage='local',
-                       memory=512,
-                       swap=512,
-                       cpus=1,
-                       disk=4,
-                       password='secret',
-                       ip_address='10.0.0.202')
+    node.lxc.create(vmid=202,
+        ostemplate='local:vztmpl/debian-9.0-standard_20170530_amd64.tar.gz',
+        hostname='debian-stretch',
+        storage='local',
+        memory=512,
+        swap=512,
+        cores=1,
+        password='secret',
+        net0='name=eth0,bridge=vmbr0,ip=192.168.22.1/20,gw=192.168.16.1')
 
 Example of template upload:
 

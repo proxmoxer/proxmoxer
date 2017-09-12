@@ -10,7 +10,7 @@ develop branch: |develop_build_status| |develop_coverage_status|
 What does it do and what's different?
 -------------------------------------
 
-Proxmoxer is a wrapper around the `Proxmox REST API v2 <http://pve.proxmox.com/pve2-api-doc/>`_.
+Proxmoxer is a wrapper around the `Proxmox REST API v2 <https://pve.proxmox.com/wiki/Proxmox_VE_API>`_.
 
 It was inspired by slumber, but it dedicated only to Proxmox. It allows to use not only REST API over HTTPS, but
 the same api over ssh and pvesh utility.

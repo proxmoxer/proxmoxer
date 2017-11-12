@@ -168,15 +168,21 @@ Roadmap
 History
 -------
 
+0.2.6 (2017-11-12)
+..................
+* Update Proxmoxer readme (`Emmanuel Kasper <https://github.com/EmmanuelKasper>`_)
+* Display the reason of API calls errors (`Emmanuel Kasper <https://github.com/EmmanuelKasper>`_, `kantsdog <https://github.com/kantsdog>`_)
+* Filter for ssh response code (`Chris Plock <https://github.com/chrisplo>`_)
+
 0.2.5 (2017-02-12)
 ..................
-* Adding sudo to execute CLI with paramiko ssh backend (`Jason Meridth <https://github.com/jmeridth>`)
-* Proxmoxer/backends/ssh_paramiko: improve file upload (`Jérôme Schneider <https://github.com/merinos>`)
+* Adding sudo to execute CLI with paramiko ssh backend (`Jason Meridth <https://github.com/jmeridth>`_)
+* Proxmoxer/backends/ssh_paramiko: improve file upload (`Jérôme Schneider <https://github.com/merinos>`_)
 
 0.2.4 (2016-05-02)
 ..................
-* Removed newline in tmp_filename string (`Jérôme Schneider <https://github.com/merinos>`)
-* Fix to avoid module reloading (`jklang <https://github.com/jklang>`)
+* Removed newline in tmp_filename string (`Jérôme Schneider <https://github.com/merinos>`_)
+* Fix to avoid module reloading (`jklang <https://github.com/jklang>`_)
 
 0.2.3 (2016-01-20)
 ..................

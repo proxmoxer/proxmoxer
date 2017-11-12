@@ -168,7 +168,7 @@ Roadmap
 History
 -------
 
-0.2.6 (2017-11-12)
+1.0.0 (2017-11-12)
 ..................
 * Update Proxmoxer readme (`Emmanuel Kasper <https://github.com/EmmanuelKasper>`_)
 * Display the reason of API calls errors (`Emmanuel Kasper <https://github.com/EmmanuelKasper>`_, `kantsdog <https://github.com/kantsdog>`_)

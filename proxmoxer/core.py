@@ -2,7 +2,6 @@ __author__ = 'Oleg Butovich'
 __copyright__ = '(c) Oleg Butovich 2013-2017'
 __licence__ = 'MIT'
 
-import os
 import importlib
 import posixpath
 import logging
@@ -104,9 +103,20 @@ class ProxmoxAPI(ProxmoxResourceBase):
 
         #load backend module
         self._backend = importlib.import_module('.backends.%s' % backend, 'proxmoxer').Backend(host, **kwargs)
+        self._backend_name = backend
 
         self._store = {
             "base_url": self._backend.get_base_url(),
             "session": self._backend.get_session(),
             "serializer": self._backend.get_serializer(),
         }
+
+    def get_tokens(self):
+        """Return the auth and csrf tokens.
+
+        Returns (None, None) if the backend is not https.
+        """
+        if self._backend_name != 'https':
+            return None, None
+
+        return self._backend.get_tokens()

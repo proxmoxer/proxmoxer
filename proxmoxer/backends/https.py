@@ -53,6 +53,17 @@ class ProxmoxHTTPAuth(AuthBase):
         return r
 
 
+class ProxmoxHTTPTokenAuth(ProxmoxHTTPAuth):
+    """Use existing ticket/token to create a session.
+
+    Overrides ProxmoxHTTPAuth so that an existing auth cookie and csrf token
+    may be used instead of passing username/password.
+    """
+    def __init__(self, auth_token, csrf_token):
+        self.pve_auth_cookie = auth_token
+        self.csrf_prevention_token = csrf_token
+
+
 class JsonSerializer(object):
 
     content_types = [
@@ -96,9 +107,13 @@ class ProxmoxHttpSession(requests.Session):
 
 
 class Backend(object):
-    def __init__(self, host, user, password, port=8006, verify_ssl=True, mode='json', timeout=5):
+    def __init__(self, host, user, password, port=8006, verify_ssl=True,
+                 mode='json', timeout=5, auth_token=None, csrf_token=None):
         self.base_url = "https://{0}:{1}/api2/{2}".format(host, port, mode)
-        self.auth = ProxmoxHTTPAuth(self.base_url, user, password)
+        if auth_token is not None:
+            self.auth = ProxmoxHTTPTokenAuth(auth_token, csrf_token)
+        else:
+            self.auth = ProxmoxHTTPAuth(self.base_url, user, password)
         self.verify_ssl = verify_ssl
         self.mode = mode
         self.timeout = timeout
@@ -118,3 +133,7 @@ class Backend(object):
     def get_serializer(self):
         assert self.mode == 'json'
         return JsonSerializer()
+
+    def get_tokens(self):
+        """Return the in-use auth and csrf tokens."""
+        return self.auth.pve_auth_cookie, self.auth.csrf_prevention_token

@@ -10,7 +10,7 @@ develop branch: |develop_build_status| |develop_coverage_status|
 What does it do and what's different?
 -------------------------------------
 
-Proxmoxer is a wrapper around the `Proxmox REST API v2 <http://pve.proxmox.com/pve2-api-doc/>`_.
+Proxmoxer is a wrapper around the `Proxmox REST API v2 <https://pve.proxmox.com/wiki/Proxmox_VE_API>`_.
 
 It was inspired by slumber, but it dedicated only to Proxmox. It allows to use not only REST API over HTTPS, but
 the same api over ssh and pvesh utility.
@@ -117,21 +117,20 @@ or the with same results
     pprint(node.storage.local.content.get())
 
 
-Example of creation of openvz container:
+Example of creation of lxc container:
 
 .. code-block:: python
 
     node = proxmox.nodes('proxmox_node')
-    node.openvz.create(vmid=202,
-                       ostemplate='local:vztmpl/debian-6-turnkey-core_12.0-1_i386.tar.gz',
-                       hostname='turnkey',
-                       storage='local',
-                       memory=512,
-                       swap=512,
-                       cpus=1,
-                       disk=4,
-                       password='secret',
-                       ip_address='10.0.0.202')
+    node.lxc.create(vmid=202,
+        ostemplate='local:vztmpl/debian-9.0-standard_20170530_amd64.tar.gz',
+        hostname='debian-stretch',
+        storage='local',
+        memory=512,
+        swap=512,
+        cores=1,
+        password='secret',
+        net0='name=eth0,bridge=vmbr0,ip=192.168.22.1/20,gw=192.168.16.1')
 
 Example of template upload:
 
@@ -169,15 +168,21 @@ Roadmap
 History
 -------
 
+0.2.6 (2017-11-12)
+..................
+* Update Proxmoxer readme (`Emmanuel Kasper <https://github.com/EmmanuelKasper>`_)
+* Display the reason of API calls errors (`Emmanuel Kasper <https://github.com/EmmanuelKasper>`_, `kantsdog <https://github.com/kantsdog>`_)
+* Filter for ssh response code (`Chris Plock <https://github.com/chrisplo>`_)
+
 0.2.5 (2017-02-12)
 ..................
-* Adding sudo to execute CLI with paramiko ssh backend (`Jason Meridth <https://github.com/jmeridth>`)
-* Proxmoxer/backends/ssh_paramiko: improve file upload (`Jérôme Schneider <https://github.com/merinos>`)
+* Adding sudo to execute CLI with paramiko ssh backend (`Jason Meridth <https://github.com/jmeridth>`_)
+* Proxmoxer/backends/ssh_paramiko: improve file upload (`Jérôme Schneider <https://github.com/merinos>`_)
 
 0.2.4 (2016-05-02)
 ..................
-* Removed newline in tmp_filename string (`Jérôme Schneider <https://github.com/merinos>`)
-* Fix to avoid module reloading (`jklang <https://github.com/jklang>`)
+* Removed newline in tmp_filename string (`Jérôme Schneider <https://github.com/merinos>`_)
+* Fix to avoid module reloading (`jklang <https://github.com/jklang>`_)
 
 0.2.3 (2016-01-20)
 ..................

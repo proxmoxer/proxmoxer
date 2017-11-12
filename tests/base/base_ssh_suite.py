@@ -9,8 +9,8 @@ try:
 except ImportError:
     pass
 
-from nose.tools import eq_, ok_
-
+from nose.tools import eq_, ok_, raises
+from proxmoxer.core import ResourceException
 
 class BaseSSHSuite(object):
     proxmox = None
@@ -144,6 +144,20 @@ class BaseSSHSuite(object):
         ok_('-ip_address 10.0.100.200' in options)
         ok_('-onboot False' in options)
         ok_('-cpus 2' in options)
+
+    @raises(ResourceException)
+    def test_error(self):
+        self._set_stderr("500 whoops")
+        self.proxmox.nodes('proxmox').get()
+
+    def test_no_error_with_extra_output(self):
+        self._set_stderr("Extra output\n200 OK")
+        self.proxmox.nodes('proxmox').get()
+
+    @raises(ResourceException)
+    def test_error_with_extra_output(self):
+        self._set_stderr("Extra output\n500 whoops")
+        self.proxmox.nodes('proxmox').get()
 
     def _called_cmd(self, cmd):
         called_cmd = cmd

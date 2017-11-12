@@ -5,6 +5,7 @@ __licence__ = 'MIT'
 
 from itertools import chain
 import json
+import re
 
 
 class Response(object):
@@ -43,10 +44,11 @@ class ProxmoxBaseSSHSession(object):
         full_cmd = 'pvesh {0}'.format(' '.join(filter(None, (cmd, url, translated_data))))
 
         stdout, stderr = self._exec(full_cmd)
-        try:
-            status_code = int(stderr.split()[0])
-        except:
-            status_code = 500
+        match = lambda s: re.match('\d\d\d [a-zA-Z]', s)
+        # sometimes contains extra text like 'trying to acquire lock...OK'
+        status_code = next(
+            (int(s.split()[0]) for s in stderr.splitlines() if match(s)),
+            500)
         return Response(stdout, status_code)
 
     def upload_file_obj(self, file_obj, remote_path):

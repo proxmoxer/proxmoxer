@@ -168,6 +168,10 @@ Roadmap
 History
 -------
 
+1.0.2 (2017-12-02)
+..................
+* Tarball repackaged with tests
+
 1.0.1 (2017-12-02)
 ..................
 * LICENSE file now included in tarball

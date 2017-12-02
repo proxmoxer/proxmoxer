@@ -33,7 +33,7 @@ setup(
     url = 'https://github.com/swayf/proxmoxer',
     download_url = 'http://pypi.python.org/pypi/proxmoxer',
     keywords = ['proxmox', 'api'],
-    packages=['proxmoxer', 'proxmoxer.backends'],
+    packages=['proxmoxer', 'proxmoxer.backends', 'tests', 'tests.base'],
     classifiers = [ #http://pypi.python.org/pypi?%3Aaction=list_classifiers
         "Development Status :: 4 - Beta",
         "Programming Language :: Python",

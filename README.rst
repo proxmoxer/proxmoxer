@@ -168,6 +168,11 @@ Roadmap
 History
 -------
 
+1.0.1 (2017-12-02)
+..................
+* LICENSE file now included in tarball
+* Added verify_ssl parameter to ProxmoxHTTPAuth (`Walter Doekes <https://github.com/wdoekes>`_)
+
 1.0.0 (2017-11-12)
 ..................
 * Update Proxmoxer readme (`Emmanuel Kasper <https://github.com/EmmanuelKasper>`_)

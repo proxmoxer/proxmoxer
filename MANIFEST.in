@@ -1,0 +1,4 @@
+include LICENSE.txt
+include README.txt
+include README.rst
+global-exclude *.orig *.pyc *.log *.swp

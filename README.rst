@@ -132,6 +132,23 @@ Example of creation of lxc container:
         password='secret',
         net0='name=eth0,bridge=vmbr0,ip=192.168.22.1/20,gw=192.168.16.1')
 
+Example of creating the same lxc container with parameters in a dictonary.
+This approach allows to add ``ssh-public-keys`` without getting syntax errors.
+
+.. code-block:: python
+
+    newcontainer = { 'vmid': 202,
+        'ostemplate': 'local:vztmpl/debian-9.0-standard_20170530_amd64.tar.gz',
+        'hostname': 'debian-stretch',
+        'storage': 'local',
+        'memory': 512,
+        'swap': 512,
+        'cores': 1,
+        'password': 'secret',
+        'net0': 'name=eth0,bridge=vmbr0,ip=192.168.22.1/20,gw=192.168.16.1' }
+    node = proxmox.nodes('proxmox_node')
+    node.lxc.create(**newcontainer)
+
 Example of template upload:
 
 .. code-block:: python

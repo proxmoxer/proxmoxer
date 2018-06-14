@@ -20,6 +20,32 @@ def test_https_connection(req_session):
     eq_(call['verify'], False)
 
 
+@patch('requests.sessions.Session')
+def test_https_connection_wth_port_in_host(req_session):
+    response = {'ticket': 'ticket',
+                'CSRFPreventionToken': 'CSRFPreventionToken'}
+    req_session.request.return_value = response
+    ProxmoxAPI('proxmox:123', user='root@pam', password='secret', port=124, verify_ssl=False)
+    call = req_session.return_value.request.call_args[1]
+    eq_(call['url'], 'https://proxmox:123/api2/json/access/ticket')
+    eq_(call['data'], {'username': 'root@pam', 'password': 'secret'})
+    eq_(call['method'], 'post')
+    eq_(call['verify'], False)
+
+
+@patch('requests.sessions.Session')
+def test_https_connection_wth_bad_port_in_host(req_session):
+    response = {'ticket': 'ticket',
+                'CSRFPreventionToken': 'CSRFPreventionToken'}
+    req_session.request.return_value = response
+    ProxmoxAPI('proxmox:notaport', user='root@pam', password='secret', port=124, verify_ssl=False)
+    call = req_session.return_value.request.call_args[1]
+    eq_(call['url'], 'https://proxmox:124/api2/json/access/ticket')
+    eq_(call['data'], {'username': 'root@pam', 'password': 'secret'})
+    eq_(call['method'], 'post')
+    eq_(call['verify'], False)
+
+
 class TestSuite():
     proxmox = None
     serializer = None

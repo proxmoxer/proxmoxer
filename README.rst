@@ -185,6 +185,13 @@ Roadmap
 History
 -------
 
+1.0.3 (1018-09-10)
+..................
+* Improvement: Added option to specify port in hostname parameter (`pvanagtmaal <https://github.com/pvanagtmaal>`_)
+* Improvement: Added stderr to the Response content (`Jérôme Schneider <https://github.com/merinos>`_)
+* Bugfix: Paramiko python3: stdout and stderr must be a str not bytes (`Jérôme Schneider <https://github.com/merinos>`_)
+* New lxc example in docu (`Geert Stappers <https://github.com/stappersg>`_)
+
 1.0.2 (2017-12-02)
 ..................
 * Tarball repackaged with tests

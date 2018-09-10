@@ -2,6 +2,7 @@ __author__ = 'Oleg Butovich'
 __copyright__ = '(c) Oleg Butovich 2013-2017'
 __licence__ = 'MIT'
 
+import io
 from mock import patch
 from nose.tools import eq_
 from proxmoxer import ProxmoxAPI
@@ -37,10 +38,10 @@ class TestParamikoSuite(BaseSSHSuite):
         return self.session.exec_command.call_args[0][0]
 
     def _set_stdout(self, stdout):
-        self.session.makefile.return_value = [stdout]
+        self.session.makefile.return_value = io.BytesIO(stdout.encode('utf-8'))
 
     def _set_stderr(self, stderr):
-        self.session.makefile_stderr.return_value = [stderr]
+        self.session.makefile_stderr.return_value = io.BytesIO(stderr.encode('utf-8'))
 
 
 class TestParamikoSuiteWithSudo(BaseSSHSuite):
@@ -59,7 +60,7 @@ class TestParamikoSuiteWithSudo(BaseSSHSuite):
         return self.session.exec_command.call_args[0][0]
 
     def _set_stdout(self, stdout):
-        self.session.makefile.return_value = [stdout]
+        self.session.makefile.return_value = io.BytesIO(stdout.encode('utf-8'))
 
     def _set_stderr(self, stderr):
-        self.session.makefile_stderr.return_value = [stderr]
+        self.session.makefile_stderr.return_value = io.BytesIO(stderr.encode('utf-8'))

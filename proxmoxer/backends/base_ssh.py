@@ -49,7 +49,10 @@ class ProxmoxBaseSSHSession(object):
         status_code = next(
             (int(s.split()[0]) for s in stderr.splitlines() if match(s)),
             500)
-        return Response(stdout, status_code)
+        if stdout:
+            return Response(stdout, status_code)
+        else:
+            return Response(stderr, status_code)
 
     def upload_file_obj(self, file_obj, remote_path):
         raise NotImplementedError()

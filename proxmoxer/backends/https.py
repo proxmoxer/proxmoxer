@@ -90,6 +90,10 @@ class ProxmoxHttpSession(requests.Session):
                 timeout=None, allow_redirects=True, proxies=None, hooks=None, stream=None, verify=None, cert=None,
                 serializer=None):
 
+        # take set verify flag from session request does not have this parameter explicitly
+        if verify is None:
+            verify = self.verify
+
         #filter out streams
         files = files or {}
         data = data or {}
@@ -109,7 +113,12 @@ class ProxmoxHttpSession(requests.Session):
 class Backend(object):
     def __init__(self, host, user, password, port=8006, verify_ssl=True,
                  mode='json', timeout=5, auth_token=None, csrf_token=None):
+        if ':' in host:
+            host, host_port = host.split(':')
+            port = host_port if host_port.isdigit() else port
+
         self.base_url = "https://{0}:{1}/api2/{2}".format(host, port, mode)
+
         if auth_token is not None:
             self.auth = ProxmoxHTTPTokenAuth(auth_token, csrf_token)
         else:

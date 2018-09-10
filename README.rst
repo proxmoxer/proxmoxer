@@ -10,7 +10,7 @@ develop branch: |develop_build_status| |develop_coverage_status|
 What does it do and what's different?
 -------------------------------------
 
-Proxmoxer is a wrapper around the `Proxmox REST API v2 <https://pve.proxmox.com/wiki/Proxmox_VE_API>`_.
+Proxmoxer is a wrapper around the `Proxmox REST API v2 <https://pve.proxmox.com/pve-docs/api-viewer/index.html>`_.
 
 It was inspired by slumber, but it dedicated only to Proxmox. It allows to use not only REST API over HTTPS, but
 the same api over ssh and pvesh utility.
@@ -132,6 +132,23 @@ Example of creation of lxc container:
         password='secret',
         net0='name=eth0,bridge=vmbr0,ip=192.168.22.1/20,gw=192.168.16.1')
 
+Example of creating the same lxc container with parameters in a dictonary.
+This approach allows to add ``ssh-public-keys`` without getting syntax errors.
+
+.. code-block:: python
+
+    newcontainer = { 'vmid': 202,
+        'ostemplate': 'local:vztmpl/debian-9.0-standard_20170530_amd64.tar.gz',
+        'hostname': 'debian-stretch',
+        'storage': 'local',
+        'memory': 512,
+        'swap': 512,
+        'cores': 1,
+        'password': 'secret',
+        'net0': 'name=eth0,bridge=vmbr0,ip=192.168.22.1/20,gw=192.168.16.1' }
+    node = proxmox.nodes('proxmox_node')
+    node.lxc.create(**newcontainer)
+
 Example of template upload:
 
 .. code-block:: python
@@ -167,6 +184,13 @@ Roadmap
 
 History
 -------
+
+1.0.3 (1018-09-10)
+..................
+* Improvement: Added option to specify port in hostname parameter (`pvanagtmaal <https://github.com/pvanagtmaal>`_)
+* Improvement: Added stderr to the Response content (`Jérôme Schneider <https://github.com/merinos>`_)
+* Bugfix: Paramiko python3: stdout and stderr must be a str not bytes (`Jérôme Schneider <https://github.com/merinos>`_)
+* New lxc example in docu (`Geert Stappers <https://github.com/stappersg>`_)
 
 1.0.2 (2017-12-02)
 ..................

@@ -38,9 +38,10 @@ class AuthenticationError(Exception):
 
 
 class ProxmoxHTTPAuth(AuthBase):
-    def __init__(self, base_url, username, password, verify_ssl=False):
+    def __init__(self, base_url, username, password, verify_ssl=False, timeout=5):
         response_data = requests.post(base_url + "/access/ticket",
                                       verify=verify_ssl,
+                                      timeout=timeout,
                                       data={"username": username, "password": password}).json()["data"]
         if response_data is None:
             raise AuthenticationError("Couldn't authenticate user: {0} to {1}".format(username, base_url + "/access/ticket"))
@@ -122,7 +123,7 @@ class Backend(object):
         if auth_token is not None:
             self.auth = ProxmoxHTTPTokenAuth(auth_token, csrf_token)
         else:
-            self.auth = ProxmoxHTTPAuth(self.base_url, user, password, verify_ssl)
+            self.auth = ProxmoxHTTPAuth(self.base_url, user, password, verify_ssl, timeout)
         self.verify_ssl = verify_ssl
         self.mode = mode
         self.timeout = timeout

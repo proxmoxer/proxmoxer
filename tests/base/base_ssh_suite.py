@@ -62,7 +62,7 @@ class BaseSSHSuite(object):
                }
             ]""")
         result = self.proxmox.nodes('proxmox').storage('local').get()
-        eq_(self._get_called_cmd(), self._called_cmd('pvesh get /nodes/proxmox/storage/local'))
+        eq_(self._get_called_cmd(), self._called_cmd('pvesh get /nodes/proxmox/storage/local --output-format json'))
         eq_(result[0]['subdir'], 'status')
         eq_(result[1]['subdir'], 'content')
         eq_(result[2]['subdir'], 'upload')
@@ -71,13 +71,13 @@ class BaseSSHSuite(object):
 
     def test_delete(self):
         self.proxmox.nodes('proxmox').openvz(100).delete()
-        eq_(self._get_called_cmd(), self._called_cmd('pvesh delete /nodes/proxmox/openvz/100'))
+        eq_(self._get_called_cmd(), self._called_cmd('pvesh delete /nodes/proxmox/openvz/100 --output-format json'))
         self._set_stderr("200 OK")
         self.proxmox.nodes('proxmox').openvz('101').delete()
-        eq_(self._get_called_cmd(), self._called_cmd('pvesh delete /nodes/proxmox/openvz/101'))
+        eq_(self._get_called_cmd(), self._called_cmd('pvesh delete /nodes/proxmox/openvz/101 --output-format json'))
         self._set_stderr("200 OK")
         self.proxmox.nodes('proxmox').openvz.delete('102')
-        eq_(self._get_called_cmd(), self._called_cmd('pvesh delete /nodes/proxmox/openvz/102'))
+        eq_(self._get_called_cmd(), self._called_cmd('pvesh delete /nodes/proxmox/openvz/102 --output-format json'))
 
     def test_post(self):
         self._set_stderr("200 OK")

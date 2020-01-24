@@ -7,7 +7,7 @@ from nose.tools import eq_, ok_
 from proxmoxer import ProxmoxAPI
 
 
-@patch('requests.sessions.Session')
+@patch('requests.Session')
 def test_https_connection(req_session):
     response = {'ticket': 'ticket',
                 'CSRFPreventionToken': 'CSRFPreventionToken'}
@@ -20,7 +20,7 @@ def test_https_connection(req_session):
     eq_(call['verify'], False)
 
 
-@patch('requests.sessions.Session')
+@patch('requests.Session')
 def test_https_connection_wth_port_in_host(req_session):
     response = {'ticket': 'ticket',
                 'CSRFPreventionToken': 'CSRFPreventionToken'}
@@ -33,7 +33,7 @@ def test_https_connection_wth_port_in_host(req_session):
     eq_(call['verify'], False)
 
 
-@patch('requests.sessions.Session')
+@patch('requests.Session')
 def test_https_connection_wth_bad_port_in_host(req_session):
     response = {'ticket': 'ticket',
                 'CSRFPreventionToken': 'CSRFPreventionToken'}
@@ -52,7 +52,7 @@ class TestSuite():
     session = None
 
     # noinspection PyMethodOverriding
-    @patch('requests.sessions.Session')
+    @patch('requests.Session')
     def setUp(self, session):
         response = {'ticket': 'ticket',
                     'CSRFPreventionToken': 'CSRFPreventionToken'}

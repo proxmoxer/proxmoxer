@@ -20,7 +20,7 @@ try:
 except NameError:  # py3
     basestring = (bytes, str)
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__).setLevel(level=logging.WARNING)
 
 
 # https://metacpan.org/pod/AnyEvent::HTTP

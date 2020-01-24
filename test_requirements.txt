@@ -1,6 +1,6 @@
 mock
 nose
-requests < 2.9
+requests
 coveralls
 paramiko
 openssh_wrapper

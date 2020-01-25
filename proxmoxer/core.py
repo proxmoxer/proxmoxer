@@ -21,6 +21,17 @@ except NameError:  # py3
     basestring = (bytes, str)
 
 logger = logging.getLogger(__name__)
+logger.setLevel(level=logging.WARNING)
+
+
+# https://metacpan.org/pod/AnyEvent::HTTP
+ANYEVENT_HTTP_STATUS_CODES = {
+    595: "Errors during connection establishment, proxy handshake",
+    596: "Errors during TLS negotiation, request sending and header processing",
+    597: "Errors during body receiving or processing",
+    598: "User aborted request via on_header or on_body",
+    599: "Other, usually nonretryable, errors (garbled URL etc.)"
+}
 
 
 class ProxmoxResourceBase(object):
@@ -75,8 +86,18 @@ class ProxmoxResource(ProxmoxResourceBase):
         logger.debug('Status code: %s, output: %s', resp.status_code, resp.content)
 
         if resp.status_code >= 400:
-            raise ResourceException("{0} {1}: {2}".format(resp.status_code, httplib.responses[resp.status_code],
-                                                          resp.content))
+            if hasattr(resp, 'reason'):
+                raise ResourceException("{0} {1}: {2} - {3}".format(
+                    resp.status_code,
+                    httplib.responses.get(resp.status_code,
+                                          ANYEVENT_HTTP_STATUS_CODES.get(resp.status_code)),
+                    resp.reason, resp.content))
+            else:
+                raise ResourceException("{0} {1}: {2}".format(
+                    resp.status_code,
+                    httplib.responses.get(resp.status_code,
+                                          ANYEVENT_HTTP_STATUS_CODES.get(resp.status_code)),
+                    resp.content))
         elif 200 <= resp.status_code <= 299:
             return self._store["serializer"].loads(resp)
 

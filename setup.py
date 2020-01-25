@@ -30,7 +30,7 @@ setup(
     author = 'Oleg Butovich',
     author_email = 'obutovich@gmail.com',
     license = "MIT",
-    url = 'https://github.com/swayf/proxmoxer',
+    url = 'https://github.com/proxmoxer/proxmoxer',
     download_url = 'http://pypi.python.org/pypi/proxmoxer',
     keywords = ['proxmox', 'api'],
     packages=['proxmoxer', 'proxmoxer.backends', 'tests', 'tests.base'],

@@ -185,7 +185,15 @@ Roadmap
 History
 -------
 
-1.0.3 (1018-09-10)
+1.0.4 (2020-01-24)
+..................
+* Improvement (HTTPS): Added timeout to authentication (James Lin)
+* Improvement (HTTPS): Handle AnyEvent::HTTP status codes gracefully (Georges Martin)
+* Improvement (HTTPS): Advanced error message with error code >=400 (`ssi444 <https://github.com/ssi444>`_)
+* Bugfix (SSH): Fix pvesh output format for version > 5.3 (`timansky <https://github.com/timansky>`_)
+* Transfered development to proxmoxer organization
+
+1.0.3 (2018-09-10)
 ..................
 * Improvement: Added option to specify port in hostname parameter (`pvanagtmaal <https://github.com/pvanagtmaal>`_)
 * Improvement: Added stderr to the Response content (`Jérôme Schneider <https://github.com/merinos>`_)
@@ -261,17 +269,17 @@ History
 ..................
 * Initial try.
 
-.. |master_build_status| image:: https://travis-ci.org/swayf/proxmoxer.png?branch=master
-    :target: https://travis-ci.org/swayf/proxmoxer
+.. |master_build_status| image:: https://travis-ci.org/proxmoxer/proxmoxer.png?branch=master
+    :target: https://travis-ci.org/proxmoxer/proxmoxer
 
-.. |master_coverage_status| image:: https://coveralls.io/repos/swayf/proxmoxer/badge.png?branch=master
-    :target: https://coveralls.io/r/swayf/proxmoxer
+.. |master_coverage_status| image:: https://coveralls.io/repos/proxmoxer/proxmoxer/badge.png?branch=master
+    :target: https://coveralls.io/r/proxmoxer/proxmoxer
 
-.. |develop_build_status| image:: https://travis-ci.org/swayf/proxmoxer.png?branch=develop
-    :target: https://travis-ci.org/swayf/proxmoxer
+.. |develop_build_status| image:: https://travis-ci.org/proxmoxer/proxmoxer.png?branch=develop
+    :target: https://travis-ci.org/proxmoxer/proxmoxer
 
-.. |develop_coverage_status| image:: https://coveralls.io/repos/swayf/proxmoxer/badge.png?branch=develop
-    :target: https://coveralls.io/r/swayf/proxmoxer
+.. |develop_coverage_status| image:: https://coveralls.io/repos/proxmoxer/proxmoxer/badge.png?branch=develop
+    :target: https://coveralls.io/r/proxmoxer/proxmoxer
 
 .. |pypi_version| image:: https://img.shields.io/pypi/v/proxmoxer.svg
     :target: https://pypi.python.org/pypi/proxmoxer

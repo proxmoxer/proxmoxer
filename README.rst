@@ -185,6 +185,14 @@ Roadmap
 History
 -------
 
+1.0.4 (2020-01-24)
+..................
+* Improvement (HTTPS): Added timeout to authentication (James Lin)
+* Improvement (HTTPS): Handle AnyEvent::HTTP status codes gracefully (Georges Martin)
+* Improvement (HTTPS): Advanced error message with error code >=400 (`ssi444 <https://github.com/ssi444>`_)
+* Bugfix (SSH): Fix pvesh output format for version > 5.3 (`timansky <https://github.com/timansky>`_)
+* Transfered development to proxmoxer organization
+
 1.0.3 (2018-09-10)
 ..................
 * Improvement: Added option to specify port in hostname parameter (`pvanagtmaal <https://github.com/pvanagtmaal>`_)

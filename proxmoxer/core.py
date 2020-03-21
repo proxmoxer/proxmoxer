@@ -90,7 +90,8 @@ class ProxmoxResource(ProxmoxResourceBase):
         if resp.status_code == 401 and not is_retry:
             logger.debug('Received 401, the current session may have expired. Retry renewing it')
             base_url = urlparse.urlparse(self._store["base_url"])
-            base_url = f'{base_url.scheme}://{base_url.netloc}/api2/json'
+            base_url = '{base_url_scheme}://{base_url_netloc}/api2/json'.format(base_url_scheme=base_url.scheme,
+                                                                                base_url_netloc=base_url.netloc)
             self._store['session'].auth = ProxmoxHTTPAuth(base_url,
                                                           self._store['session'].auth.username,
                                                           self._store['session'].auth.password,

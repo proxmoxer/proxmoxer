@@ -5,6 +5,8 @@ __licence__ = 'MIT'
 import importlib
 import posixpath
 import logging
+from requests.cookies import cookiejar_from_dict
+from .backends.https import ProxmoxHTTPAuth
 
 # Python 3 compatibility:
 try:
@@ -76,7 +78,7 @@ class ProxmoxResource(ProxmoxResourceBase):
 
         return self.__class__(**kwargs)
 
-    def _request(self, method, data=None, params=None):
+    def _request(self, method, data=None, params=None, is_retry=False):
         url = self._store["base_url"]
         if data:
             logger.info('%s %s %r', method, url, data)
@@ -84,6 +86,18 @@ class ProxmoxResource(ProxmoxResourceBase):
             logger.info('%s %s', method, url)
         resp = self._store["session"].request(method, url, data=data or None, params=params)
         logger.debug('Status code: %s, output: %s', resp.status_code, resp.content)
+
+        if resp.status_code == 401 and not is_retry:
+            logger.debug('Received 401, the current session may have expired. Retry renewing it')
+            base_url = urlparse.urlparse(self._store["base_url"])
+            base_url = f'{base_url.scheme}://{base_url.netloc}/api2/json'
+            self._store['session'].auth = ProxmoxHTTPAuth(base_url,
+                                                          self._store['session'].auth.username,
+                                                          self._store['session'].auth.password,
+                                                          self._store['session'].auth.verify_ssl)
+            self._store['session'].cookies = cookiejar_from_dict({"PVEAuthCookie": self._store['session'].auth.pve_auth_cookie})
+            logger.debug('Retry original request.')
+            return self._request(method, data=data, params=params, is_retry=True)
 
         if resp.status_code >= 400:
             if hasattr(resp, 'reason'):

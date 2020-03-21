@@ -48,6 +48,9 @@ class ProxmoxHTTPAuth(AuthBase):
 
         self.pve_auth_cookie = response_data["ticket"]
         self.csrf_prevention_token = response_data["CSRFPreventionToken"]
+        self.username = username
+        self.password = password
+        self.verify_ssl = verify_ssl
 
     def __call__(self, r):
         r.headers["CSRFPreventionToken"] = self.csrf_prevention_token

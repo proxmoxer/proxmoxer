@@ -48,6 +48,7 @@ class ProxmoxHTTPAuth(AuthBase):
         self.verify_ssl = verify_ssl
         self.timeout = timeout
         self.pve_auth_cookie = ""
+        self.password = ""
 
         # if there will be periods greater than 2hrs between calls, store the password as we cannot renew the token
         if long_running:

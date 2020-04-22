@@ -5,6 +5,7 @@ __licence__ = 'MIT'
 
 import json
 import sys
+import time
 
 try:
     import requests
@@ -38,18 +39,42 @@ class AuthenticationError(Exception):
 
 
 class ProxmoxHTTPAuth(AuthBase):
-    def __init__(self, base_url, username, password, verify_ssl=False, timeout=5):
-        response_data = requests.post(base_url + "/access/ticket",
-                                      verify=verify_ssl,
-                                      timeout=timeout,
-                                      data={"username": username, "password": password}).json()["data"]
-        if response_data is None:
-            raise AuthenticationError("Couldn't authenticate user: {0} to {1}".format(username, base_url + "/access/ticket"))
+    # number of seconds between renewing access tokens (must be less than 7200 to function correctly)
+    renew_age = 3600
 
+    def __init__(self, base_url, username, password, verify_ssl=False, timeout=5):
+        self.base_url = base_url
+        self.username = username
+        self.verify_ssl = verify_ssl
+        self.timeout = timeout
+        self.pve_auth_cookie = ""
+
+        self._getNewTokens(password=password)
+
+
+    def _getNewTokens(self, password=None):
+        if password == None:
+            password = self.pve_auth_cookie
+
+        print("Creating new tokens from \"" + password + "\"")
+
+        response_data = requests.post(self.base_url + "/access/ticket",
+                                      verify=self.verify_ssl,
+                                      timeout=self.timeout,
+                                      data={"username": self.username, "password": password}).json()["data"]
+        if response_data is None:
+            raise AuthenticationError("Couldn't authenticate user: {0} to {1}".format(self.username, self.base_url + "/access/ticket"))
+
+        self.birth_time = time.time()
         self.pve_auth_cookie = response_data["ticket"]
         self.csrf_prevention_token = response_data["CSRFPreventionToken"]
 
+
     def __call__(self, r):
+        #refresh token if older than `renew_age`
+        if (time.time() - self.birth_time) >= self.renew_age:
+            self._getNewTokens()
+
         r.headers["CSRFPreventionToken"] = self.csrf_prevention_token
         return r
 
@@ -91,7 +116,7 @@ class ProxmoxHttpSession(requests.Session):
                 timeout=None, allow_redirects=True, proxies=None, hooks=None, stream=None, verify=None, cert=None,
                 serializer=None):
 
-        # take set verify flag from session request does not have this parameter explicitly
+        # take set verify flag from session if request does not have this parameter explicitly
         if verify is None:
             verify = self.verify
 

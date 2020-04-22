@@ -56,8 +56,6 @@ class ProxmoxHTTPAuth(AuthBase):
         if password == None:
             password = self.pve_auth_cookie
 
-        print("Creating new tokens from \"" + password + "\"")
-
         response_data = requests.post(self.base_url + "/access/ticket",
                                       verify=self.verify_ssl,
                                       timeout=self.timeout,

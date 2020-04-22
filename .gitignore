@@ -2,6 +2,7 @@
 *.egg-info/
 *.pyc
 .idea
+.vscode
 dist
 build
 .venv

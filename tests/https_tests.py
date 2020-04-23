@@ -14,14 +14,12 @@ def test_https_connection(req_session):
     response = {'ticket': _fake_ticket,
                 'CSRFPreventionToken': _fake_csrf_token}
     req_session.request.return_value = response
-    p = ProxmoxAPI('proxmox', user='root@pam', password='secret', port=123, verify_ssl=False)
+    ProxmoxAPI('proxmox', user='root@pam', password='secret', port=123, verify_ssl=False)
     call = req_session.return_value.request.call_args[1]
     eq_(call['url'], 'https://proxmox:123/api2/json/access/ticket')
     eq_(call['data'], {'username': 'root@pam', 'password': 'secret'})
     eq_(call['method'], 'post')
     eq_(call['verify'], False)
-    eq_(p.get_tokens()[0], _fake_ticket)
-    eq_(p.get_tokens()[1], _fake_csrf_token)
 
 
 @patch('requests.sessions.Session')

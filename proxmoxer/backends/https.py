@@ -80,7 +80,9 @@ class ProxmoxHTTPAuth(AuthBase):
         if (time.time() - self.birth_time) >= self.renew_age:
             self._getNewTokens()
 
-        r.headers["CSRFPreventionToken"] = self.csrf_prevention_token
+        # only attach CRSF token if needed (reduce interception risk)
+        if r.method != 'GET':
+            r.headers["CSRFPreventionToken"] = self.csrf_prevention_token
         return r
 
 

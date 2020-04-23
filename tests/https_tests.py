@@ -6,24 +6,28 @@ from mock import patch, MagicMock
 from nose.tools import eq_, ok_
 from proxmoxer import ProxmoxAPI
 
+_fake_ticket = 'PVE:root@pam:5EA0BFCA::absdefghijklmnopqrstuvwxyzABSDEFGHIJKLMNOPQRSTUVWXYZ0123456789absdefghijklmnopqrstuvwxyzABSDEFGHIJKLMNOPQRSTUVWXYZ0123456789absdefghijklmnopqrstuvwxyzABSDEFGHIJKLMNOPQRSTUVWXYZ0123456789absdefghijklmnopqrstuvwxyzABSDEFGHIJKLMNOPQRSTUVWXYZ0123456789absdefghijklmnopqrstuvwxyzABSDEFGHIJKLMNOPQRSTUVWXYZ0123456789absdefghijklmnopqrstuvwxyzABSDEF=='
+_fake_csrf_token = '5EA0BFCA:absdefghijklmnopqrstuvwxyzABSDEFGHIJKLMNOPQ'
 
 @patch('requests.sessions.Session')
 def test_https_connection(req_session):
-    response = {'ticket': 'ticket',
-                'CSRFPreventionToken': 'CSRFPreventionToken'}
+    response = {'ticket': _fake_ticket,
+                'CSRFPreventionToken': _fake_csrf_token}
     req_session.request.return_value = response
-    ProxmoxAPI('proxmox', user='root@pam', password='secret', port=123, verify_ssl=False)
+    p = ProxmoxAPI('proxmox', user='root@pam', password='secret', port=123, verify_ssl=False)
     call = req_session.return_value.request.call_args[1]
     eq_(call['url'], 'https://proxmox:123/api2/json/access/ticket')
     eq_(call['data'], {'username': 'root@pam', 'password': 'secret'})
     eq_(call['method'], 'post')
     eq_(call['verify'], False)
+    eq_(p.get_tokens()[0], _fake_ticket)
+    eq_(p.get_tokens()[1], _fake_csrf_token)
 
 
 @patch('requests.sessions.Session')
-def test_https_connection_with_port_in_host(req_session):
-    response = {'ticket': 'ticket',
-                'CSRFPreventionToken': 'CSRFPreventionToken'}
+def test_https_connection_wth_port_in_host(req_session):
+    response = {'ticket': _fake_ticket,
+                'CSRFPreventionToken': _fake_csrf_token}
     req_session.request.return_value = response
     ProxmoxAPI('proxmox:123', user='root@pam', password='secret', port=124, verify_ssl=False)
     call = req_session.return_value.request.call_args[1]
@@ -34,9 +38,9 @@ def test_https_connection_with_port_in_host(req_session):
 
 
 @patch('requests.sessions.Session')
-def test_https_connection_with_bad_port_in_host(req_session):
-    response = {'ticket': 'ticket',
-                'CSRFPreventionToken': 'CSRFPreventionToken'}
+def test_https_connection_wth_bad_port_in_host(req_session):
+    response = {'ticket': _fake_ticket,
+                'CSRFPreventionToken': _fake_csrf_token}
     req_session.request.return_value = response
     ProxmoxAPI('proxmox:notaport', user='root@pam', password='secret', port=124, verify_ssl=False)
     call = req_session.return_value.request.call_args[1]
@@ -44,6 +48,12 @@ def test_https_connection_with_bad_port_in_host(req_session):
     eq_(call['data'], {'username': 'root@pam', 'password': 'secret'})
     eq_(call['method'], 'post')
     eq_(call['verify'], False)
+
+@patch('requests.sessions.Session')
+def test_https_token_connection(req_session):
+    p = ProxmoxAPI('proxmox', user='root@pam', password=None, port=123, verify_ssl=False, auth_token=_fake_ticket, csrf_token=_fake_csrf_token)
+    eq_(p.get_tokens()[0], _fake_ticket)
+    eq_(p.get_tokens()[1], _fake_csrf_token)
 
 
 @patch('requests.sessions.Session')
@@ -60,8 +70,8 @@ class TestSuite():
     # noinspection PyMethodOverriding
     @patch('requests.sessions.Session')
     def setUp(self, session):
-        response = {'ticket': 'ticket',
-                    'CSRFPreventionToken': 'CSRFPreventionToken'}
+        response = {'ticket': _fake_ticket,
+                    'CSRFPreventionToken': _fake_csrf_token}
         session.request.return_value = response
         self.proxmox = ProxmoxAPI('proxmox', user='root@pam', password='secret', port=123, verify_ssl=False)
         self.serializer = MagicMock()

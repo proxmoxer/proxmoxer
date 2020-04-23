@@ -95,6 +95,7 @@ class ProxmoxHTTPTokenAuth(ProxmoxHTTPAuth):
     def __init__(self, auth_token, csrf_token):
         self.pve_auth_cookie = auth_token
         self.csrf_prevention_token = csrf_token
+        self.birth_time = time.time()
 
 
 class JsonSerializer(object):

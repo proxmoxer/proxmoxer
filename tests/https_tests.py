@@ -60,6 +60,16 @@ def test_https_api_token(req_session):
     eq_(p.get_tokens()[0], None)
     eq_(p.get_tokens()[1], None)
 
+
+def test_https_authentication_error():
+    from proxmoxer.backends.https import AuthenticationError
+    try:
+        raise AuthenticationError("test error string")
+    except AuthenticationError as e:
+        eq_("test error string", str(e))
+        eq_("test error string", e)
+
+
 class TestSuite():
     proxmox = None
     serializer = None

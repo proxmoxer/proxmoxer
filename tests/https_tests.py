@@ -67,7 +67,22 @@ def test_https_authentication_error():
         raise AuthenticationError("test error string")
     except AuthenticationError as e:
         eq_("test error string", str(e))
-        eq_("test error string", e)
+        eq_("test error string", repr(e))
+
+@patch('requests.sessions.Session')
+def test_https_auth_empty_response(req_session):
+    from proxmoxer.backends.https import ProxmoxHTTPAuth, AuthenticationError
+    try:
+        ProxmoxAPI('proxmox', user='root@pam', password='secret', port=123, verify_ssl=False)
+    except AuthenticationError as e:
+        eq_(str(e), "Couldn't authenticate user: root@pam to https://proxmox:123/api2/json/access/ticket")
+
+def test_https_auth_invalid_host():
+    from proxmoxer.backends.https import ProxmoxHTTPAuth, AuthenticationError
+    try:
+        ProxmoxAPI('proxmox', user='root@pam', password='secret', port=123, verify_ssl=False)
+    except AuthenticationError as e:
+        eq_(str(e), "Couldn't connect to: https://proxmox:123/api2/json/access/ticket")
 
 
 class TestSuite():

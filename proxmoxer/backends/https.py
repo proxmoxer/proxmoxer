@@ -40,19 +40,15 @@ class AuthenticationError(Exception):
 
 class ProxmoxHTTPAuth(AuthBase):
     # number of seconds between renewing access tokens (must be less than 7200 to function correctly)
+    # if calls are made less frequently than 2 hrs, using the API token auth is reccomended
     renew_age = 3600
 
-    def __init__(self, base_url, username, password, verify_ssl=False, timeout=5, long_running=False):
+    def __init__(self, base_url, username, password, verify_ssl=False, timeout=5):
         self.base_url = base_url
         self.username = username
         self.verify_ssl = verify_ssl
         self.timeout = timeout
         self.pve_auth_cookie = ""
-        self.password = ""
-
-        # if there will be periods greater than 2hrs between calls, store the password as we cannot renew the token
-        if long_running:
-            self.password = password
 
         self._getNewTokens(password=password)
 
@@ -60,8 +56,6 @@ class ProxmoxHTTPAuth(AuthBase):
     def _getNewTokens(self, password=None):
         if password == None:
             password = self.pve_auth_cookie
-        if self.password:
-            password = self.password
 
         response_data = requests.post(self.base_url + "/access/ticket",
                                       verify=self.verify_ssl,
@@ -146,7 +140,7 @@ class ProxmoxHttpSession(requests.Session):
 
 class Backend(object):
     def __init__(self, host, user, password, port=8006, verify_ssl=True,
-                 mode='json', timeout=5, long_running=False, auth_token=None, csrf_token=None):
+                 mode='json', timeout=5, auth_token=None, csrf_token=None):
         if ':' in host:
             host, host_port = host.split(':')
             port = host_port if host_port.isdigit() else port
@@ -156,7 +150,7 @@ class Backend(object):
         if auth_token is not None:
             self.auth = ProxmoxHTTPTokenAuth(auth_token, csrf_token)
         else:
-            self.auth = ProxmoxHTTPAuth(self.base_url, user, password, verify_ssl, timeout, long_running)
+            self.auth = ProxmoxHTTPAuth(self.base_url, user, password, verify_ssl, timeout)
         self.verify_ssl = verify_ssl
         self.mode = mode
         self.timeout = timeout

@@ -2,6 +2,7 @@
 *.egg-info/
 *.pyc
 .idea
+.vscode
 dist
 build
 .venv
@@ -9,3 +10,4 @@ build
 README.txt
 test.py
 upload.sh
+*.code-workspace

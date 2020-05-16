@@ -64,6 +64,15 @@ class ProxmoxHTTPTokenAuth(ProxmoxHTTPAuth):
         self.pve_auth_cookie = auth_token
         self.csrf_prevention_token = csrf_token
 
+class ProxmoxHTTPApiTokenAuth(ProxmoxHTTPAuthBase):
+    def __init__(self, username, token_id, api_token):
+        self.username = username
+        self.token_id = token_id
+        self.api_token = api_token
+
+    def __call__(self, r):
+        r.headers["Authorization"] = "PVEAPIToken={0}!{1}={2}".format(self.username, self.token_id, self.api_token)
+        return r
 
 class JsonSerializer(object):
 

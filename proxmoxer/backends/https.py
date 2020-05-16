@@ -39,7 +39,7 @@ class AuthenticationError(Exception):
 
 class ProxmoxHTTPAuthBase(AuthBase):
     def get_cookies(self):
-        return None
+        return cookiejar_from_dict({})
 
     def get_tokens(self):
         return None
@@ -58,16 +58,15 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
         self.csrf_prevention_token = response_data["CSRFPreventionToken"]
 
     def get_cookies(self):
-        return cookiejar_from_dict({"PVEAuthCookie": self.pve_auth_ticket})
+        return cookiejar_from_dict({"PVEAuthCookie": self.pve_auth_cookie})
 
     def get_tokens(self):
-        return self.pve_auth_ticket, self.csrf_prevention_token
+        return self.pve_auth_cookie, self.csrf_prevention_token
 
     def __call__(self, r):
         r.headers["CSRFPreventionToken"] = self.csrf_prevention_token
         return r
 
-# DEPRICATED(1.0.5) - either use a password or the API Tokens
 class ProxmoxHTTPTokenAuth(ProxmoxHTTPAuth):
     """Use existing ticket/token to create a session.
 
@@ -135,18 +134,20 @@ class ProxmoxHttpSession(requests.Session):
 
 
 class Backend(object):
-    def __init__(self, host, user, password, port=8006, verify_ssl=True,
-                 mode='json', timeout=5, auth_token=None, csrf_token=None):
+    def __init__(self, host, user, password=None, port=8006, verify_ssl=True,
+                 mode='json', timeout=5, auth_token=None, csrf_token=None,
+                 api_id=None, api_token=None):
         if ':' in host:
             host, host_port = host.split(':')
             port = host_port if host_port.isdigit() else port
 
         self.base_url = "https://{0}:{1}/api2/{2}".format(host, port, mode)
 
-        # DEPRICATED(1.0.5) - either use a password or the API Tokens
         if auth_token is not None:
             self.auth = ProxmoxHTTPTokenAuth(auth_token, csrf_token)
-        else:
+        elif api_id is not None:
+            self.auth = ProxmoxHTTPApiTokenAuth(user, api_id, api_token)
+        elif password is not None:
             self.auth = ProxmoxHTTPAuth(self.base_url, user, password, verify_ssl, timeout)
         self.verify_ssl = verify_ssl
         self.mode = mode

@@ -37,7 +37,15 @@ class AuthenticationError(Exception):
         return self.__str__()
 
 
-class ProxmoxHTTPAuth(AuthBase):
+class ProxmoxHTTPAuthBase(AuthBase):
+    def get_cookies(self):
+        return None
+
+    def get_tokens(self):
+        return None
+
+
+class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
     def __init__(self, base_url, username, password, verify_ssl=False, timeout=5):
         response_data = requests.post(base_url + "/access/ticket",
                                       verify=verify_ssl,
@@ -49,11 +57,17 @@ class ProxmoxHTTPAuth(AuthBase):
         self.pve_auth_cookie = response_data["ticket"]
         self.csrf_prevention_token = response_data["CSRFPreventionToken"]
 
+    def get_cookies(self):
+        return cookiejar_from_dict({"PVEAuthCookie": self.pve_auth_ticket})
+
+    def get_tokens(self):
+        return self.pve_auth_ticket, self.csrf_prevention_token
+
     def __call__(self, r):
         r.headers["CSRFPreventionToken"] = self.csrf_prevention_token
         return r
 
-
+# DEPRICATED(1.0.5) - either use a password or the API Tokens
 class ProxmoxHTTPTokenAuth(ProxmoxHTTPAuth):
     """Use existing ticket/token to create a session.
 
@@ -129,6 +143,7 @@ class Backend(object):
 
         self.base_url = "https://{0}:{1}/api2/{2}".format(host, port, mode)
 
+        # DEPRICATED(1.0.5) - either use a password or the API Tokens
         if auth_token is not None:
             self.auth = ProxmoxHTTPTokenAuth(auth_token, csrf_token)
         else:
@@ -141,7 +156,7 @@ class Backend(object):
         session = ProxmoxHttpSession()
         session.verify = self.verify_ssl
         session.auth = self.auth
-        session.cookies = cookiejar_from_dict({"PVEAuthCookie": self.auth.pve_auth_cookie})
+        session.cookies = self.auth.get_cookies()
         session.headers['Connection'] = 'keep-alive'
         session.headers["accept"] = self.get_serializer().get_accept_types()
         return session

@@ -35,7 +35,7 @@ setup(
     keywords = ['proxmox', 'api'],
     packages=['proxmoxer', 'proxmoxer.backends', 'tests', 'tests.base'],
     classifiers = [ #http://pypi.python.org/pypi?%3Aaction=list_classifiers
-        "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
         "Programming Language :: Python",
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.7",
@@ -46,6 +46,9 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
         "Topic :: Software Development :: Libraries :: Python Modules",
+        "Topic :: System :: Clustering",
+        "Topic :: System :: Monitoring",
+        "Topic :: System :: Systems Administration",
         ],
     long_description = long_description
 )

@@ -37,7 +37,15 @@ class AuthenticationError(Exception):
         return self.__str__()
 
 
-class ProxmoxHTTPAuth(AuthBase):
+class ProxmoxHTTPAuthBase(AuthBase):
+    def get_cookies(self):
+        return cookiejar_from_dict({})
+
+    def get_tokens(self):
+        return None
+
+
+class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
     def __init__(self, base_url, username, password, verify_ssl=False, timeout=5):
         response_data = requests.post(base_url + "/access/ticket",
                                       verify=verify_ssl,
@@ -49,10 +57,15 @@ class ProxmoxHTTPAuth(AuthBase):
         self.pve_auth_cookie = response_data["ticket"]
         self.csrf_prevention_token = response_data["CSRFPreventionToken"]
 
+    def get_cookies(self):
+        return cookiejar_from_dict({"PVEAuthCookie": self.pve_auth_cookie})
+
+    def get_tokens(self):
+        return self.pve_auth_cookie, self.csrf_prevention_token
+
     def __call__(self, r):
         r.headers["CSRFPreventionToken"] = self.csrf_prevention_token
         return r
-
 
 class ProxmoxHTTPTokenAuth(ProxmoxHTTPAuth):
     """Use existing ticket/token to create a session.
@@ -64,6 +77,15 @@ class ProxmoxHTTPTokenAuth(ProxmoxHTTPAuth):
         self.pve_auth_cookie = auth_token
         self.csrf_prevention_token = csrf_token
 
+class ProxmoxHTTPApiTokenAuth(ProxmoxHTTPAuthBase):
+    def __init__(self, username, token_id, api_token):
+        self.username = username
+        self.token_id = token_id
+        self.api_token = api_token
+
+    def __call__(self, r):
+        r.headers["Authorization"] = "PVEAPIToken={0}!{1}={2}".format(self.username, self.token_id, self.api_token)
+        return r
 
 class JsonSerializer(object):
 
@@ -112,8 +134,9 @@ class ProxmoxHttpSession(requests.Session):
 
 
 class Backend(object):
-    def __init__(self, host, user, password, port=8006, verify_ssl=True,
-                 mode='json', timeout=5, auth_token=None, csrf_token=None):
+    def __init__(self, host, user, password=None, port=8006, verify_ssl=True,
+                 mode='json', timeout=5, auth_token=None, csrf_token=None,
+                 api_id=None, api_token=None):
         if ':' in host:
             host, host_port = host.split(':')
             port = host_port if host_port.isdigit() else port
@@ -122,7 +145,9 @@ class Backend(object):
 
         if auth_token is not None:
             self.auth = ProxmoxHTTPTokenAuth(auth_token, csrf_token)
-        else:
+        elif api_id is not None:
+            self.auth = ProxmoxHTTPApiTokenAuth(user, api_id, api_token)
+        elif password is not None:
             self.auth = ProxmoxHTTPAuth(self.base_url, user, password, verify_ssl, timeout)
         self.verify_ssl = verify_ssl
         self.mode = mode
@@ -132,7 +157,7 @@ class Backend(object):
         session = ProxmoxHttpSession()
         session.verify = self.verify_ssl
         session.auth = self.auth
-        session.cookies = cookiejar_from_dict({"PVEAuthCookie": self.auth.pve_auth_cookie})
+        session.cookies = self.auth.get_cookies()
         session.headers['Connection'] = 'keep-alive'
         session.headers["accept"] = self.get_serializer().get_accept_types()
         return session

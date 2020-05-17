@@ -5,6 +5,7 @@ __licence__ = 'MIT'
 
 import json
 import sys
+import time
 
 try:
     import requests
@@ -16,7 +17,6 @@ except ImportError:
     import sys
     sys.stderr.write("Chosen backend requires 'requests' module\n")
     sys.exit(1)
-
 
 if sys.version_info[0] >= 3:
     import io
@@ -46,14 +46,32 @@ class ProxmoxHTTPAuthBase(AuthBase):
 
 
 class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
+    # number of seconds between renewing access tokens (must be less than 7200 to function correctly)
+    # if calls are made less frequently than 2 hrs, using the API token auth is reccomended
+    renew_age = 3600
+    
     def __init__(self, base_url, username, password, verify_ssl=False, timeout=5):
-        response_data = requests.post(base_url + "/access/ticket",
-                                      verify=verify_ssl,
-                                      timeout=timeout,
-                                      data={"username": username, "password": password}).json()["data"]
-        if response_data is None:
-            raise AuthenticationError("Couldn't authenticate user: {0} to {1}".format(username, base_url + "/access/ticket"))
+        self.base_url = base_url
+        self.username = username
+        self.verify_ssl = verify_ssl
+        self.timeout = timeout
+        self.pve_auth_cookie = ""
 
+        self._getNewTokens(password=password)
+
+
+    def _getNewTokens(self, password=None):
+        if password == None:
+            password = self.pve_auth_cookie
+
+        response_data = requests.post(self.base_url + "/access/ticket",
+                                      verify=self.verify_ssl,
+                                      timeout=self.timeout,
+                                      data={"username": self.username, "password": password}).json()["data"]
+        if response_data is None:
+            raise AuthenticationError("Couldn't authenticate user: {0} to {1}".format(self.username, self.base_url + "/access/ticket"))
+
+        self.birth_time = time.time()
         self.pve_auth_cookie = response_data["ticket"]
         self.csrf_prevention_token = response_data["CSRFPreventionToken"]
 
@@ -64,8 +82,15 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
         return self.pve_auth_cookie, self.csrf_prevention_token
 
     def __call__(self, r):
-        r.headers["CSRFPreventionToken"] = self.csrf_prevention_token
+        #refresh token if older than `renew_age`
+        if (time.time() - self.birth_time) >= self.renew_age:
+            self._getNewTokens()
+
+        # only attach CRSF token if needed (reduce interception risk)
+        if r.method != 'GET':
+            r.headers["CSRFPreventionToken"] = self.csrf_prevention_token
         return r
+
 
 class ProxmoxHTTPTokenAuth(ProxmoxHTTPAuth):
     """Use existing ticket/token to create a session.
@@ -76,6 +101,8 @@ class ProxmoxHTTPTokenAuth(ProxmoxHTTPAuth):
     def __init__(self, auth_token, csrf_token):
         self.pve_auth_cookie = auth_token
         self.csrf_prevention_token = csrf_token
+        self.birth_time = time.time()
+
 
 class ProxmoxHTTPApiTokenAuth(ProxmoxHTTPAuthBase):
     def __init__(self, username, token_id, api_token):
@@ -87,8 +114,8 @@ class ProxmoxHTTPApiTokenAuth(ProxmoxHTTPAuthBase):
         r.headers["Authorization"] = "PVEAPIToken={0}!{1}={2}".format(self.username, self.token_id, self.api_token)
         return r
 
-class JsonSerializer(object):
 
+class JsonSerializer(object):
     content_types = [
         "application/json",
         "application/x-javascript",
@@ -113,7 +140,7 @@ class ProxmoxHttpSession(requests.Session):
                 timeout=None, allow_redirects=True, proxies=None, hooks=None, stream=None, verify=None, cert=None,
                 serializer=None):
 
-        # take set verify flag from session request does not have this parameter explicitly
+        # take set verify flag from session if request does not have this parameter explicitly
         if verify is None:
             verify = self.verify
 

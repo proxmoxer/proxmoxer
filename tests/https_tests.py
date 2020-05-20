@@ -45,13 +45,21 @@ def test_https_connection_wth_bad_port_in_host(req_session):
     eq_(call['method'], 'post')
     eq_(call['verify'], False)
 
+@patch('requests.sessions.Session')
+def test_https_get_tokens(req_session):
+    response = {'ticket': 'ticket',
+                'CSRFPreventionToken': 'CSRFPreventionToken'}
+    req_session.request.return_value = response
+    p = ProxmoxAPI('proxmox', user='root@pam', password='secret', port=123, verify_ssl=False)
+    eq_(p.get_tokens()[0], 'ticket')
+    eq_(p.get_tokens()[1], 'CSRFPreventionToken')
+
 
 @patch('requests.sessions.Session')
 def test_https_api_token(req_session):
     p = ProxmoxAPI('proxmox', user='root@pam', api_id='test', api_token='ab27beeb-9ac4-4df1-aa19-62639f27031e', verify_ssl=False)
-    a, b = p.get_tokens()
-    eq_(a, None)
-    eq_(b, None)
+    eq_(p.get_tokens()[0], None)
+    eq_(p.get_tokens()[1], None)
 
 class TestSuite():
     proxmox = None

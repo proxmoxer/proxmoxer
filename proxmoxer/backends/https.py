@@ -175,9 +175,9 @@ class Backend(object):
 
         self.base_url = "https://{0}:{1}/api2/{2}".format(host, port, mode)
 
-        if auth_ticket is not None:
+        if auth_token is not None:
             # DEPRECATED(1.1.0) - either use a password or the API Tokens
-            self.auth = ProxmoxHTTPTicketAuth(auth_ticket, csrf_token)
+            self.auth = ProxmoxHTTPTicketAuth(auth_token, csrf_token)
         elif token_name is not None:
             self.auth = ProxmoxHTTPApiTokenAuth(user, token_name, token_value)
         elif password is not None:

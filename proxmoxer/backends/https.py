@@ -46,7 +46,7 @@ class ProxmoxHTTPAuthBase(AuthBase):
 
 
 class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
-    # number of seconds between renewing access tokens (must be less than 7200 to function correctly)
+    # number of seconds between renewing access tickets (must be less than 7200 to function correctly)
     # if calls are made less frequently than 2 hrs, using the API token auth is reccomended
     renew_age = 3600
 
@@ -55,14 +55,15 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
         self.username = username
         self.verify_ssl = verify_ssl
         self.timeout = timeout
-        self.pve_auth_cookie = ""
+        self.pve_auth_ticket = ""
 
         self._getNewTokens(password=password)
 
 
     def _getNewTokens(self, password=None):
         if password == None:
-            password = self.pve_auth_cookie
+            # refresh from existing (unexpired) ticket
+            password = self.pve_auth_ticket
 
         response_data = requests.post(self.base_url + "/access/ticket",
                                       verify=self.verify_ssl,
@@ -72,17 +73,17 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
             raise AuthenticationError("Couldn't authenticate user: {0} to {1}".format(self.username, self.base_url + "/access/ticket"))
 
         self.birth_time = time.time()
-        self.pve_auth_cookie = response_data["ticket"]
+        self.pve_auth_ticket = response_data["ticket"]
         self.csrf_prevention_token = response_data["CSRFPreventionToken"]
 
     def get_cookies(self):
-        return cookiejar_from_dict({"PVEAuthCookie": self.pve_auth_cookie})
+        return cookiejar_from_dict({"PVEAuthCookie": self.pve_auth_ticket})
 
     def get_tokens(self):
-        return self.pve_auth_cookie, self.csrf_prevention_token
+        return self.pve_auth_ticket, self.csrf_prevention_token
 
     def __call__(self, r):
-        #refresh token if older than `renew_age`
+        #refresh ticket if older than `renew_age`
         if (time.time() - self.birth_time) >= self.renew_age:
             self._getNewTokens()
 
@@ -93,29 +94,29 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
 
 
 # DEPRECATED(1.1.0) - either use a password or the API Tokens
-class ProxmoxHTTPTokenAuth(ProxmoxHTTPAuth):
+class ProxmoxHTTPTicketAuth(ProxmoxHTTPAuth):
     """Use existing ticket/token to create a session.
 
-    Overrides ProxmoxHTTPAuth so that an existing auth cookie and csrf token
+    Overrides ProxmoxHTTPAuth so that an existing auth ticket and csrf token
     may be used instead of passing username/password.
     """
-    def __init__(self, auth_token, csrf_token):
-        self.pve_auth_cookie = auth_token
+    def __init__(self, auth_ticket, csrf_token):
+        self.pve_auth_ticket = auth_ticket
         self.csrf_prevention_token = csrf_token
         self.birth_time = time.time()
 
         # deprecation notice
-        sys.stderr.write("** Existing token auth is Deprecated as of 1.0.5\n** Please use the API Token Auth for long-running programs\n")
+        sys.stderr.write("** Existing token auth is Deprecated as of 1.1.0\n** Please use the API Token Auth for long-running programs or pass existing ticket as password to the user/password auth\n")
 
 
 class ProxmoxHTTPApiTokenAuth(ProxmoxHTTPAuthBase):
-    def __init__(self, username, token_id, api_token):
+    def __init__(self, username, token_name, token_value):
         self.username = username
-        self.token_id = token_id
-        self.api_token = api_token
+        self.token_name = token_name
+        self.token_value = token_value
 
     def __call__(self, r):
-        r.headers["Authorization"] = "PVEAPIToken={0}!{1}={2}".format(self.username, self.token_id, self.api_token)
+        r.headers["Authorization"] = "PVEAPIToken={0}!{1}={2}".format(self.username, self.token_name, self.token_value)
         return r
 
 
@@ -167,18 +168,18 @@ class ProxmoxHttpSession(requests.Session):
 class Backend(object):
     def __init__(self, host, user, password=None, port=8006, verify_ssl=True,
                  mode='json', timeout=5, auth_token=None, csrf_token=None,
-                 api_id=None, api_token=None):
+                 token_name=None, token_value=None):
         if ':' in host:
             host, host_port = host.split(':')
             port = host_port if host_port.isdigit() else port
 
         self.base_url = "https://{0}:{1}/api2/{2}".format(host, port, mode)
 
-        if auth_token is not None:
+        if auth_ticket is not None:
             # DEPRECATED(1.1.0) - either use a password or the API Tokens
-            self.auth = ProxmoxHTTPTokenAuth(auth_token, csrf_token)
-        elif api_id is not None:
-            self.auth = ProxmoxHTTPApiTokenAuth(user, api_id, api_token)
+            self.auth = ProxmoxHTTPTicketAuth(auth_ticket, csrf_token)
+        elif token_name is not None:
+            self.auth = ProxmoxHTTPApiTokenAuth(user, token_name, token_value)
         elif password is not None:
             self.auth = ProxmoxHTTPAuth(self.base_url, user, password, verify_ssl, timeout)
         self.verify_ssl = verify_ssl

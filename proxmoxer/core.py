@@ -136,7 +136,7 @@ class ProxmoxAPI(ProxmoxResourceBase):
     def get_tokens(self):
         """Return the auth and csrf tokens.
 
-        Returns (None, None) if the backend is not https.
+        Returns (None, None) if the backend is not https using user/password.
         """
         if self._backend_name != 'https':
             return None, None

@@ -48,7 +48,9 @@ def test_https_connection_wth_bad_port_in_host(req_session):
 
 @patch('requests.sessions.Session')
 def test_https_api_token(req_session):
-    ProxmoxAPI('proxmox', user='root@pam', api_id='test', api_token='ab27beeb-9ac4-4df1-aa19-62639f27031e', verify_ssl=False)
+    p = ProxmoxAPI('proxmox', user='root@pam', api_id='test', api_token='ab27beeb-9ac4-4df1-aa19-62639f27031e', verify_ssl=False)
+    eq_(p.get_tokens()[0], None)
+    eq_(p.get_tokens()[1], None)
 
 class TestSuite():
     proxmox = None

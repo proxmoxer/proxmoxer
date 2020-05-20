@@ -42,14 +42,14 @@ class ProxmoxHTTPAuthBase(AuthBase):
         return cookiejar_from_dict({})
 
     def get_tokens(self):
-        return None
+        return None, None
 
 
 class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
     # number of seconds between renewing access tokens (must be less than 7200 to function correctly)
     # if calls are made less frequently than 2 hrs, using the API token auth is reccomended
     renew_age = 3600
-    
+
     def __init__(self, base_url, username, password, verify_ssl=False, timeout=5):
         self.base_url = base_url
         self.username = username
@@ -197,5 +197,5 @@ class Backend(object):
         return JsonSerializer()
 
     def get_tokens(self):
-        """Return the in-use auth and csrf tokens."""
-        return self.auth.pve_auth_cookie, self.auth.csrf_prevention_token
+        """Return the in-use auth and csrf tokens if using user/password auth."""
+        return self.auth.get_tokens()

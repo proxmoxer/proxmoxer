@@ -92,6 +92,7 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
         return r
 
 
+# DEPRECATED(1.1.0) - either use a password or the API Tokens
 class ProxmoxHTTPTokenAuth(ProxmoxHTTPAuth):
     """Use existing ticket/token to create a session.
 
@@ -102,6 +103,9 @@ class ProxmoxHTTPTokenAuth(ProxmoxHTTPAuth):
         self.pve_auth_cookie = auth_token
         self.csrf_prevention_token = csrf_token
         self.birth_time = time.time()
+
+        # deprecation notice
+        sys.stderr.write("** Existing token auth is Deprecated as of 1.0.5\n** Please use the API Token Auth for long-running programs\n")
 
 
 class ProxmoxHTTPApiTokenAuth(ProxmoxHTTPAuthBase):
@@ -171,6 +175,7 @@ class Backend(object):
         self.base_url = "https://{0}:{1}/api2/{2}".format(host, port, mode)
 
         if auth_token is not None:
+            # DEPRECATED(1.1.0) - either use a password or the API Tokens
             self.auth = ProxmoxHTTPTokenAuth(auth_token, csrf_token)
         elif api_id is not None:
             self.auth = ProxmoxHTTPApiTokenAuth(user, api_id, api_token)

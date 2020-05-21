@@ -12,10 +12,10 @@ What does it do and what's different?
 
 Proxmoxer is a wrapper around the `Proxmox REST API v2 <https://pve.proxmox.com/pve-docs/api-viewer/index.html>`_.
 
-It was inspired by slumber, but it dedicated only to Proxmox. It allows to use not only REST API over HTTPS, but
+It was inspired by slumber, but it is dedicated only to Proxmox. It allows not only REST API use over HTTPS, but
 the same api over ssh and pvesh utility.
 
-Like `Proxmoxia <https://github.com/baseblack/Proxmoxia>`_ it dynamically creates attributes which responds to the
+Like `Proxmoxia <https://github.com/baseblack/Proxmoxia>`_, it dynamically creates attributes which responds to the
 attributes you've attempted to reach.
 
 Installation
@@ -25,13 +25,13 @@ Installation
 
     pip install proxmoxer
 
-For 'https' backend install requests
+To use the 'https' backend, install requests
 
 .. code-block:: bash
 
     pip install requests
 
-For 'ssh_paramiko' backend install paramiko
+To use the 'ssh_paramiko' backend, install paramiko
 
 .. code-block:: bash
 
@@ -51,18 +51,30 @@ The first thing to do is import the proxmoxer library and create ProxmoxAPI inst
 
 This will connect by default through the 'https' backend.
 
-It is possible to use already prepared public/private key authentication. It is possible to use ssh-agent also.
+You can also setup `API Tokens <https://pve.proxmox.com/wiki/User_Management#pveum_tokens>`_ which allow tighter access controls.
+API Tokens are also stateless, so they much better for long-lived programs that might have the standard username/password authentication timeout.
+API tokens can be created through the web UI or through the `API <https://pve.proxmox.com/pve-docs/api-viewer/index.html#/access/users/{userid}/token/{tokenid}>`_.
+
+.. code-block:: python
+
+    from proxmoxer import ProxmoxAPI
+    proxmox = ProxmoxAPI('proxmox_host', user='admin', token_name='test_token', token_value='ab27beeb-9ac4-4df1-aa19-62639f27031e')
+
+For SSH access, it is possible to use pre-prepared public/private key authentication and ssh-agent.
 
 .. code-block:: python
 
     from proxmoxer import ProxmoxAPI
     proxmox = ProxmoxAPI('proxmox_host', user='proxmox_admin', backend='ssh_paramiko')
 
-**Please note, https-backend needs 'requests' library, ssh_paramiko-backend needs 'paramiko' library,
-openssh-backend needs 'openssh_wrapper' library installed.**
+**Note: the 'https' backend needs the 'requests' library, the 'ssh_paramiko' backend needs the 'paramiko' library,
+and the 'openssh' backend needs the 'openssh_wrapper' library installed.**
 
-Queries are exposed via the access methods **get**, **post**, **put** and **delete**. For convenience added two
-synonyms: **create** for **post**, and **set** for **put**.
+Queries are exposed via the access methods **get**, **post**, **put** and **delete**. For convenience two
+synonyms are available: **create** for **post**, and **set** for **put**.
+
+Using the paths from the `Proxmox REST API v2 <https://pve.proxmox.com/pve-docs/api-viewer/index.html>`_, you can create
+API calls using the access methods above.
 
 .. code-block:: python
 
@@ -70,12 +82,12 @@ synonyms: **create** for **post**, and **set** for **put**.
         for vm in proxmox.nodes(node['node']).openvz.get():
             print "{0}. {1} => {2}" .format(vm['vmid'], vm['name'], vm['status'])
 
-    >>> 141. puppet-2.london.baseblack.com => running
-        101. munki.london.baseblack.com => running
-        102. redmine.london.baseblack.com => running
-        140. dns-1.london.baseblack.com => running
-        126. ns-3.london.baseblack.com => running
-        113. rabbitmq.london.baseblack.com => running
+    >>> 141. puppet-2.london.example.com => running
+        101. munki.london.example.com => running
+        102. redmine.london.example.com => running
+        140. dns-1.london.example.com => running
+        126. ns-3.london.example.com => running
+        113. rabbitmq.london.example.com => running
 
 same code can be rewritten in the next way:
 
@@ -86,7 +98,7 @@ same code can be rewritten in the next way:
             print "%s. %s => %s" %  (vm['vmid'], vm['name'], vm['status'])
 
 
-for example next lines do the same job:
+As a demonstration of the flexibility of usage of this library, the following lines accomplish the equivalent function:
 
 .. code-block:: python
 
@@ -98,26 +110,26 @@ for example next lines do the same job:
 
 Some more examples:
 
+Listing VMs:
 .. code-block:: python
 
     for vm in proxmox.cluster.resources.get(type='vm'):
         print("{0}. {1} => {2}" .format(vm['vmid'], vm['name'], vm['status']))
 
-
+Listing contents of the ``local`` storage on the ``proxmox_node`` node (method 1):
 .. code-block:: python
 
     node = proxmox.nodes('proxmox_node')
     pprint(node.storage('local').content.get())
 
-or the with same results
-
+Listing contents of the ``local`` storage on the ``proxmox_node`` node (method 2):
 .. code-block:: python
 
     node = proxmox.nodes.proxmox_node()
     pprint(node.storage.local.content.get())
 
 
-Example of creation of lxc container:
+creating a new lxc container:
 
 .. code-block:: python
 
@@ -132,8 +144,8 @@ Example of creation of lxc container:
         password='secret',
         net0='name=eth0,bridge=vmbr0,ip=192.168.22.1/20,gw=192.168.16.1')
 
-Example of creating the same lxc container with parameters in a dictonary.
-This approach allows to add ``ssh-public-keys`` without getting syntax errors.
+The same lxc container can be created with options set in a dictionary.
+This approach allows adding ``ssh-public-keys`` without getting syntax errors.
 
 .. code-block:: python
 
@@ -149,7 +161,7 @@ This approach allows to add ``ssh-public-keys`` without getting syntax errors.
     node = proxmox.nodes('proxmox_node')
     node.lxc.create(**newcontainer)
 
-Example of template upload:
+Uploading a template:
 
 .. code-block:: python
 
@@ -158,7 +170,7 @@ Example of template upload:
         filename=open(os.path.expanduser('~/templates/debian-6-my-core_1.0-1_i386.tar.gz'))))
 
 
-Example of rrd download:
+Downloading rrd CPU image data to a file:
 
 .. code-block:: python
 
@@ -286,4 +298,3 @@ History
 
 .. |pypi_downloads| image:: https://img.shields.io/pypi/dm/proxmoxer.svg
     :target: https://pypi.python.org/pypi/proxmoxer
-

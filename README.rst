@@ -197,12 +197,18 @@ Roadmap
 History
 -------
 
+1.1.0 (2020-05-22)
+..................
+* Addition (https): Added API Token authentication (`John Hollowell <https://github.com/jhollowe>`_)
+* Improvement (https): user/password authentication refreshes ticket to prevent expiration (`CompileNix <https://github.com/compilenix>`_ and (`John Hollowell <https://github.com/jhollowe>`_))
+* Bugfix (ssh_paramiko): Handle empty stderr from ssh connections (`morph027 <https://github.com/morph027>`_)
+
 1.0.4 (2020-01-24)
 ..................
-* Improvement (HTTPS): Added timeout to authentication (James Lin)
-* Improvement (HTTPS): Handle AnyEvent::HTTP status codes gracefully (Georges Martin)
-* Improvement (HTTPS): Advanced error message with error code >=400 (`ssi444 <https://github.com/ssi444>`_)
-* Bugfix (SSH): Fix pvesh output format for version > 5.3 (`timansky <https://github.com/timansky>`_)
+* Improvement (https): Added timeout to authentication (James Lin)
+* Improvement (https): Handle AnyEvent::HTTP status codes gracefully (Georges Martin)
+* Improvement (https): Advanced error message with error code >=400 (`ssi444 <https://github.com/ssi444>`_)
+* Bugfix (ssh): Fix pvesh output format for version > 5.3 (`timansky <https://github.com/timansky>`_)
 * Transfered development to proxmoxer organization
 
 1.0.3 (2018-09-10)

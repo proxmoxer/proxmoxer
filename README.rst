@@ -186,22 +186,15 @@ Example of usage of logging:
     logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s:%(name)s: %(message)s')
 
 
-Roadmap
--------
-
-* write tests
-* support other actual python versions
-* add optional validation of requests
-* add some shortcuts for convenience
-
-History
--------
+Changelog
+---------
 
 1.1.0 (2020-05-22)
 ..................
 * Addition (https): Added API Token authentication (`John Hollowell <https://github.com/jhollowe>`_)
-* Improvement (https): user/password authentication refreshes ticket to prevent expiration (`CompileNix <https://github.com/compilenix>`_ and (`John Hollowell <https://github.com/jhollowe>`_))
+* Improvement (https): user/password authentication refreshes ticket to prevent expiration (`CompileNix <https://github.com/compilenix>`_ and `John Hollowell <https://github.com/jhollowe>`_)
 * Bugfix (ssh_paramiko): Handle empty stderr from ssh connections (`morph027 <https://github.com/morph027>`_)
+* DEPRECATED (https): using ``auth_token`` and ``csrf_token`` (ProxmoxHTTPTicketAuth) is now deprecated. Either pass the ``auth_token`` as the ``password`` or use the API Tokens.
 
 1.0.4 (2020-01-24)
 ..................

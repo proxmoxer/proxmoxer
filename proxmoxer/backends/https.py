@@ -21,8 +21,11 @@ except ImportError:
 if sys.version_info[0] >= 3:
     import io
     def is_file(obj): return isinstance(obj, io.IOBase)
+    # prefer using monotomic time if available
+    def get_time(): return time.monotonic()
 else:
     def is_file(obj): return isinstance(obj, file)
+    def get_time(): return time.time()
 
 
 class AuthenticationError(Exception):
@@ -72,7 +75,7 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
         if response_data is None:
             raise AuthenticationError("Couldn't authenticate user: {0} to {1}".format(self.username, self.base_url + "/access/ticket"))
 
-        self.birth_time = time.time()
+        self.birth_time = get_time()
         self.pve_auth_ticket = response_data["ticket"]
         self.csrf_prevention_token = response_data["CSRFPreventionToken"]
 
@@ -84,7 +87,7 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
 
     def __call__(self, r):
         #refresh ticket if older than `renew_age`
-        if (time.time() - self.birth_time) >= self.renew_age:
+        if (get_time() - self.birth_time) >= self.renew_age:
             self._getNewTokens()
 
         # only attach CRSF token if needed (reduce interception risk)
@@ -103,7 +106,7 @@ class ProxmoxHTTPTicketAuth(ProxmoxHTTPAuth):
     def __init__(self, auth_ticket, csrf_token):
         self.pve_auth_ticket = auth_ticket
         self.csrf_prevention_token = csrf_token
-        self.birth_time = time.time()
+        self.birth_time = get_time()
 
         # deprecation notice
         sys.stderr.write("** Existing token auth is Deprecated as of 1.1.0\n** Please use the API Token Auth for long-running programs or pass existing ticket as password to the user/password auth\n")

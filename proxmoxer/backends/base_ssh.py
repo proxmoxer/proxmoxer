@@ -30,10 +30,10 @@ class ProxmoxBaseSSHSession(object):
         cmd = {'post': 'create',
                'put': 'set'}.get(method, method)
 
-        #for 'upload' call some workaround
+        # for 'upload' call some workaround
         tmp_filename = ''
         if url.endswith('upload'):
-            #copy file to temporary location on proxmox host
+            # copy file to temporary location on proxmox host
             tmp_filename, _ = self._exec(
                 "python -c 'import tempfile; import sys; tf = tempfile.NamedTemporaryFile(); sys.stdout.write(tf.name)'")
             self.upload_file_obj(data['filename'], tmp_filename)
@@ -44,15 +44,17 @@ class ProxmoxBaseSSHSession(object):
         full_cmd = 'pvesh {0} --output-format json'.format(' '.join(filter(None, (cmd, url, translated_data))))
 
         stdout, stderr = self._exec(full_cmd)
-        match = lambda s: re.match('\d\d\d [a-zA-Z]', s)
-        # sometimes contains extra text like 'trying to acquire lock...OK'
-        status_code = next(
-            (int(s.split()[0]) for s in stderr.splitlines() if match(s)),
-            500)
+        def match(s): return re.match(r'\d\d\d [a-zA-Z]', s)
+        if stderr:
+            # sometimes contains extra text like 'trying to acquire lock...OK'
+            status_code = next(
+                (int(s.split()[0]) for s in stderr.splitlines() if match(s)),
+                500)
+        else:
+            status_code = 200
         if stdout:
             return Response(stdout, status_code)
-        else:
-            return Response(stderr, status_code)
+        return Response(stderr, status_code)
 
     def upload_file_obj(self, file_obj, remote_path):
         raise NotImplementedError()

@@ -46,6 +46,12 @@ def test_https_connection_wth_bad_port_in_host(req_session):
     eq_(call['verify'], False)
 
 
+@patch('requests.sessions.Session')
+def test_https_api_token(req_session):
+    p = ProxmoxAPI('proxmox', user='root@pam', token_name='test', token_value='ab27beeb-9ac4-4df1-aa19-62639f27031e', verify_ssl=False)
+    eq_(p.get_tokens()[0], None)
+    eq_(p.get_tokens()[1], None)
+
 class TestSuite():
     proxmox = None
     serializer = None
@@ -144,4 +150,3 @@ class TestSuite():
         eq_(data['memory'], 512)
         eq_(data['ip_address'], '10.0.100.200')
         eq_(data['onboot'], False)
-

@@ -6,6 +6,10 @@ __licence__ = 'MIT'
 import json
 import sys
 import time
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(level=logging.WARNING)
 
 try:
     import requests
@@ -14,8 +18,7 @@ try:
     from requests.auth import AuthBase
     from requests.cookies import cookiejar_from_dict
 except ImportError:
-    import sys
-    sys.stderr.write("Chosen backend requires 'requests' module\n")
+    logger.error("Chosen backend requires 'requests' module\n")
     sys.exit(1)
 
 if sys.version_info[0] >= 3:
@@ -88,6 +91,7 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
     def __call__(self, r):
         #refresh ticket if older than `renew_age`
         if (get_time() - self.birth_time) >= self.renew_age:
+            logger.debug("refreshing ticket (age {0})".format(get_time() - self.birth_time))
             self._getNewTokens()
 
         # only attach CRSF token if needed (reduce interception risk)
@@ -109,7 +113,7 @@ class ProxmoxHTTPTicketAuth(ProxmoxHTTPAuth):
         self.birth_time = get_time()
 
         # deprecation notice
-        sys.stderr.write("** Existing token auth is Deprecated as of 1.1.0\n** Please use the API Token Auth for long-running programs or pass existing ticket as password to the user/password auth\n")
+        logger.warning("** Existing token auth is Deprecated as of 1.1.0\n** Please use the API Token Auth for long-running programs or pass existing ticket as password to the user/password auth")
 
 
 class ProxmoxHTTPApiTokenAuth(ProxmoxHTTPAuthBase):
@@ -148,9 +152,16 @@ class ProxmoxHttpSession(requests.Session):
                 timeout=None, allow_redirects=True, proxies=None, hooks=None, stream=None, verify=None, cert=None,
                 serializer=None):
 
+        a = auth or self.auth
+        c = cookies or self.cookies
+
         # take set verify flag from session if request does not have this parameter explicitly
         if verify is None:
             verify = self.verify
+
+        # pull cookies from auth if not present
+        if (not c) and a:
+            cookies = a.get_cookies()
 
         #filter out streams
         files = files or {}
@@ -193,7 +204,7 @@ class Backend(object):
         session = ProxmoxHttpSession()
         session.verify = self.verify_ssl
         session.auth = self.auth
-        session.cookies = self.auth.get_cookies()
+        # cookies are taken from the auth
         session.headers['Connection'] = 'keep-alive'
         session.headers["accept"] = self.get_serializer().get_accept_types()
         return session

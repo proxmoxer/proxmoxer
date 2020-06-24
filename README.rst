@@ -189,6 +189,10 @@ Example of usage of logging:
 Changelog
 ---------
 
+1.1.1 (2020-06-23)
+..................
+* Bugfix (https): correctly renew ticket in the session, not just the auth (`John Hollowell <https://github.com/jhollowe>`_)
+
 1.1.0 (2020-05-22)
 ..................
 * Addition (https): Added API Token authentication (`John Hollowell <https://github.com/jhollowe>`_)

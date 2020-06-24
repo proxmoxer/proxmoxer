@@ -56,12 +56,13 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
     # if calls are made less frequently than 2 hrs, using the API token auth is reccomended
     renew_age = 3600
 
-    def __init__(self, base_url, username, password, verify_ssl=False, timeout=5):
+    def __init__(self, base_url, username, password, verify_ssl=False, timeout=5, service='PVE'):
         self.base_url = base_url
         self.username = username
         self.verify_ssl = verify_ssl
         self.timeout = timeout
         self.pve_auth_ticket = ""
+        self.service = service
 
         self._getNewTokens(password=password)
 
@@ -83,7 +84,10 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
         self.csrf_prevention_token = response_data["CSRFPreventionToken"]
 
     def get_cookies(self):
-        return cookiejar_from_dict({"PVEAuthCookie": self.pve_auth_ticket})
+        if self.service == 'PVE':
+            return cookiejar_from_dict({"PVEAuthCookie": self.pve_auth_ticket})
+        elif self.service == 'PMG':
+            return cookiejar_from_dict({"PMGAuthCookie": self.pve_auth_ticket})
 
     def get_tokens(self):
         return self.pve_auth_ticket, self.csrf_prevention_token
@@ -182,7 +186,7 @@ class ProxmoxHttpSession(requests.Session):
 class Backend(object):
     def __init__(self, host, user, password=None, port=8006, verify_ssl=True,
                  mode='json', timeout=5, auth_token=None, csrf_token=None,
-                 token_name=None, token_value=None):
+                 token_name=None, token_value=None, service='PVE'):
         if ':' in host:
             host, host_port = host.split(':')
             port = host_port if host_port.isdigit() else port
@@ -195,7 +199,7 @@ class Backend(object):
         elif token_name is not None:
             self.auth = ProxmoxHTTPApiTokenAuth(user, token_name, token_value)
         elif password is not None:
-            self.auth = ProxmoxHTTPAuth(self.base_url, user, password, verify_ssl, timeout)
+            self.auth = ProxmoxHTTPAuth(self.base_url, user, password, verify_ssl, timeout, service)
         self.verify_ssl = verify_ssl
         self.mode = mode
         self.timeout = timeout

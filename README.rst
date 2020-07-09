@@ -11,6 +11,7 @@ What does it do and what's different?
 -------------------------------------
 
 Proxmoxer is a wrapper around the `Proxmox REST API v2 <https://pve.proxmox.com/pve-docs/api-viewer/index.html>`_.
+Works with Proxmox Virtual Environment (PVE) and Proxmox Mail Gateway (PMG) API.
 
 It was inspired by slumber, but it is dedicated only to Proxmox. It allows not only REST API use over HTTPS, but
 the same api over ssh and pvesh utility.
@@ -49,7 +50,26 @@ The first thing to do is import the proxmoxer library and create ProxmoxAPI inst
     proxmox = ProxmoxAPI('proxmox_host', user='admin@pam',
                          password='secret_word', verify_ssl=False)
 
-This will connect by default through the 'https' backend.
+This will connect by default to PVE through the 'https' backend.
+
+To define service to PVE or PMG, include service option into script:
+
+**Define PVE connection:**
+
+.. code-block:: python
+
+    from proxmoxer import ProxmoxAPI
+    proxmox = ProxmoxAPI('proxmox_host', user='admin@pam',
+                         password='secret_word', verify_ssl=False, service='PVE')
+
+**Define PMG connection:**
+
+.. code-block:: python
+
+    from proxmoxer import ProxmoxAPI
+    proxmox = ProxmoxAPI('proxmox_host', user='admin@pam',
+                         password='secret_word', verify_ssl=False, service='PMG')
+
 
 You can also setup `API Tokens <https://pve.proxmox.com/wiki/User_Management#pveum_tokens>`_ which allow tighter access controls.
 API Tokens are also stateless, so they much better for long-lived programs that might have the standard username/password authentication timeout.
@@ -184,6 +204,20 @@ Example of usage of logging:
 
     # now logging debug info will be written to stdout
     logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s:%(name)s: %(message)s')
+
+Example of PMG usage:
+
+.. code-block:: python
+
+    from proxmoxer import ProxmoxAPI
+    import json
+
+    proxmox = ProxmoxAPI('proxmox_host', user='admin@pam',
+                         password='secret_word', verify_ssl=False, service='PMG')
+
+    a = proxmox.statistics.sender.get()
+    c = json_formatted_str = json.dumps(a, indent=2)
+    print(c)
 
 
 Changelog

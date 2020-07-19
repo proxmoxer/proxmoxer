@@ -56,25 +56,29 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
     # if calls are made less frequently than 2 hrs, using the API token auth is reccomended
     renew_age = 3600
 
-    def __init__(self, base_url, username, password, verify_ssl=False, timeout=5):
+    def __init__(self, base_url, username, password, otp=None, verify_ssl=False, timeout=5):
         self.base_url = base_url
         self.username = username
         self.verify_ssl = verify_ssl
         self.timeout = timeout
         self.pve_auth_ticket = ""
 
-        self._getNewTokens(password=password)
+        self._getNewTokens(password=password, otp=otp)
 
 
-    def _getNewTokens(self, password=None):
+    def _getNewTokens(self, password=None, otp=None):
         if password == None:
             # refresh from existing (unexpired) ticket
             password = self.pve_auth_ticket
 
+        data = {"username": self.username, "password": password}
+        if otp != None:
+            data["otp"] = otp
+
         response_data = requests.post(self.base_url + "/access/ticket",
                                       verify=self.verify_ssl,
                                       timeout=self.timeout,
-                                      data={"username": self.username, "password": password}).json()["data"]
+                                      data=data).json()["data"]
         if response_data is None:
             raise AuthenticationError("Couldn't authenticate user: {0} to {1}".format(self.username, self.base_url + "/access/ticket"))
 
@@ -180,9 +184,9 @@ class ProxmoxHttpSession(requests.Session):
 
 
 class Backend(object):
-    def __init__(self, host, user, password=None, port=8006, verify_ssl=True,
-                 mode='json', timeout=5, auth_token=None, csrf_token=None,
-                 token_name=None, token_value=None):
+    def __init__(self, host, user, password=None, otp=None, port=8006,
+                 verify_ssl=True, mode='json', timeout=5, auth_token=None,
+                 csrf_token=None, token_name=None, token_value=None):
         if ':' in host:
             host, host_port = host.split(':')
             port = host_port if host_port.isdigit() else port
@@ -195,7 +199,7 @@ class Backend(object):
         elif token_name is not None:
             self.auth = ProxmoxHTTPApiTokenAuth(user, token_name, token_value)
         elif password is not None:
-            self.auth = ProxmoxHTTPAuth(self.base_url, user, password, verify_ssl, timeout)
+            self.auth = ProxmoxHTTPAuth(self.base_url, user, password, otp, verify_ssl, timeout)
         self.verify_ssl = verify_ssl
         self.mode = mode
         self.timeout = timeout

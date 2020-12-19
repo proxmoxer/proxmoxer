@@ -65,7 +65,7 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
     renew_age = 3600
 
     def __init__(self, base_url, username, password, verify_ssl, timeout, service):
-        super(ProxmoxHTTPAuthBase, self).__init__(service)
+        super(ProxmoxHTTPAuth, self).__init__(service)
         self.base_url = base_url
         self.username = username
         self.verify_ssl = verify_ssl
@@ -127,7 +127,7 @@ class ProxmoxHTTPTicketAuth(ProxmoxHTTPAuth):
 
 class ProxmoxHTTPApiTokenAuth(ProxmoxHTTPAuthBase):
     def __init__(self, username, token_name, token_value, service):
-        super(ProxmoxHTTPAuthBase, self).__init__(service)
+        super(ProxmoxHTTPApiTokenAuth, self).__init__(service)
         self.username = username
         self.token_name = token_name
         self.token_value = token_value

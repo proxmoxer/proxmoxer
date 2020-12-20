@@ -24,7 +24,7 @@ class ProxmoxParamikoSession(ProxmoxBaseSSHSession):
                  timeout=5,
                  sudo=False):
         # can be changed to `super()` in python3
-        super(ProxmoxBaseSSHSession, self).__init__(service)
+        super(ProxmoxParamikoSession, self).__init__(service)
         self.host = host
         self.username = username
         self.password = password

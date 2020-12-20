@@ -24,7 +24,7 @@ class ProxmoxOpenSSHSession(ProxmoxBaseSSHSession):
                  sudo=False,
                  identity_file=None):
         # can be changed to `super()` in python3
-        super(ProxmoxBaseSSHSession, self).__init__(service)
+        super(ProxmoxOpenSSHSession, self).__init__(service)
         self.host = host
         self.username = username
         self.configfile = configfile

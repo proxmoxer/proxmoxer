@@ -7,6 +7,7 @@ from itertools import chain
 import json
 import re
 import logging
+import sys
 from proxmoxer.core import SUPPORTED_SERVICES
 
 logger = logging.getLogger(__name__)

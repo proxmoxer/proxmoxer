@@ -16,7 +16,7 @@ except ImportError:
 class ProxmoxOpenSSHSession(ProxmoxBaseSSHSession):
     def __init__(self, host,
                  username,
-                 service,
+                 service='PVE',
                  configfile=None,
                  port=22,
                  timeout=5,

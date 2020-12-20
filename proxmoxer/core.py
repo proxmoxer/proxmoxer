@@ -33,6 +33,8 @@ ANYEVENT_HTTP_STATUS_CODES = {
     599: "Other, usually nonretryable, errors (garbled URL etc.)"
 }
 
+SUPPORTED_SERVICES = ['PVE', 'PMG']
+
 
 class ProxmoxResourceBase(object):
 

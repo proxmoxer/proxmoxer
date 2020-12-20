@@ -6,7 +6,12 @@ __licence__ = 'MIT'
 from itertools import chain
 import json
 import re
+import logging
+import sys
+from proxmoxer.core import SUPPORTED_SERVICES
 
+logger = logging.getLogger(__name__)
+logger.setLevel(level=logging.WARNING)
 
 class Response(object):
     def __init__(self, content, status_code):
@@ -16,6 +21,14 @@ class Response(object):
 
 
 class ProxmoxBaseSSHSession(object):
+
+    def __init__(self, service):
+        if service.upper() in SUPPORTED_SERVICES:
+            self.service = service.lower()
+        else:
+            logger.error("Unsupported service: \"{0}\"".format(service.upper()))
+            sys.exit(1)
+
 
     def _exec(self, cmd):
         raise NotImplementedError()
@@ -41,7 +54,9 @@ class ProxmoxBaseSSHSession(object):
             data['tmpfilename'] = tmp_filename
 
         translated_data = ' '.join(["-{0} {1}".format(k, v) for k, v in chain(data.items(), params.items())])
-        full_cmd = 'pvesh {0} --output-format json'.format(' '.join(filter(None, (cmd, url, translated_data))))
+        # only PVE needs the format options, other services default to (or only have) JSON
+        format_options = "--output-format json" if self.service == "pve" else ""
+        full_cmd = '{0}sh {1} {2}'.format(self.service, ' '.join(filter(None, (cmd, url, translated_data))), format_options)
 
         stdout, stderr = self._exec(full_cmd)
         def match(s): return re.match(r'\d\d\d [a-zA-Z]', s)

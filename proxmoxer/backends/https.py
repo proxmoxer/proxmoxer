@@ -7,6 +7,7 @@ import json
 import sys
 import time
 import logging
+from proxmoxer.core import SUPPORTED_SERVICES
 
 logger = logging.getLogger(__name__)
 logger.setLevel(level=logging.WARNING)
@@ -44,6 +45,13 @@ class AuthenticationError(Exception):
 
 
 class ProxmoxHTTPAuthBase(AuthBase):
+    def __init__(self, service):
+        if service.upper() in SUPPORTED_SERVICES:
+            self.service = service.upper()
+        else:
+            logger.error("Unsupported service: \"{0}\"".format(service.upper()))
+            sys.exit(1)
+
     def get_cookies(self):
         return cookiejar_from_dict({})
 
@@ -57,12 +65,12 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
     renew_age = 3600
 
     def __init__(self, base_url, username, password, otp=None, verify_ssl=False, timeout=5, service='PVE'):
+        super(ProxmoxHTTPAuth, self).__init__(service)
         self.base_url = base_url
         self.username = username
         self.verify_ssl = verify_ssl
         self.timeout = timeout
         self.pve_auth_ticket = ""
-        self.service = service
 
         self._getNewTokens(password=password, otp=otp)
 
@@ -84,10 +92,7 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
         self.csrf_prevention_token = response_data["CSRFPreventionToken"]
 
     def get_cookies(self):
-        if self.service == 'PVE':
-            return cookiejar_from_dict({"PVEAuthCookie": self.pve_auth_ticket})
-        elif self.service == 'PMG':
-            return cookiejar_from_dict({"PMGAuthCookie": self.pve_auth_ticket})
+        return cookiejar_from_dict({self.service + "AuthCookie": self.pve_auth_ticket})
 
     def get_tokens(self):
         return self.pve_auth_ticket, self.csrf_prevention_token
@@ -121,13 +126,16 @@ class ProxmoxHTTPTicketAuth(ProxmoxHTTPAuth):
 
 
 class ProxmoxHTTPApiTokenAuth(ProxmoxHTTPAuthBase):
-    def __init__(self, username, token_name, token_value):
+    def __init__(self, username, token_name, token_value, service):
+        super(ProxmoxHTTPApiTokenAuth, self).__init__(service)
+        if self.service == "PMG":
+            logger.warning("PMG service does not support API Tokens")
         self.username = username
         self.token_name = token_name
         self.token_value = token_value
 
     def __call__(self, r):
-        r.headers["Authorization"] = "PVEAPIToken={0}!{1}={2}".format(self.username, self.token_name, self.token_value)
+        r.headers["Authorization"] = "{0}APIToken={1}!{2}={3}".format(self.service, self.username, self.token_name, self.token_value)
         return r
 
 
@@ -197,7 +205,7 @@ class Backend(object):
             # DEPRECATED(1.1.0) - either use a password or the API Tokens
             self.auth = ProxmoxHTTPTicketAuth(auth_token, csrf_token)
         elif token_name is not None:
-            self.auth = ProxmoxHTTPApiTokenAuth(user, token_name, token_value)
+            self.auth = ProxmoxHTTPApiTokenAuth(user, token_name, token_value, service)
         elif password is not None:
             self.auth = ProxmoxHTTPAuth(self.base_url, user, password, otp, verify_ssl, timeout, service)
         self.verify_ssl = verify_ssl

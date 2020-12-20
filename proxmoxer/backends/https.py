@@ -80,10 +80,14 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
             # refresh from existing (unexpired) ticket
             password = self.pve_auth_ticket
 
+        data = {"username": self.username, "password": password}
+        if otp:
+            data["otp"] = otp
+
         response_data = requests.post(self.base_url + "/access/ticket",
                                       verify=self.verify_ssl,
                                       timeout=self.timeout,
-                                      data={"username": self.username, "password": password, "otp": (otp or "")}).json()["data"]
+                                      data=data)
         if response_data is None:
             raise AuthenticationError("Couldn't authenticate user: {0} to {1}".format(self.username, self.base_url + "/access/ticket"))
 

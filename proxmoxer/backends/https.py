@@ -128,6 +128,8 @@ class ProxmoxHTTPTicketAuth(ProxmoxHTTPAuth):
 class ProxmoxHTTPApiTokenAuth(ProxmoxHTTPAuthBase):
     def __init__(self, username, token_name, token_value, service):
         super(ProxmoxHTTPApiTokenAuth, self).__init__(service)
+        if self.service == "PMG":
+            logger.warning("PMG service does not support API Tokens")
         self.username = username
         self.token_name = token_name
         self.token_value = token_value

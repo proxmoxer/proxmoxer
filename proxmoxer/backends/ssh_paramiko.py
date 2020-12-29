@@ -17,14 +17,12 @@ except ImportError:
 class ProxmoxParamikoSession(ProxmoxBaseSSHSession):
     def __init__(self, host,
                  username,
-                 service,
+                 service='PVE',
                  password=None,
                  private_key_file=None,
                  port=22,
                  timeout=5,
                  sudo=False):
-        # can be changed to `super()` in python3
-        super(ProxmoxParamikoSession, self).__init__(service)
         self.host = host
         self.username = username
         self.password = password

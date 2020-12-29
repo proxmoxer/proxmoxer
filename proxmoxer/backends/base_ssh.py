@@ -22,14 +22,6 @@ class Response(object):
 
 class ProxmoxBaseSSHSession(object):
 
-    def __init__(self, service):
-        if service.upper() in SUPPORTED_SERVICES:
-            self.service = service.lower()
-        else:
-            logger.error("Unsupported service: \"{0}\"".format(service.upper()))
-            sys.exit(1)
-
-
     def _exec(self, cmd):
         raise NotImplementedError()
 

@@ -40,10 +40,7 @@ SERVICES = {
     "PBS": {"supported_backends": ["https"], "supported_https_auths": ["password", "token"], "default_port": 8007, "token_separator": ":"}}
 
 def config_failure(message, exit_code=1, *args):
-    logger.error(message, *args, exc_info=False)
     raise NotImplementedError(message.format(*args))
-    # import sys
-    # sys.exit(exit_code)
 
 class ProxmoxResourceBase(object):
 
@@ -135,9 +132,14 @@ class ProxmoxAPI(ProxmoxResourceBase):
     def __init__(self, host, backend='https', service='PVE', **kwargs):
         service = service.upper()
 
-        # exit on unsupported services
+        # throw error for unsupported services
         if not service in SERVICES.keys():
             config_failure(f"{service} service is not supported")
+
+        # supported_backends unsupported backend for service
+        if not backend in SERVICES[service]["supported_backends"]:
+            config_failure(f"{service} does not support {backend} backend")
+
 
         #load backend module
         self._backend = importlib.import_module('.backends.%s' % backend, 'proxmoxer').Backend(host, service=service, **kwargs)

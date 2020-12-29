@@ -11,3 +11,4 @@ README.txt
 test.py
 upload.sh
 *.code-workspace
+coverage.*

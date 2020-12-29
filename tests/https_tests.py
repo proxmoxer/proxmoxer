@@ -56,6 +56,10 @@ def test_https_pmg_token():
     with assert_raises(NotImplementedError):
         ProxmoxAPI('proxmox', user='root@pam', token_name='test', token_value='ab27beeb-9ac4-4df1-aa19-62639f27031e', verify_ssl=False, service='PMG')
 
+def test_https_invalid_service():
+    with assert_raises(NotImplementedError):
+        ProxmoxAPI('nothing', user='root@pam', token_name='test', token_value='ab27beeb-9ac4-4df1-aa19-62639f27031e', verify_ssl=False, service='asdf')
+
 
 @patch('requests.sessions.Session')
 def test_https_pbs_password(req_session):

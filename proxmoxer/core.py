@@ -39,7 +39,7 @@ SERVICES = {
     "PMG": {"supported_backends": ["https", "openssh", "ssh_paramiko"], "supported_https_auths": ["password"], "default_port": 8006},
     "PBS": {"supported_backends": ["https"], "supported_https_auths": ["password", "token"], "default_port": 8007, "token_separator": ":"}}
 
-def config_failure(message, exit_code=1, *args):
+def config_failure(message, *args):
     raise NotImplementedError(message.format(*args))
 
 class ProxmoxResourceBase(object):
@@ -134,11 +134,11 @@ class ProxmoxAPI(ProxmoxResourceBase):
 
         # throw error for unsupported services
         if not service in SERVICES.keys():
-            config_failure(f"{service} service is not supported")
+            config_failure("{} service is not supported", service)
 
         # throw error for unsupported backend for service
         if not backend in SERVICES[service]["supported_backends"]:
-            config_failure(f"{service} does not support {backend} backend")
+            config_failure("{} does not support {} backend", service, backend)
 
         #load backend module
         self._backend = importlib.import_module('.backends.%s' % backend, 'proxmoxer').Backend(host, service=service, **kwargs)

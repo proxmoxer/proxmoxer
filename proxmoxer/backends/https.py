@@ -7,7 +7,7 @@ import json
 import sys
 import time
 import logging
-from proxmoxer.core import SUPPORTED_SERVICES
+from proxmoxer.core import SUPPORTED_SERVICES, SERVICES, config_failure
 
 logger = logging.getLogger(__name__)
 logger.setLevel(level=logging.WARNING)
@@ -197,12 +197,16 @@ class ProxmoxHttpSession(requests.Session):
 
 
 class Backend(object):
-    def __init__(self, host, user, password=None, otp=None, port=8006,
+    def __init__(self, host, user=None, password=None, otp=None, port=None,
                  verify_ssl=True, mode='json', timeout=5, auth_token=None,
                  csrf_token=None, token_name=None, token_value=None, service='PVE'):
         if ':' in host:
             host, host_port = host.split(':')
             port = host_port if host_port.isdigit() else port
+
+        # if a port is not specified, use the default port for this service
+        if not port:
+            port = SERVICES[service]["default_port"]
 
         self.base_url = "https://{0}:{1}/api2/{2}".format(host, port, mode)
 
@@ -210,8 +214,14 @@ class Backend(object):
             # DEPRECATED(1.1.0) - either use a password or the API Tokens
             self.auth = ProxmoxHTTPTicketAuth(auth_token, csrf_token)
         elif token_name is not None:
+            if not "token" in SERVICES[service]["supported_https_auths"]:
+                config_failure(f"{service} does not support API Token authentication")
+
             self.auth = ProxmoxHTTPApiTokenAuth(user, token_name, token_value, service)
         elif password is not None:
+            if not "password" in SERVICES[service]["supported_https_auths"]:
+                config_failure(f"{service} does not support password authentication")
+
             self.auth = ProxmoxHTTPAuth(self.base_url, user, password, otp, verify_ssl, timeout, service)
         self.verify_ssl = verify_ssl
         self.mode = mode

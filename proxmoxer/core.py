@@ -34,7 +34,16 @@ ANYEVENT_HTTP_STATUS_CODES = {
 }
 
 SUPPORTED_SERVICES = ['PVE', 'PMG', 'PBS']
+SERVICES = {
+    "PVE": {"supported_backends": ["https", "openssh", "ssh_paramiko"], "supported_https_auths": ["password", "token"], "default_port": 8006, "token_separator": "="},
+    "PMG": {"supported_backends": ["https", "openssh", "ssh_paramiko"], "supported_https_auths": ["password"], "default_port": 8006},
+    "PBS": {"supported_backends": ["https"], "supported_https_auths": ["password", "token"], "default_port": 8007, "token_separator": ":"}}
 
+def config_failure(message, exit_code=1, *args):
+    logger.error(message, *args, exc_info=False)
+    raise NotImplementedError(message.format(*args))
+    # import sys
+    # sys.exit(exit_code)
 
 class ProxmoxResourceBase(object):
 
@@ -123,10 +132,15 @@ class ProxmoxResource(ProxmoxResourceBase):
 
 
 class ProxmoxAPI(ProxmoxResourceBase):
-    def __init__(self, host, backend='https', **kwargs):
+    def __init__(self, host, backend='https', service='PVE', **kwargs):
+        service = service.upper()
+
+        # exit on unsupported services
+        if not service in SERVICES.keys():
+            config_failure(f"{service} service is not supported")
 
         #load backend module
-        self._backend = importlib.import_module('.backends.%s' % backend, 'proxmoxer').Backend(host, **kwargs)
+        self._backend = importlib.import_module('.backends.%s' % backend, 'proxmoxer').Backend(host, service=service, **kwargs)
         self._backend_name = backend
 
         self._store = {

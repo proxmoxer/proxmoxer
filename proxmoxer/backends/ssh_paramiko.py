@@ -26,6 +26,7 @@ class ProxmoxParamikoSession(ProxmoxBaseSSHSession):
         self.host = host
         self.username = username
         self.password = password
+        self.service = service.lower()
         self.private_key_file = private_key_file
         self.port = port
         self.timeout = timeout

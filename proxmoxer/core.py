@@ -35,7 +35,7 @@ ANYEVENT_HTTP_STATUS_CODES = {
 
 SUPPORTED_SERVICES = ['PVE', 'PMG', 'PBS']
 SERVICES = {
-    "PVE": {"supported_backends": ["https", "openssh", "ssh_paramiko"], "supported_https_auths": ["password", "token"], "default_port": 8006, "token_separator": "="},
+    "PVE": {"supported_backends": ["https", "openssh", "ssh_paramiko"], "supported_https_auths": ["password", "token"], "default_port": 8006, "token_separator": "=", "ssh_additional_options": "--output-format json"},
     "PMG": {"supported_backends": ["https", "openssh", "ssh_paramiko"], "supported_https_auths": ["password"], "default_port": 8006},
     "PBS": {"supported_backends": ["https"], "supported_https_auths": ["password", "token"], "default_port": 8007, "token_separator": ":"}}
 
@@ -136,10 +136,9 @@ class ProxmoxAPI(ProxmoxResourceBase):
         if not service in SERVICES.keys():
             config_failure(f"{service} service is not supported")
 
-        # supported_backends unsupported backend for service
+        # throw error for unsupported backend for service
         if not backend in SERVICES[service]["supported_backends"]:
             config_failure(f"{service} does not support {backend} backend")
-
 
         #load backend module
         self._backend = importlib.import_module('.backends.%s' % backend, 'proxmoxer').Backend(host, service=service, **kwargs)
@@ -154,7 +153,7 @@ class ProxmoxAPI(ProxmoxResourceBase):
     def get_tokens(self):
         """Return the auth and csrf tokens.
 
-        Returns (None, None) if the backend is not https using user/password.
+        Returns (None, None) if the backend is not https using password authentication.
         """
         if self._backend_name != 'https':
             return None, None

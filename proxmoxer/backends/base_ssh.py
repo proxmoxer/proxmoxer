@@ -8,7 +8,7 @@ import json
 import re
 import logging
 import sys
-from proxmoxer.core import SUPPORTED_SERVICES
+from proxmoxer.core import SERVICES
 
 logger = logging.getLogger(__name__)
 logger.setLevel(level=logging.WARNING)
@@ -45,10 +45,10 @@ class ProxmoxBaseSSHSession(object):
             data['filename'] = data['filename'].name
             data['tmpfilename'] = tmp_filename
 
-        translated_data = ' '.join(["-{0} {1}".format(k, v) for k, v in chain(data.items(), params.items())])
-        # only PVE needs the format options, other services default to (or only have) JSON
-        format_options = "--output-format json" if self.service == "pve" else ""
-        full_cmd = '{0}sh {1} {2}'.format(self.service, ' '.join(filter(None, (cmd, url, translated_data))), format_options)
+        transformed_data = ' '.join(["-{0} {1}".format(k, v) for k, v in chain(data.items(), params.items())])
+
+        additional_options = SERVICES[self.service.upper()].get("ssh_additional_options", "")
+        full_cmd = '{0}sh {1} {2}'.format(self.service, ' '.join(filter(None, (cmd, url, transformed_data))), additional_options)
 
         stdout, stderr = self._exec(full_cmd)
         def match(s): return re.match(r'\d\d\d [a-zA-Z]', s)

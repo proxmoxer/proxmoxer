@@ -7,7 +7,7 @@ import json
 import sys
 import time
 import logging
-from proxmoxer.core import SUPPORTED_SERVICES, SERVICES, config_failure
+from proxmoxer.core import SERVICES, config_failure
 
 logger = logging.getLogger(__name__)
 logger.setLevel(level=logging.WARNING)
@@ -45,12 +45,6 @@ class AuthenticationError(Exception):
 
 
 class ProxmoxHTTPAuthBase(AuthBase):
-    def __init__(self, service):
-        if service.upper() in SUPPORTED_SERVICES:
-            self.service = service.upper()
-        else:
-            logger.error("Unsupported service: \"{0}\"".format(service.upper()))
-            sys.exit(1)
 
     def get_cookies(self):
         return cookiejar_from_dict({})
@@ -65,11 +59,11 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
     renew_age = 3600
 
     def __init__(self, base_url, username, password, otp=None, verify_ssl=False, timeout=5, service='PVE'):
-        super(ProxmoxHTTPAuth, self).__init__(service)
         self.base_url = base_url
         self.username = username
         self.verify_ssl = verify_ssl
         self.timeout = timeout
+        self.service = service
         self.pve_auth_ticket = ""
 
         self._getNewTokens(password=password, otp=otp)
@@ -131,16 +125,13 @@ class ProxmoxHTTPTicketAuth(ProxmoxHTTPAuth):
 
 class ProxmoxHTTPApiTokenAuth(ProxmoxHTTPAuthBase):
     def __init__(self, username, token_name, token_value, service):
-        super(ProxmoxHTTPApiTokenAuth, self).__init__(service)
-        if self.service == "PMG":
-            logger.warning("PMG service does not support API Tokens")
+        self.service = service
         self.username = username
         self.token_name = token_name
         self.token_value = token_value
-        self.separator = ("=" if self.service == "PVE" else ":")
 
     def __call__(self, r):
-        r.headers["Authorization"] = "{0}APIToken={1}!{2}{3}{4}".format(self.service, self.username, self.token_name, self.separator, self.token_value)
+        r.headers["Authorization"] = "{0}APIToken={1}!{2}{3}{4}".format(self.service, self.username, self.token_name, SERVICES[self.service]["token_separator"], self.token_value)
         return r
 
 

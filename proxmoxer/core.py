@@ -33,7 +33,6 @@ ANYEVENT_HTTP_STATUS_CODES = {
     599: "Other, usually nonretryable, errors (garbled URL etc.)"
 }
 
-SUPPORTED_SERVICES = ['PVE', 'PMG', 'PBS']
 SERVICES = {
     "PVE": {"supported_backends": ["https", "openssh", "ssh_paramiko"], "supported_https_auths": ["password", "token"], "default_port": 8006, "token_separator": "=", "ssh_additional_options": "--output-format json"},
     "PMG": {"supported_backends": ["https", "openssh", "ssh_paramiko"], "supported_https_auths": ["password"], "default_port": 8006},

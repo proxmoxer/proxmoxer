@@ -15,7 +15,7 @@ def test_https_connection(req_session):
     ProxmoxAPI('proxmox', user='root@pam', password='secret', port=123, verify_ssl=False)
     call = req_session.return_value.request.call_args[1]
     eq_(call['url'], 'https://proxmox:123/api2/json/access/ticket')
-    eq_(call['data'], {'username': 'root@pam', 'password': 'secret', 'otp': ''})
+    eq_(call['data'], {'username': 'root@pam', 'password': 'secret'})
     eq_(call['method'], 'post')
     eq_(call['verify'], False)
 
@@ -28,7 +28,7 @@ def test_https_connection_with_port_in_host(req_session):
     ProxmoxAPI('proxmox:123', user='root@pam', password='secret', port=124, verify_ssl=False)
     call = req_session.return_value.request.call_args[1]
     eq_(call['url'], 'https://proxmox:123/api2/json/access/ticket')
-    eq_(call['data'], {'username': 'root@pam', 'password': 'secret', 'otp': ''})
+    eq_(call['data'], {'username': 'root@pam', 'password': 'secret'})
     eq_(call['method'], 'post')
     eq_(call['verify'], False)
 
@@ -41,7 +41,7 @@ def test_https_connection_with_bad_port_in_host(req_session):
     ProxmoxAPI('proxmox:notaport', user='root@pam', password='secret', port=124, verify_ssl=False)
     call = req_session.return_value.request.call_args[1]
     eq_(call['url'], 'https://proxmox:124/api2/json/access/ticket')
-    eq_(call['data'], {'username': 'root@pam', 'password': 'secret', 'otp': ''})
+    eq_(call['data'], {'username': 'root@pam', 'password': 'secret'})
     eq_(call['method'], 'post')
     eq_(call['verify'], False)
 

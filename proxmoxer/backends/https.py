@@ -215,12 +215,12 @@ class Backend(object):
             self.auth = ProxmoxHTTPTicketAuth(auth_token, csrf_token)
         elif token_name is not None:
             if not "token" in SERVICES[service]["supported_https_auths"]:
-                config_failure(f"{service} does not support API Token authentication")
+                config_failure("{} does not support API Token authentication", service)
 
             self.auth = ProxmoxHTTPApiTokenAuth(user, token_name, token_value, service)
         elif password is not None:
             if not "password" in SERVICES[service]["supported_https_auths"]:
-                config_failure(f"{service} does not support password authentication")
+                config_failure("{} does not support password authentication", service)
 
             self.auth = ProxmoxHTTPAuth(self.base_url, user, password, otp, verify_ssl, timeout, service)
         self.verify_ssl = verify_ssl

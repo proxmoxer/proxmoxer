@@ -17,6 +17,7 @@ class Response(object):
     def __init__(self, content, status_code):
         self.status_code = status_code
         self.content = content
+        self.text = str(content)
         self.headers = {"content-type": "application/json"}
 
 

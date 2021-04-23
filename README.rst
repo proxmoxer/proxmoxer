@@ -187,7 +187,7 @@ Uploading a template:
 
     local_storage = proxmox.nodes('proxmox_node').storage('local')
     local_storage.upload.create(content='vztmpl',
-        filename=open(os.path.expanduser('~/templates/debian-6-my-core_1.0-1_i386.tar.gz'))))
+        filename=open(os.path.expanduser('~/templates/debian-6-my-core_1.0-1_i386.tar.gz'),'rb')))
 
 
 Downloading rrd CPU image data to a file:

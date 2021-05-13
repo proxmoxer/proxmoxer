@@ -60,7 +60,7 @@ To define service to PVE or PMG, include service option into script:
 
     from proxmoxer import ProxmoxAPI
     proxmox = ProxmoxAPI('proxmox_host', user='admin@pam',
-                         password='secret_word', verify_ssl=False, service='PVE')
+                         password='secret_word', verify_ssl=False)
 
 **Define PMG connection:**
 
@@ -99,7 +99,7 @@ API calls using the access methods above.
 .. code-block:: python
 
     for node in proxmox.nodes.get():
-        for vm in proxmox.nodes(node['node']).openvz.get():
+        for vm in proxmox.nodes(node['node']).qemu.get():
             print "{0}. {1} => {2}" .format(vm['vmid'], vm['name'], vm['status'])
 
     >>> 141. puppet-2.london.example.com => running
@@ -114,7 +114,7 @@ same code can be rewritten in the next way:
 .. code-block:: python
 
     for node in proxmox.get('nodes'):
-        for vm in proxmox.get('nodes/%s/openvz' % node['node']):
+        for vm in proxmox.get('nodes/%s/qemu' % node['node']):
             print "%s. %s => %s" %  (vm['vmid'], vm['name'], vm['status'])
 
 
@@ -122,10 +122,10 @@ As a demonstration of the flexibility of usage of this library, the following li
 
 .. code-block:: python
 
-    proxmox.nodes(node['node']).openvz.get()
-    proxmox.nodes(node['node']).get('openvz')
-    proxmox.get('nodes/%s/openvz' % node['node'])
-    proxmox.get('nodes', node['node'], 'openvz')
+    proxmox.nodes(node['node']).qemu.get()
+    proxmox.nodes(node['node']).get('qemu')
+    proxmox.get('nodes/%s/qemu' % node['node'])
+    proxmox.get('nodes', node['node'], 'qemu')
 
 
 Some more examples:

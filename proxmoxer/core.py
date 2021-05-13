@@ -84,7 +84,7 @@ class ProxmoxResource(ProxmoxResourceBase):
         if resource_id is not None:
             kwargs["base_url"] = self.url_join(self._store["base_url"], *resource_id)
 
-        return self.__class__(**kwargs)
+        return ProxmoxResource(**kwargs)
 
     def _request(self, method, data=None, params=None):
         url = self._store["base_url"]
@@ -141,7 +141,7 @@ class ProxmoxResource(ProxmoxResourceBase):
         return self.put(*args, **data)
 
 
-class ProxmoxAPI(ProxmoxResourceBase):
+class ProxmoxAPI(ProxmoxResource):
     def __init__(self, host, backend='https', **kwargs):
 
         #load backend module

@@ -52,24 +52,6 @@ The first thing to do is import the proxmoxer library and create ProxmoxAPI inst
 
 This will connect by default to PVE through the 'https' backend.
 
-To define service to PVE or PMG, include service option into script:
-
-**Define PVE connection:**
-
-.. code-block:: python
-
-    from proxmoxer import ProxmoxAPI
-    proxmox = ProxmoxAPI('proxmox_host', user='admin@pam',
-                         password='secret_word', verify_ssl=False)
-
-**Define PMG connection:**
-
-.. code-block:: python
-
-    from proxmoxer import ProxmoxAPI
-    proxmox = ProxmoxAPI('proxmox_host', user='admin@pam',
-                         password='secret_word', verify_ssl=False, service='PMG')
-
 
 You can also setup `API Tokens <https://pve.proxmox.com/wiki/User_Management#pveum_tokens>`_ which allow tighter access controls.
 API Tokens are also stateless, so they much better for long-lived programs that might have the standard username/password authentication timeout.

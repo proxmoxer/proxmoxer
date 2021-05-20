@@ -62,11 +62,16 @@ def test_https_invalid_service():
 
 
 @patch('requests.sessions.Session')
-def test_https_pbs_password(req_session):
+def test_pbs_https_connection(req_session):
     response = {'ticket': 'ticket',
                 'CSRFPreventionToken': 'CSRFPreventionToken'}
     req_session.request.return_value = response
-    ProxmoxAPI('proxmox', user='root@pam', password='secret', verify_ssl=False, service='PMG')
+    ProxmoxAPI('proxmox', user='root@pam', password='secret', verify_ssl=False, service='pbs')
+    call = req_session.return_value.request.call_args[1]
+    eq_(call['url'], 'https://proxmox:8007/api2/json/access/ticket')
+    eq_(call['data'], {'username': 'root@pam', 'password': 'secret'})
+    eq_(call['method'], 'post')
+    eq_(call['verify'], False)
 
 
 class TestSuite():

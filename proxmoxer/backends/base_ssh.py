@@ -17,6 +17,7 @@ class Response(object):
     def __init__(self, content, status_code):
         self.status_code = status_code
         self.content = content
+        self.text = str(content)
         self.headers = {"content-type": "application/json"}
 
 
@@ -45,10 +46,10 @@ class ProxmoxBaseSSHSession(object):
             data['filename'] = data['filename'].name
             data['tmpfilename'] = tmp_filename
 
-        transformed_data = ' '.join(["-{0} {1}".format(k, v) for k, v in chain(data.items(), params.items())])
+        translated_data = ' '.join(["-{0} '{1}'".format(k, v) for k, v in chain(data.items(), params.items())])
 
         additional_options = SERVICES[self.service.upper()].get("ssh_additional_options", "")
-        full_cmd = '{0}sh {1} {2}'.format(self.service, ' '.join(filter(None, (cmd, url, transformed_data))), additional_options)
+        full_cmd = '{0}sh {1} {2}'.format(self.service, ' '.join(filter(None, (cmd, url, translated_data))), additional_options)
 
         stdout, stderr = self._exec(full_cmd)
         def match(s): return re.match(r'\d\d\d [a-zA-Z]', s)

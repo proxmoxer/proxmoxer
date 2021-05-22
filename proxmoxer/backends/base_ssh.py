@@ -10,6 +10,12 @@ import logging
 import sys
 from proxmoxer.core import SUPPORTED_SERVICES
 
+try:
+    from json.decoder import JSONDecodeError
+except:
+    # old versions of the json package uses ValueError instead of JSONDecodeError
+    import ValueError as JSONDecodeError
+
 logger = logging.getLogger(__name__)
 logger.setLevel(level=logging.WARNING)
 
@@ -81,7 +87,7 @@ class JsonSimpleSerializer(object):
     def loads(self, response):
         try:
             return json.loads(response.content)
-        except (UnicodeDecodeError, ValueError, json.decoder.JSONDecodeError):
+        except (UnicodeDecodeError, ValueError, JSONDecodeError):
             return {"errors": response.content}
 
 

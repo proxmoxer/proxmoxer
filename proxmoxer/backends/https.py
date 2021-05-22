@@ -22,6 +22,12 @@ except ImportError:
     logger.error("Chosen backend requires 'requests' module\n")
     sys.exit(1)
 
+try:
+    from json.decoder import JSONDecodeError
+except:
+    # old versions of the json package uses ValueError instead of JSONDecodeError
+    import ValueError as JSONDecodeError
+
 if sys.version_info[0] >= 3:
     import io
     def is_file(obj): return isinstance(obj, io.IOBase)
@@ -158,7 +164,7 @@ class JsonSerializer(object):
     def loads(self, response):
         try:
             return json.loads(response.content.decode('utf-8'))['data']
-        except (UnicodeDecodeError, ValueError, json.decoder.JSONDecodeError):
+        except (UnicodeDecodeError, ValueError, JSONDecodeError):
             return {"errors": response.content}
 
 

@@ -158,8 +158,8 @@ class JsonSerializer(object):
     def loads(self, response):
         try:
             return json.loads(response.content.decode('utf-8'))['data']
-        except (UnicodeDecodeError, ValueError):
-            return response.content
+        except (UnicodeDecodeError, ValueError, json.decoder.JSONDecodeError):
+            return {"errors": response.content}
 
 
 class ProxmoxHttpSession(requests.Session):

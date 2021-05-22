@@ -97,21 +97,13 @@ class ProxmoxResource(ProxmoxResourceBase):
 
         if resp.status_code >= 400:
             if hasattr(resp, 'reason'):
-                if resp.json().get('errors') != None:
-                    raise ResourceException(
-                        resp.status_code,
-                        httplib.responses.get(resp.status_code,
-                                            ANYEVENT_HTTP_STATUS_CODES.get(resp.status_code)),
-                        resp.reason,
-                        resp.json()["errors"]
-                    )
-                else:
-                    raise ResourceException(
-                        resp.status_code,
-                        httplib.responses.get(resp.status_code,
-                                            ANYEVENT_HTTP_STATUS_CODES.get(resp.status_code)),
-                        resp.reason
-                    )
+                raise ResourceException(
+                    resp.status_code,
+                    httplib.responses.get(resp.status_code,
+                                        ANYEVENT_HTTP_STATUS_CODES.get(resp.status_code)),
+                    resp.reason,
+                    self._store["serializer"].loads(resp).get('errors')
+                )
             else:
                 raise ResourceException(
                     resp.status_code,

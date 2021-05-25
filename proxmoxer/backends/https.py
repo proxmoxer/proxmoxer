@@ -25,7 +25,7 @@ except ImportError:
 if sys.version_info[0] >= 3:
     import io
     def is_file(obj): return isinstance(obj, io.IOBase)
-    # prefer using monotomic time if available
+    # prefer using monoatomic time if available
     def get_time(): return time.monotonic()
 else:
     def is_file(obj): return isinstance(obj, file)
@@ -107,7 +107,7 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
             logger.debug("refreshing ticket (age {0})".format(get_time() - self.birth_time))
             self._getNewTokens()
 
-        # only attach CRSF token if needed (reduce interception risk)
+        # only attach CSRF token if needed (reduce interception risk)
         if r.method != 'GET':
             r.headers["CSRFPreventionToken"] = self.csrf_prevention_token
         return r

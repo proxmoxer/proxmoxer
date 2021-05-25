@@ -28,10 +28,10 @@
   },
   // Add the IDs of extensions you want installed when the container is created.
   "extensions": [
-	"ms-python.python",
-	"streetsidesoftware.code-spell-checker",
-	"mhutchie.git-graph"
-],
+    "ms-python.python",
+    "streetsidesoftware.code-spell-checker",
+    "mhutchie.git-graph"
+  ],
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   // "forwardPorts": [],
   // Use 'postCreateCommand' to run commands after the container is created.

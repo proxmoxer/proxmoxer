@@ -1,4 +1,14 @@
 {
+  "python.linting.enabled": true,
+  "python.formatting.provider": "black",
+  "python.linting.flake8Enabled": true,
+  "python.linting.pylintEnabled": true,
+  "python.linting.banditEnabled": true,
+  "[python]": {
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": true
+    }
+  },
   "cSpell.words": [
     "Butovich",
     "cpus",

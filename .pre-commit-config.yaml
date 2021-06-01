@@ -1,0 +1,35 @@
+repos:
+  ###### FORMATTING ######
+  - repo: https://github.com/psf/black
+    rev: 21.5b1
+    hooks:
+      - id: black
+        language_version: python3 # Should be a command that runs python3.6+
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.8.0
+    hooks:
+      - id: isort
+        name: isort (python)
+      - id: isort
+        name: isort (pyi)
+        types: [pyi]
+
+  ###### LINTING ######
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.0
+    hooks:
+      - id: bandit
+        args: [-ll]
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 3.9.2
+    hooks:
+      - id: flake8
+      # any flake8 plugins must be included in the hook venv
+      # additional_dependencies: [flake8-docstrings]
+
+  - repo: https://github.com/PyCQA/pylint
+    rev: v2.8.2
+    hooks:
+      - id: pylint

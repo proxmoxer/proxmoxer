@@ -96,18 +96,18 @@ synonyms are available: **create** for **post**, and **set** for **put**.
 Using the paths from the `Proxmox REST API v2 <https://pve.proxmox.com/pve-docs/api-viewer/index.html>`_, you can create
 API calls using the access methods above.
 
-.. code-block:: python
+.. code-block:: pycon
 
-    for node in proxmox.nodes.get():
-        for vm in proxmox.nodes(node['node']).openvz.get():
-            print "{0}. {1} => {2}" .format(vm['vmid'], vm['name'], vm['status'])
+    >>> for node in proxmox.nodes.get():
+    ...     for vm in proxmox.nodes(node['node']).openvz.get():
+    ...         print "{0}. {1} => {2}" .format(vm['vmid'], vm['name'], vm['status'])
 
-    >>> 141. puppet-2.london.example.com => running
-        101. munki.london.example.com => running
-        102. redmine.london.example.com => running
-        140. dns-1.london.example.com => running
-        126. ns-3.london.example.com => running
-        113. rabbitmq.london.example.com => running
+    141. puppet-2.london.example.com => running
+    101. munki.london.example.com => running
+    102. redmine.london.example.com => running
+    140. dns-1.london.example.com => running
+    126. ns-3.london.example.com => running
+    113. rabbitmq.london.example.com => running
 
 same code can be rewritten in the next way:
 
@@ -187,7 +187,7 @@ Uploading a template:
 
     local_storage = proxmox.nodes('proxmox_node').storage('local')
     local_storage.upload.create(content='vztmpl',
-        filename=open(os.path.expanduser('~/templates/debian-6-my-core_1.0-1_i386.tar.gz'),'rb')))
+        filename=open(os.path.expanduser('~/templates/debian-6-my-core_1.0-1_i386.tar.gz'),'rb'))
 
 
 Downloading rrd CPU image data to a file:

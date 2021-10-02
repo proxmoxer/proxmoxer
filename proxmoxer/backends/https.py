@@ -13,6 +13,8 @@ from proxmoxer.core import SUPPORTED_SERVICES
 logger = logging.getLogger(__name__)
 logger.setLevel(level=logging.WARNING)
 
+STREAMING_SIZE_THRESHOLD = 100 * 1024 * 1024 # 10 MiB
+
 try:
     import requests
     urllib3 = requests.packages.urllib3
@@ -183,22 +185,24 @@ class ProxmoxHttpSession(requests.Session):
         # filter out streams
         files = files or {}
         data = data or {}
-        largeFiles = {}
+        hasLargeFiles = False
         for k, v in data.copy().items():
             if is_file(v):
-                if getFileSize(v) > 2147483647:
+                if getFileSize(v) > STREAMING_SIZE_THRESHOLD:
+                    hasLargeFiles= True
+                
+                if hasLargeFiles:
                     # add in filename from file pointer (patch for https://github.com/requests/toolbelt/pull/316)
-                    largeFiles[k] = (requests.utils.guess_filename(v), v)
+                    files[k] = (requests.utils.guess_filename(v), v)
                 else:
                     files[k] = v
                 del data[k]
 
         # if there are any large file, send all data and files using streaming multipart encoding
-        if len(largeFiles) > 0 or True:
+        if hasLargeFiles:
             try:
                 from requests_toolbelt import MultipartEncoder
-                encoder = MultipartEncoder(
-                    fields={**data, **files, **largeFiles})
+                encoder = MultipartEncoder(fields={**data, **files})
                 data = encoder
                 files = None
                 headers = {'Content-Type': encoder.content_type}
@@ -207,7 +211,7 @@ class ProxmoxHttpSession(requests.Session):
                     "Unable to upload files larger than 2 GiB, Install 'requests_toolbelt' to add support")
                 return None
 
-        if not (files or largeFiles) and serializer:
+        if not files and serializer:
             headers = {"Content-Type": 'application/x-www-form-urlencoded'}
 
         return super(ProxmoxHttpSession, self).request(method, url, params, data, headers, cookies, files, auth,

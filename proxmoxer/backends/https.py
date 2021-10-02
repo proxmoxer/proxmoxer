@@ -187,7 +187,8 @@ class ProxmoxHttpSession(requests.Session):
         for k, v in data.copy().items():
             if is_file(v):
                 if getFileSize(v) > 2147483647:
-                    largeFiles[k] = v
+                    # add in filename from file pointer (patch for https://github.com/requests/toolbelt/pull/316)
+                    largeFiles[k] = (requests.utils.guess_filename(v), v)
                 else:
                     files[k] = v
                 del data[k]

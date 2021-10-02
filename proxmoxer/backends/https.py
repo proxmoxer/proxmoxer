@@ -202,7 +202,7 @@ class ProxmoxHttpSession(requests.Session):
         if hasLargeFiles:
             try:
                 from requests_toolbelt import MultipartEncoder
-                encoder = MultipartEncoder(fields={**data, **files})
+                encoder = MultipartEncoder(fields=mergeDicts(data, files))
                 data = encoder
                 files = None
                 headers = {'Content-Type': encoder.content_type}
@@ -271,3 +271,9 @@ def getFileSize(fileObj):
     fileObj.seek(startingCursor)
 
     return size
+
+
+def mergeDicts(*dicts):
+    # compatibility function for missing unpack operator
+    # synonymous with {**dict for dict in dicts}
+    return {k: v for d in dicts for k, v in d.items()}

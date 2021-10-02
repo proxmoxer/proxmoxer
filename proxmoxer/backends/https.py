@@ -4,6 +4,7 @@ __licence__ = 'MIT'
 
 
 import json
+import os
 import sys
 import time
 import logging
@@ -179,17 +180,34 @@ class ProxmoxHttpSession(requests.Session):
         if (not c) and a:
             cookies = a.get_cookies()
 
-        #filter out streams
+        # filter out streams
         files = files or {}
         data = data or {}
+        largeFiles = {}
         for k, v in data.copy().items():
             if is_file(v):
-                files[k] = v
+                if getFileSize(v) > 2147483647:
+                    largeFiles[k] = v
+                else:
+                    files[k] = v
                 del data[k]
 
-        headers = None
-        if not files and serializer:
-            headers = {"content-type": 'application/x-www-form-urlencoded'}
+        # if there are any large file, send all data and files using streaming multipart encoding
+        if len(largeFiles) > 0 or True:
+            try:
+                from requests_toolbelt import MultipartEncoder
+                encoder = MultipartEncoder(
+                    fields={**data, **files, **largeFiles})
+                data = encoder
+                files = None
+                headers = {'Content-Type': encoder.content_type}
+            except ImportError:
+                logger.error(
+                    "Unable to upload files larger than 2 GiB, Install 'requests_toolbelt' to add support")
+                return None
+
+        if not (files or largeFiles) and serializer:
+            headers = {"Content-Type": 'application/x-www-form-urlencoded'}
 
         return super(ProxmoxHttpSession, self).request(method, url, params, data, headers, cookies, files, auth,
                                                        timeout, allow_redirects, proxies, hooks, stream, verify, cert)
@@ -235,3 +253,16 @@ class Backend(object):
     def get_tokens(self):
         """Return the in-use auth and csrf tokens if using user/password auth."""
         return self.auth.get_tokens()
+
+
+def getFileSize(fileObj):
+    # store existing file cursor location
+    startingCursor = fileObj.tell()
+
+    # get size
+    size = fileObj.seek(0, os.SEEK_END)
+
+    # reset cursor
+    fileObj.seek(startingCursor)
+
+    return size

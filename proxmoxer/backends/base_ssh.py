@@ -73,8 +73,8 @@ class JsonSimpleSerializer(object):
     def loads(self, response):
         try:
             return json.loads(response.content)
-        except ValueError:
-            return response.content
+        except (UnicodeDecodeError, ValueError):
+            return {"errors": response.content}
 
 
 class BaseBackend(object):

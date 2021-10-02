@@ -185,21 +185,20 @@ class ProxmoxHttpSession(requests.Session):
         # filter out streams
         files = files or {}
         data = data or {}
-        hasLargeFiles = False
+        isLargePayload = False
+        totalFileSize = 0
         for k, v in data.copy().items():
             if is_file(v):
-                if getFileSize(v) > STREAMING_SIZE_THRESHOLD:
-                    hasLargeFiles= True
+                totalFileSize += getFileSize(v)
+                if totalFileSize > STREAMING_SIZE_THRESHOLD:
+                    isLargePayload = True
                 
-                if hasLargeFiles:
-                    # add in filename from file pointer (patch for https://github.com/requests/toolbelt/pull/316)
-                    files[k] = (requests.utils.guess_filename(v), v)
-                else:
-                    files[k] = v
+                # add in filename from file pointer (patch for https://github.com/requests/toolbelt/pull/316)
+                files[k] = (requests.utils.guess_filename(v), v)
                 del data[k]
 
         # if there are any large file, send all data and files using streaming multipart encoding
-        if hasLargeFiles:
+        if isLargePayload:
             try:
                 from requests_toolbelt import MultipartEncoder
                 encoder = MultipartEncoder(fields=mergeDicts(data, files))
@@ -207,9 +206,14 @@ class ProxmoxHttpSession(requests.Session):
                 files = None
                 headers = {'Content-Type': encoder.content_type}
             except ImportError:
-                logger.error(
-                    "Unable to upload files larger than 2 GiB, Install 'requests_toolbelt' to add support")
-                return None
+                # if the files will cause issues with the SSL 2GiB limit (https://bugs.python.org/issue42853#msg384566)
+                if totalFileSize > 2147483135: #2^31 - 1 - 512
+                    logger.warn(
+                        "Install 'requests_toolbelt' to add support for files larger than 2GiB")
+                    raise OverflowError("Unable to upload a payload larger than 2 GiB")
+                else:
+                    logger.info("Installing 'requests_toolbelt' will deacrease memory used during upload")
+
 
         if not files and serializer:
             headers = {"Content-Type": 'application/x-www-form-urlencoded'}

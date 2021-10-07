@@ -131,18 +131,21 @@ As a demonstration of the flexibility of usage of this library, the following li
 Some more examples:
 
 Listing VMs:
+
 .. code-block:: python
 
     for vm in proxmox.cluster.resources.get(type='vm'):
         print("{0}. {1} => {2}" .format(vm['vmid'], vm['name'], vm['status']))
 
 Listing contents of the ``local`` storage on the ``proxmox_node`` node (method 1):
+
 .. code-block:: python
 
     node = proxmox.nodes('proxmox_node')
     pprint(node.storage('local').content.get())
 
 Listing contents of the ``local`` storage on the ``proxmox_node`` node (method 2):
+
 .. code-block:: python
 
     node = proxmox.nodes.proxmox_node()

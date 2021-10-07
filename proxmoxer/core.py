@@ -33,8 +33,13 @@ ANYEVENT_HTTP_STATUS_CODES = {
     599: "Other, usually nonretryable, errors (garbled URL etc.)"
 }
 
-SUPPORTED_SERVICES = ['PVE', 'PMG']
+SERVICES = {
+    "PVE": {"supported_backends": ["https", "openssh", "ssh_paramiko"], "supported_https_auths": ["password", "token"], "default_port": 8006, "token_separator": "=", "ssh_additional_options": "--output-format json"},
+    "PMG": {"supported_backends": ["https", "openssh", "ssh_paramiko"], "supported_https_auths": ["password"], "default_port": 8006},
+    "PBS": {"supported_backends": ["https"], "supported_https_auths": ["password", "token"], "default_port": 8007, "token_separator": ":"}}
 
+def config_failure(message, *args):
+    raise NotImplementedError(message.format(*args))
 
 class ProxmoxResourceBase(object):
 
@@ -134,10 +139,19 @@ class ProxmoxResource(ProxmoxResourceBase):
 
 
 class ProxmoxAPI(ProxmoxResource):
-    def __init__(self, host, backend='https', **kwargs):
+    def __init__(self, host, backend='https', service='PVE', **kwargs):
+        service = service.upper()
+
+        # throw error for unsupported services
+        if not service in SERVICES.keys():
+            config_failure("{} service is not supported", service)
+
+        # throw error for unsupported backend for service
+        if not backend in SERVICES[service]["supported_backends"]:
+            config_failure("{} does not support {} backend", service, backend)
 
         #load backend module
-        self._backend = importlib.import_module('.backends.%s' % backend, 'proxmoxer').Backend(host, **kwargs)
+        self._backend = importlib.import_module('.backends.%s' % backend, 'proxmoxer').Backend(host, service=service, **kwargs)
         self._backend_name = backend
 
         self._store = {
@@ -149,7 +163,7 @@ class ProxmoxAPI(ProxmoxResource):
     def get_tokens(self):
         """Return the auth and csrf tokens.
 
-        Returns (None, None) if the backend is not https using user/password.
+        Returns (None, None) if the backend is not https using password authentication.
         """
         if self._backend_name != 'https':
             return None, None

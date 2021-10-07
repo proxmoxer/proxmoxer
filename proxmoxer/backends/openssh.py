@@ -23,11 +23,10 @@ class ProxmoxOpenSSHSession(ProxmoxBaseSSHSession):
                  forward_ssh_agent=False,
                  sudo=False,
                  identity_file=None):
-        # can be changed to `super()` in python3
-        super(ProxmoxOpenSSHSession, self).__init__(service)
         self.host = host
         self.username = username
         self.configfile = configfile
+        self.service = service.lower()
         self.port = port
         self.timeout = timeout
         self.forward_ssh_agent = forward_ssh_agent

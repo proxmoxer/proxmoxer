@@ -4,9 +4,9 @@ __licence__ = 'MIT'
 
 import io
 from mock import patch
-from nose.tools import eq_
+from nose.tools import eq_, assert_raises
 from proxmoxer import ProxmoxAPI
-from .base.base_ssh_suite import BaseSSHSuite
+from tests.base.base_ssh_suite import BaseSSHSuite
 
 
 @patch('paramiko.SSHClient')
@@ -21,6 +21,20 @@ def test_paramiko_connection(_):
                                                   'timeout': 5,
                                                   'password': None,
                                                   'port': 123})
+
+
+@patch('paramiko.SSHClient')
+def test_paramiko_invalid_backend(_):
+    with assert_raises(NotImplementedError):
+        ProxmoxAPI('proxmox', user='root', backend='ssh_paramiko', port=123, service='PBS')
+
+
+
+@patch('paramiko.SSHClient')
+def test_paramiko_tokens(_):
+        p = ProxmoxAPI('proxmox', user='root', backend='ssh_paramiko', port=123)
+        eq_(p.get_tokens()[0], None)
+        eq_(p.get_tokens()[1], None)
 
 
 class TestParamikoSuite(BaseSSHSuite):

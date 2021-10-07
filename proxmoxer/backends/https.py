@@ -7,7 +7,7 @@ import json
 import sys
 import time
 import logging
-from proxmoxer.core import SUPPORTED_SERVICES
+from proxmoxer.core import SERVICES, config_failure
 
 logger = logging.getLogger(__name__)
 logger.setLevel(level=logging.WARNING)
@@ -45,12 +45,6 @@ class AuthenticationError(Exception):
 
 
 class ProxmoxHTTPAuthBase(AuthBase):
-    def __init__(self, service):
-        if service.upper() in SUPPORTED_SERVICES:
-            self.service = service.upper()
-        else:
-            logger.error("Unsupported service: \"{0}\"".format(service.upper()))
-            sys.exit(1)
 
     def get_cookies(self):
         return cookiejar_from_dict({})
@@ -65,11 +59,11 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
     renew_age = 3600
 
     def __init__(self, base_url, username, password, otp=None, verify_ssl=False, timeout=5, service='PVE'):
-        super(ProxmoxHTTPAuth, self).__init__(service)
         self.base_url = base_url
         self.username = username
         self.verify_ssl = verify_ssl
         self.timeout = timeout
+        self.service = service
         self.pve_auth_ticket = ""
 
         self._getNewTokens(password=password, otp=otp)
@@ -131,15 +125,13 @@ class ProxmoxHTTPTicketAuth(ProxmoxHTTPAuth):
 
 class ProxmoxHTTPApiTokenAuth(ProxmoxHTTPAuthBase):
     def __init__(self, username, token_name, token_value, service):
-        super(ProxmoxHTTPApiTokenAuth, self).__init__(service)
-        if self.service == "PMG":
-            logger.warning("PMG service does not support API Tokens")
+        self.service = service
         self.username = username
         self.token_name = token_name
         self.token_value = token_value
 
     def __call__(self, r):
-        r.headers["Authorization"] = "{0}APIToken={1}!{2}={3}".format(self.service, self.username, self.token_name, self.token_value)
+        r.headers["Authorization"] = "{0}APIToken={1}!{2}{3}{4}".format(self.service, self.username, self.token_name, SERVICES[self.service]["token_separator"], self.token_value)
         return r
 
 
@@ -196,12 +188,16 @@ class ProxmoxHttpSession(requests.Session):
 
 
 class Backend(object):
-    def __init__(self, host, user, password=None, otp=None, port=8006,
+    def __init__(self, host, user=None, password=None, otp=None, port=None,
                  verify_ssl=True, mode='json', timeout=5, auth_token=None,
                  csrf_token=None, token_name=None, token_value=None, service='PVE'):
         if ':' in host:
             host, host_port = host.split(':')
             port = host_port if host_port.isdigit() else port
+
+        # if a port is not specified, use the default port for this service
+        if not port:
+            port = SERVICES[service]["default_port"]
 
         self.base_url = "https://{0}:{1}/api2/{2}".format(host, port, mode)
 
@@ -209,8 +205,14 @@ class Backend(object):
             # DEPRECATED(1.1.0) - either use a password or the API Tokens
             self.auth = ProxmoxHTTPTicketAuth(auth_token, csrf_token)
         elif token_name is not None:
+            if not "token" in SERVICES[service]["supported_https_auths"]:
+                config_failure("{} does not support API Token authentication", service)
+
             self.auth = ProxmoxHTTPApiTokenAuth(user, token_name, token_value, service)
         elif password is not None:
+            if not "password" in SERVICES[service]["supported_https_auths"]:
+                config_failure("{} does not support password authentication", service)
+
             self.auth = ProxmoxHTTPAuth(self.base_url, user, password, otp, verify_ssl, timeout, service)
         self.verify_ssl = verify_ssl
         self.mode = mode

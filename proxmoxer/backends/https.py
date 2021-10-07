@@ -4,6 +4,7 @@ __licence__ = 'MIT'
 
 
 import json
+import os
 import sys
 import time
 import logging
@@ -11,6 +12,8 @@ from proxmoxer.core import SERVICES, config_failure
 
 logger = logging.getLogger(__name__)
 logger.setLevel(level=logging.WARNING)
+
+STREAMING_SIZE_THRESHOLD = 100 * 1024 * 1024 # 10 MiB
 
 try:
     import requests
@@ -171,17 +174,41 @@ class ProxmoxHttpSession(requests.Session):
         if (not c) and a:
             cookies = a.get_cookies()
 
-        #filter out streams
+        # filter out streams
         files = files or {}
         data = data or {}
+        isLargePayload = False
+        totalFileSize = 0
         for k, v in data.copy().items():
             if is_file(v):
-                files[k] = v
+                totalFileSize += getFileSize(v)
+                if totalFileSize > STREAMING_SIZE_THRESHOLD:
+                    isLargePayload = True
+                
+                # add in filename from file pointer (patch for https://github.com/requests/toolbelt/pull/316)
+                files[k] = (requests.utils.guess_filename(v), v)
                 del data[k]
 
-        headers = None
+        # if there are any large file, send all data and files using streaming multipart encoding
+        if isLargePayload:
+            try:
+                from requests_toolbelt import MultipartEncoder
+                encoder = MultipartEncoder(fields=mergeDicts(data, files))
+                data = encoder
+                files = None
+                headers = {'Content-Type': encoder.content_type}
+            except ImportError:
+                # if the files will cause issues with the SSL 2GiB limit (https://bugs.python.org/issue42853#msg384566)
+                if totalFileSize > 2147483135: #2^31 - 1 - 512
+                    logger.warn(
+                        "Install 'requests_toolbelt' to add support for files larger than 2GiB")
+                    raise OverflowError("Unable to upload a payload larger than 2 GiB")
+                else:
+                    logger.info("Installing 'requests_toolbelt' will deacrease memory used during upload")
+
+
         if not files and serializer:
-            headers = {"content-type": 'application/x-www-form-urlencoded'}
+            headers = {"Content-Type": 'application/x-www-form-urlencoded'}
 
         return super(ProxmoxHttpSession, self).request(method, url, params, data, headers, cookies, files, auth,
                                                        timeout, allow_redirects, proxies, hooks, stream, verify, cert)
@@ -237,3 +264,22 @@ class Backend(object):
     def get_tokens(self):
         """Return the in-use auth and csrf tokens if using user/password auth."""
         return self.auth.get_tokens()
+
+
+def getFileSize(fileObj):
+    # store existing file cursor location
+    startingCursor = fileObj.tell()
+
+    # get size
+    size = fileObj.seek(0, os.SEEK_END)
+
+    # reset cursor
+    fileObj.seek(startingCursor)
+
+    return size
+
+
+def mergeDicts(*dicts):
+    # compatibility function for missing unpack operator
+    # synonymous with {**dict for dict in dicts}
+    return {k: v for d in dicts for k, v in d.items()}

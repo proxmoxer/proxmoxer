@@ -107,7 +107,7 @@ class ProxmoxResource(ProxmoxResourceBase):
                     httplib.responses.get(resp.status_code,
                                         ANYEVENT_HTTP_STATUS_CODES.get(resp.status_code)),
                     resp.reason,
-                    self._store["serializer"].loads(resp).get('errors')
+                    (self._store["serializer"].loads(resp) or {}).get('errors')
                 )
             else:
                 raise ResourceException(

@@ -226,6 +226,19 @@ Example of PMG usage:
 Changelog
 ---------
 
+1.2.0 (2021-10-07)
+..................
+* Addition (https): Added OTP code support to authentication (`John Hollowell <https://github.com/jhollowe>`_)
+* Addition (https): Added support for large file uploads using requests_toolbelt module (`John Hollowell <https://github.com/jhollowe>`_)
+* Addition (all): Added support for Proxmox Mail Gateway (PMG) and Proxmox Backup Server (PBS) with parameter validation (`Gabriel Cardoso de Faria <https://github.com/gabrielcardoso21>`_ and `John Hollowell <https://github.com/jhollowe>`_)
+* Addition (all): Added detailed information to ResourceException (`mihailstoynov <https://github.com/mihailstoynov>`_)
+* Bugfix (base_ssh): Resolved issue with values containing spaces by encapsulating values in quotes (`mihailstoynov <https://github.com/mihailstoynov>`_)
+* Bugfix (all): Resolved issue with using get/post/push/delete on a base ProxmoxAPI object (`John Hollowell <https://github.com/jhollowe>`_)
+* Bugfix (all): Added support for responses which are not JSON (`John Hollowell <https://github.com/jhollowe>`_)
+* Improvement: Added and updated documentation (`Ananias Filho <https://github.com/ananiasfilho>`_ and `Thomas Baag <https://github.com/b2ag>`_)
+* Improvement: Tests are now not installed when using PIP (`Ville Skyttä <https://github.com/scop>`_)
+* Addition: Devcontainer definition now available to make development easier (`John Hollowell <https://github.com/jhollowe>`_)
+
 1.1.1 (2020-06-23)
 ..................
 * Bugfix (https): correctly renew ticket in the session, not just the auth (`John Hollowell <https://github.com/jhollowe>`_)

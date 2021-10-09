@@ -4,12 +4,16 @@ __licence__ = 'MIT'
 
 
 import json
+import os
 import sys
 import time
 import logging
+from proxmoxer.core import SERVICES, config_failure
 
 logger = logging.getLogger(__name__)
 logger.setLevel(level=logging.WARNING)
+
+STREAMING_SIZE_THRESHOLD = 100 * 1024 * 1024 # 10 MiB
 
 try:
     import requests
@@ -24,7 +28,7 @@ except ImportError:
 if sys.version_info[0] >= 3:
     import io
     def is_file(obj): return isinstance(obj, io.IOBase)
-    # prefer using monotomic time if available
+    # prefer using monoatomic time if available
     def get_time(): return time.monotonic()
 else:
     def is_file(obj): return isinstance(obj, file)
@@ -44,6 +48,7 @@ class AuthenticationError(Exception):
 
 
 class ProxmoxHTTPAuthBase(AuthBase):
+
     def get_cookies(self):
         return cookiejar_from_dict({})
 
@@ -56,25 +61,30 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
     # if calls are made less frequently than 2 hrs, using the API token auth is reccomended
     renew_age = 3600
 
-    def __init__(self, base_url, username, password, verify_ssl=False, timeout=5):
+    def __init__(self, base_url, username, password, otp=None, verify_ssl=False, timeout=5, service='PVE'):
         self.base_url = base_url
         self.username = username
         self.verify_ssl = verify_ssl
         self.timeout = timeout
+        self.service = service
         self.pve_auth_ticket = ""
 
-        self._getNewTokens(password=password)
+        self._getNewTokens(password=password, otp=otp)
 
 
-    def _getNewTokens(self, password=None):
+    def _getNewTokens(self, password=None, otp=None):
         if password == None:
             # refresh from existing (unexpired) ticket
             password = self.pve_auth_ticket
 
+        data = {"username": self.username, "password": password}
+        if otp:
+            data["otp"] = otp
+
         response_data = requests.post(self.base_url + "/access/ticket",
                                       verify=self.verify_ssl,
                                       timeout=self.timeout,
-                                      data={"username": self.username, "password": password}).json()["data"]
+                                      data=data).json()["data"]
         if response_data is None:
             raise AuthenticationError("Couldn't authenticate user: {0} to {1}".format(self.username, self.base_url + "/access/ticket"))
 
@@ -83,7 +93,7 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
         self.csrf_prevention_token = response_data["CSRFPreventionToken"]
 
     def get_cookies(self):
-        return cookiejar_from_dict({"PVEAuthCookie": self.pve_auth_ticket})
+        return cookiejar_from_dict({self.service + "AuthCookie": self.pve_auth_ticket})
 
     def get_tokens(self):
         return self.pve_auth_ticket, self.csrf_prevention_token
@@ -94,7 +104,7 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
             logger.debug("refreshing ticket (age {0})".format(get_time() - self.birth_time))
             self._getNewTokens()
 
-        # only attach CRSF token if needed (reduce interception risk)
+        # only attach CSRF token if needed (reduce interception risk)
         if r.method != 'GET':
             r.headers["CSRFPreventionToken"] = self.csrf_prevention_token
         return r
@@ -117,13 +127,14 @@ class ProxmoxHTTPTicketAuth(ProxmoxHTTPAuth):
 
 
 class ProxmoxHTTPApiTokenAuth(ProxmoxHTTPAuthBase):
-    def __init__(self, username, token_name, token_value):
+    def __init__(self, username, token_name, token_value, service):
+        self.service = service
         self.username = username
         self.token_name = token_name
         self.token_value = token_value
 
     def __call__(self, r):
-        r.headers["Authorization"] = "PVEAPIToken={0}!{1}={2}".format(self.username, self.token_name, self.token_value)
+        r.headers["Authorization"] = "{0}APIToken={1}!{2}{3}{4}".format(self.service, self.username, self.token_name, SERVICES[self.service]["token_separator"], self.token_value)
         return r
 
 
@@ -143,7 +154,7 @@ class JsonSerializer(object):
         try:
             return json.loads(response.content.decode('utf-8'))['data']
         except (UnicodeDecodeError, ValueError):
-            return response.content
+            return {"errors": response.content}
 
 
 class ProxmoxHttpSession(requests.Session):
@@ -163,29 +174,57 @@ class ProxmoxHttpSession(requests.Session):
         if (not c) and a:
             cookies = a.get_cookies()
 
-        #filter out streams
+        # filter out streams
         files = files or {}
         data = data or {}
+        isLargePayload = False
+        totalFileSize = 0
         for k, v in data.copy().items():
             if is_file(v):
-                files[k] = v
+                totalFileSize += getFileSize(v)
+                if totalFileSize > STREAMING_SIZE_THRESHOLD:
+                    isLargePayload = True
+                
+                # add in filename from file pointer (patch for https://github.com/requests/toolbelt/pull/316)
+                files[k] = (requests.utils.guess_filename(v), v)
                 del data[k]
 
-        headers = None
+        # if there are any large file, send all data and files using streaming multipart encoding
+        if isLargePayload:
+            try:
+                from requests_toolbelt import MultipartEncoder
+                encoder = MultipartEncoder(fields=mergeDicts(data, files))
+                data = encoder
+                files = None
+                headers = {'Content-Type': encoder.content_type}
+            except ImportError:
+                # if the files will cause issues with the SSL 2GiB limit (https://bugs.python.org/issue42853#msg384566)
+                if totalFileSize > 2147483135: #2^31 - 1 - 512
+                    logger.warn(
+                        "Install 'requests_toolbelt' to add support for files larger than 2GiB")
+                    raise OverflowError("Unable to upload a payload larger than 2 GiB")
+                else:
+                    logger.info("Installing 'requests_toolbelt' will deacrease memory used during upload")
+
+
         if not files and serializer:
-            headers = {"content-type": 'application/x-www-form-urlencoded'}
+            headers = {"Content-Type": 'application/x-www-form-urlencoded'}
 
         return super(ProxmoxHttpSession, self).request(method, url, params, data, headers, cookies, files, auth,
                                                        timeout, allow_redirects, proxies, hooks, stream, verify, cert)
 
 
 class Backend(object):
-    def __init__(self, host, user, password=None, port=8006, verify_ssl=True,
-                 mode='json', timeout=5, auth_token=None, csrf_token=None,
-                 token_name=None, token_value=None):
+    def __init__(self, host, user=None, password=None, otp=None, port=None,
+                 verify_ssl=True, mode='json', timeout=5, auth_token=None,
+                 csrf_token=None, token_name=None, token_value=None, service='PVE'):
         if ':' in host:
             host, host_port = host.split(':')
             port = host_port if host_port.isdigit() else port
+
+        # if a port is not specified, use the default port for this service
+        if not port:
+            port = SERVICES[service]["default_port"]
 
         self.base_url = "https://{0}:{1}/api2/{2}".format(host, port, mode)
 
@@ -193,9 +232,15 @@ class Backend(object):
             # DEPRECATED(1.1.0) - either use a password or the API Tokens
             self.auth = ProxmoxHTTPTicketAuth(auth_token, csrf_token)
         elif token_name is not None:
-            self.auth = ProxmoxHTTPApiTokenAuth(user, token_name, token_value)
+            if not "token" in SERVICES[service]["supported_https_auths"]:
+                config_failure("{} does not support API Token authentication", service)
+
+            self.auth = ProxmoxHTTPApiTokenAuth(user, token_name, token_value, service)
         elif password is not None:
-            self.auth = ProxmoxHTTPAuth(self.base_url, user, password, verify_ssl, timeout)
+            if not "password" in SERVICES[service]["supported_https_auths"]:
+                config_failure("{} does not support password authentication", service)
+
+            self.auth = ProxmoxHTTPAuth(self.base_url, user, password, otp, verify_ssl, timeout, service)
         self.verify_ssl = verify_ssl
         self.mode = mode
         self.timeout = timeout
@@ -219,3 +264,22 @@ class Backend(object):
     def get_tokens(self):
         """Return the in-use auth and csrf tokens if using user/password auth."""
         return self.auth.get_tokens()
+
+
+def getFileSize(fileObj):
+    # store existing file cursor location
+    startingCursor = fileObj.tell()
+
+    # get size
+    size = fileObj.seek(0, os.SEEK_END)
+
+    # reset cursor
+    fileObj.seek(startingCursor)
+
+    return size
+
+
+def mergeDicts(*dicts):
+    # compatibility function for missing unpack operator
+    # synonymous with {**dict for dict in dicts}
+    return {k: v for d in dicts for k, v in d.items()}

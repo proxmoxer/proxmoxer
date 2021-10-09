@@ -16,6 +16,7 @@ except ImportError:
 class ProxmoxOpenSSHSession(ProxmoxBaseSSHSession):
     def __init__(self, host,
                  username,
+                 service='PVE',
                  configfile=None,
                  port=22,
                  timeout=5,
@@ -25,6 +26,7 @@ class ProxmoxOpenSSHSession(ProxmoxBaseSSHSession):
         self.host = host
         self.username = username
         self.configfile = configfile
+        self.service = service.lower()
         self.port = port
         self.timeout = timeout
         self.forward_ssh_agent = forward_ssh_agent
@@ -47,11 +49,12 @@ class ProxmoxOpenSSHSession(ProxmoxBaseSSHSession):
 
 
 class Backend(BaseBackend):
-    def __init__(self, host, user, configfile=None, port=22, timeout=5, forward_ssh_agent=False, sudo=False, identity_file=None):
+    def __init__(self, host, user, configfile=None, port=22, timeout=5, forward_ssh_agent=False, sudo=False, identity_file=None, service='PVE'):
         self.session = ProxmoxOpenSSHSession(host, user,
                                              configfile=configfile,
                                              port=port,
                                              timeout=timeout,
                                              forward_ssh_agent=forward_ssh_agent,
                                              sudo=sudo,
-                                             identity_file=identity_file)
+                                             identity_file=identity_file,
+                                             service=service)

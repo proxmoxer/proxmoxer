@@ -6,12 +6,18 @@ __licence__ = 'MIT'
 from itertools import chain
 import json
 import re
+import logging
+import sys
+from proxmoxer.core import SERVICES
 
+logger = logging.getLogger(__name__)
+logger.setLevel(level=logging.WARNING)
 
 class Response(object):
     def __init__(self, content, status_code):
         self.status_code = status_code
         self.content = content
+        self.text = str(content)
         self.headers = {"content-type": "application/json"}
 
 
@@ -40,8 +46,10 @@ class ProxmoxBaseSSHSession(object):
             data['filename'] = data['filename'].name
             data['tmpfilename'] = tmp_filename
 
-        translated_data = ' '.join(["-{0} {1}".format(k, v) for k, v in chain(data.items(), params.items())])
-        full_cmd = 'pvesh {0} --output-format json'.format(' '.join(filter(None, (cmd, url, translated_data))))
+        translated_data = ' '.join(["-{0} '{1}'".format(k, v) for k, v in chain(data.items(), params.items())])
+
+        additional_options = SERVICES[self.service.upper()].get("ssh_additional_options", "")
+        full_cmd = '{0}sh {1} {2}'.format(self.service, ' '.join(filter(None, (cmd, url, translated_data))), additional_options)
 
         stdout, stderr = self._exec(full_cmd)
         def match(s): return re.match(r'\d\d\d [a-zA-Z]', s)
@@ -65,8 +73,8 @@ class JsonSimpleSerializer(object):
     def loads(self, response):
         try:
             return json.loads(response.content)
-        except ValueError:
-            return response.content
+        except (UnicodeDecodeError, ValueError):
+            return {"errors": response.content}
 
 
 class BaseBackend(object):

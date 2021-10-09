@@ -33,7 +33,7 @@ setup(
     url = 'https://github.com/proxmoxer/proxmoxer',
     download_url = 'http://pypi.python.org/pypi/proxmoxer',
     keywords = ['proxmox', 'api'],
-    packages=['proxmoxer', 'proxmoxer.backends', 'tests', 'tests.base'],
+    packages=['proxmoxer', 'proxmoxer.backends'],
     classifiers = [ #http://pypi.python.org/pypi?%3Aaction=list_classifiers
         "Development Status :: 5 - Production/Stable",
         "Programming Language :: Python",

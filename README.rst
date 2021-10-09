@@ -38,6 +38,12 @@ To use the 'ssh_paramiko' backend, install paramiko
 
     pip install paramiko
 
+To use the 'openssh' backend, install openssh_wrapper
+
+.. code-block:: bash
+
+    pip install openssh_wrapper
+
 
 Short usage information
 -----------------------
@@ -52,7 +58,7 @@ The first thing to do is import the proxmoxer library and create ProxmoxAPI inst
 
 This will connect by default to PVE through the 'https' backend.
 
-To define service to PVE or PMG, include service option into script:
+To select a different service, use the `service` argument (currently supports 'PVE',  'PMG', and):
 
 **Define PVE connection:**
 
@@ -87,8 +93,7 @@ For SSH access, it is possible to use pre-prepared public/private key authentica
     from proxmoxer import ProxmoxAPI
     proxmox = ProxmoxAPI('proxmox_host', user='proxmox_admin', backend='ssh_paramiko')
 
-**Note: the 'https' backend needs the 'requests' library, the 'ssh_paramiko' backend needs the 'paramiko' library,
-and the 'openssh' backend needs the 'openssh_wrapper' library installed.**
+**Note: ensure you have the required libraries (listed above) for the connection method you are using**
 
 Queries are exposed via the access methods **get**, **post**, **put** and **delete**. For convenience two
 synonyms are available: **create** for **post**, and **set** for **put**.
@@ -131,18 +136,21 @@ As a demonstration of the flexibility of usage of this library, the following li
 Some more examples:
 
 Listing VMs:
+
 .. code-block:: python
 
     for vm in proxmox.cluster.resources.get(type='vm'):
         print("{0}. {1} => {2}" .format(vm['vmid'], vm['name'], vm['status']))
 
 Listing contents of the ``local`` storage on the ``proxmox_node`` node (method 1):
+
 .. code-block:: python
 
     node = proxmox.nodes('proxmox_node')
     pprint(node.storage('local').content.get())
 
 Listing contents of the ``local`` storage on the ``proxmox_node`` node (method 2):
+
 .. code-block:: python
 
     node = proxmox.nodes.proxmox_node()
@@ -189,6 +197,7 @@ Uploading a template:
     local_storage.upload.create(content='vztmpl',
         filename=open(os.path.expanduser('~/templates/debian-6-my-core_1.0-1_i386.tar.gz'),'rb')))
 
+NOTE: for large file uploads, please ensure the ``requests_toolbelt`` pip module is installed. This provides support for larger files and reduces the memory requirement of uploads.
 
 Downloading rrd CPU image data to a file:
 
@@ -222,6 +231,19 @@ Example of PMG usage:
 
 Changelog
 ---------
+
+1.2.0 (2021-10-07)
+..................
+* Addition (https): Added OTP code support to authentication (`John Hollowell <https://github.com/jhollowe>`_)
+* Addition (https): Added support for large file uploads using requests_toolbelt module (`John Hollowell <https://github.com/jhollowe>`_)
+* Addition (all): Added support for Proxmox Mail Gateway (PMG) and Proxmox Backup Server (PBS) with parameter validation (`Gabriel Cardoso de Faria <https://github.com/gabrielcardoso21>`_ and `John Hollowell <https://github.com/jhollowe>`_)
+* Addition (all): Added detailed information to ResourceException (`mihailstoynov <https://github.com/mihailstoynov>`_)
+* Bugfix (base_ssh): Resolved issue with values containing spaces by encapsulating values in quotes (`mihailstoynov <https://github.com/mihailstoynov>`_)
+* Bugfix (all): Resolved issue with using get/post/push/delete on a base ProxmoxAPI object (`John Hollowell <https://github.com/jhollowe>`_)
+* Bugfix (all): Added support for responses which are not JSON (`John Hollowell <https://github.com/jhollowe>`_)
+* Improvement: Added and updated documentation (`Ananias Filho <https://github.com/ananiasfilho>`_ and `Thomas Baag <https://github.com/b2ag>`_)
+* Improvement: Tests are now not installed when using PIP (`Ville Skyttä <https://github.com/scop>`_)
+* Addition: Devcontainer definition now available to make development easier (`John Hollowell <https://github.com/jhollowe>`_)
 
 1.1.1 (2020-06-23)
 ..................

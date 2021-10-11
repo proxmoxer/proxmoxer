@@ -141,6 +141,7 @@ class ProxmoxResource(ProxmoxResourceBase):
 class ProxmoxAPI(ProxmoxResource):
     def __init__(self, host, backend='https', service='PVE', **kwargs):
         service = service.upper()
+        backend = backend.lower()
 
         # throw error for unsupported services
         if not service in SERVICES.keys():

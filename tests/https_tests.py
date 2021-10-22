@@ -45,7 +45,30 @@ def test_https_connection_with_bad_port_in_host(req_session):
     eq_(call['method'], 'post')
     eq_(call['verify'], False)
 
+@patch('requests.sessions.Session')
+def test_https_connection_ipv6(req_session):
+    response = {'ticket': 'ticket',
+                'CSRFPreventionToken': 'CSRFPreventionToken'}
+    req_session.request.return_value = response
+    ProxmoxAPI('fe80:1:2:3::123', user='root@pam', password='secret', port=124, verify_ssl=False)
+    call = req_session.return_value.request.call_args[1]
+    eq_(call['url'], 'https://[fe80:1:2:3::123]:124/api2/json/access/ticket')
+    eq_(call['data'], {'username': 'root@pam', 'password': 'secret'})
+    eq_(call['method'], 'post')
+    eq_(call['verify'], False)
 
+@patch('requests.sessions.Session')
+def test_https_connection_ipv6_with_port_in_host(req_session):
+    response = {'ticket': 'ticket',
+                'CSRFPreventionToken': 'CSRFPreventionToken'}
+    req_session.request.return_value = response
+    ProxmoxAPI('[fe80:1:2:3::123]:123', user='root@pam', password='secret', port=124, verify_ssl=False)
+    call = req_session.return_value.request.call_args[1]
+    eq_(call['url'], 'https://[fe80:1:2:3::123]:123/api2/json/access/ticket')
+    eq_(call['data'], {'username': 'root@pam', 'password': 'secret'})
+    eq_(call['method'], 'post')
+    eq_(call['verify'], False)
+    
 def test_https_api_token():
     p = ProxmoxAPI('proxmox', user='root@pam', token_name='test', token_value='ab27beeb-9ac4-4df1-aa19-62639f27031e', verify_ssl=False)
     eq_(p.get_tokens()[0], None)

@@ -220,7 +220,7 @@ class Backend(object):
                  csrf_token=None, token_name=None, token_value=None, service='PVE'):
 
         host_port = ''
-        if len(host.split(':')) > 1: # IPv6
+        if len(host.split(':')) > 2: # IPv6
             if host.startswith('['):
                 if ']:' in host:
                     host, host_port = host.rsplit(':', 1)

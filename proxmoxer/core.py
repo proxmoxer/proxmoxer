@@ -34,8 +34,8 @@ ANYEVENT_HTTP_STATUS_CODES = {
 }
 
 SERVICES = {
-    "PVE": {"supported_backends": ["https", "openssh", "ssh_paramiko"], "supported_https_auths": ["password", "token"], "default_port": 8006, "token_separator": "=", "ssh_additional_options": "--output-format json"},
-    "PMG": {"supported_backends": ["https", "openssh", "ssh_paramiko"], "supported_https_auths": ["password"], "default_port": 8006},
+    "PVE": {"supported_backends": ["https", "openssh", "ssh_paramiko", "cli"], "supported_https_auths": ["password", "token"], "default_port": 8006, "token_separator": "=", "ssh_additional_options": "--output-format json"},
+    "PMG": {"supported_backends": ["https", "openssh", "ssh_paramiko", "cli"], "supported_https_auths": ["password"], "default_port": 8006},
     "PBS": {"supported_backends": ["https"], "supported_https_auths": ["password", "token"], "default_port": 8007, "token_separator": ":"}}
 
 def config_failure(message, *args):
@@ -139,7 +139,10 @@ class ProxmoxResource(ProxmoxResourceBase):
 
 
 class ProxmoxAPI(ProxmoxResource):
-    def __init__(self, host, backend='https', service='PVE', **kwargs):
+    def __init__(self, host=None, backend='https', service='PVE', **kwargs):
+        # Simulate previous behavior, requiring "host" parameter
+        if backend != 'cli' and host is None:
+            raise TypeError("__init__() missing 1 required positional argument: 'host'")
         service = service.upper()
         backend = backend.lower()
 

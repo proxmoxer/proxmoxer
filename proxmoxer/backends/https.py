@@ -278,6 +278,17 @@ def getFileSize(fileObj):
 
     return size
 
+def getFileSizePartial(fileObj):
+    # store existing file cursor location
+    startingCursor = fileObj.tell()
+
+    # get size
+    size = fileObj.seek(-1 * startingCursor, os.SEEK_END)
+
+    # reset cursor
+    fileObj.seek(startingCursor)
+
+    return size
 
 def mergeDicts(*dicts):
     # compatibility function for missing unpack operator

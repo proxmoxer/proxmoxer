@@ -44,15 +44,14 @@ jobs:
         run: pip3 install .
 
       - name: Run Tests
-        run: nosetests --with-coverage --cover-xml --cover-erase --cover-branches --cover-package=proxmoxer tests/
+        run: nosetests --with-coverage --cover-erase --cover-branches --cover-package=proxmoxer tests/
 
-      - name: Send Coverage
-        uses: coverallsapp/github-action@1.1.3
-        with:
-          parallel: true
-          flag-name: Unit Test (${{ matrix.python-version }})
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          path-to-lcov: coverage.xml
+      - name: Upload coverage data to coveralls.io
+        run: coveralls --service=github
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COVERALLS_FLAG_NAME: Unit Test (${{ matrix.python-version }})
+          COVERALLS_PARALLEL: true
 
 
   complete:

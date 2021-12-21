@@ -39,10 +39,10 @@ jobs:
             ${{ runner.os }}-pip-
 
       - name: Install pip Packages
-        run: pip3 install -r test_requirements.txt
+        run: pip install -r test_requirements.txt
 
       - name: Install Self as Package
-        run: pip3 install .
+        run: pip install .
 
       - name: Run Tests
         run: nosetests --with-coverage --cover-erase --cover-branches --cover-package=proxmoxer tests/
@@ -51,7 +51,7 @@ jobs:
         run: coveralls --service=github
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COVERALLS_FLAG_NAME: Unit Test (${{ matrix.python-version }})
+          # COVERALLS_FLAG_NAME: Unit Test (${{ matrix.python-version }})
           COVERALLS_PARALLEL: true
 
 

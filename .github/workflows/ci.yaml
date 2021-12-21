@@ -47,7 +47,7 @@ jobs:
         run: nosetests --with-coverage --cover-erase --cover-branches --cover-package=proxmoxer tests/
 
       - name: Upload coverage data to coveralls.io
-        run: coveralls --service=github
+        run: coveralls --service=github-actions
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COVERALLS_FLAG_NAME: Unit Test (${{ matrix.python-version }})

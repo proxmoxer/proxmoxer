@@ -278,8 +278,10 @@ def getFileSize(fileObj):
     # store existing file cursor location
     startingCursor = fileObj.tell()
 
-    # get size
-    size = fileObj.seek(0, os.SEEK_END)
+    # seek to end of file
+    fileObj.seek(0, os.SEEK_END)
+
+    size = fileObj.seek()
 
     # reset cursor
     fileObj.seek(startingCursor)
@@ -297,8 +299,10 @@ def getFileSizePartial(fileObj):
     # store existing file cursor location
     startingCursor = fileObj.tell()
 
-    # get size
-    size = fileObj.seek(-1 * startingCursor, os.SEEK_END)
+    fileObj.seek(0, os.SEEK_END)
+
+    # get number of byte between where the cursor was set and the end
+    size = fileObj.tell() - startingCursor
 
     # reset cursor
     fileObj.seek(startingCursor)

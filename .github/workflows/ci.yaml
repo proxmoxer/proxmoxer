@@ -52,6 +52,7 @@ jobs:
           parallel: true
           flag-name: Unit Test (${{ matrix.python-version }})
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: .coverage
 
 
   complete:

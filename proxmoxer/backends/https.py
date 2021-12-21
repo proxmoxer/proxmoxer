@@ -281,7 +281,7 @@ def getFileSize(fileObj):
     # seek to end of file
     fileObj.seek(0, os.SEEK_END)
 
-    size = fileObj.seek()
+    size = fileObj.tell()
 
     # reset cursor
     fileObj.seek(startingCursor)

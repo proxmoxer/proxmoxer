@@ -44,7 +44,7 @@ jobs:
         run: pip3 install .
 
       - name: Run Tests
-        run: nosetests --with-coverage --cover-erase --cover-branches --cover-package=proxmoxer -w tests
+        run: nosetests --with-coverage --cover-xml --cover-erase --cover-branches --cover-package=proxmoxer tests/
 
       - name: Send Coverage
         uses: coverallsapp/github-action@1.1.3
@@ -52,7 +52,7 @@ jobs:
           parallel: true
           flag-name: Unit Test (${{ matrix.python-version }})
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          path-to-lcov: .coverage
+          path-to-lcov: coverage.xml
 
 
   complete:

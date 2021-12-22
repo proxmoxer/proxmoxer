@@ -184,7 +184,7 @@ class ProxmoxHttpSession(requests.Session):
                 totalFileSize += getFileSize(v)
                 if totalFileSize > STREAMING_SIZE_THRESHOLD:
                     isLargePayload = True
-                
+
                 # add in filename from file pointer (patch for https://github.com/requests/toolbelt/pull/316)
                 files[k] = (requests.utils.guess_filename(v), v)
                 del data[k]
@@ -267,19 +267,54 @@ class Backend(object):
 
 
 def getFileSize(fileObj):
+    """Returns the number of bytes in the given file object in total
+    file cursor remains at the same location as when passed in
+
+    :param fileObj: file object of which the get size
+    :type fileObj: file object
+    :return: total bytes in file object
+    :rtype: int
+    """
     # store existing file cursor location
     startingCursor = fileObj.tell()
 
-    # get size
-    size = fileObj.seek(0, os.SEEK_END)
+    # seek to end of file
+    fileObj.seek(0, os.SEEK_END)
+
+    size = fileObj.tell()
 
     # reset cursor
     fileObj.seek(startingCursor)
 
     return size
 
+def getFileSizePartial(fileObj):
+    """Returns the number of bytes in the given file object from the current cursor to the end
+
+    :param fileObj: file object of which the get size
+    :type fileObj: file object
+    :return: remaining bytes in file object
+    :rtype: int
+    """
+    # store existing file cursor location
+    startingCursor = fileObj.tell()
+
+    fileObj.seek(0, os.SEEK_END)
+
+    # get number of byte between where the cursor was set and the end
+    size = fileObj.tell() - startingCursor
+
+    # reset cursor
+    fileObj.seek(startingCursor)
+
+    return size
 
 def mergeDicts(*dicts):
-    # compatibility function for missing unpack operator
+    """Compatibility polyfill for dict unpacking for python < 3.5
+    See PEP 448 for details on how merging functions
+
+    :return: merged dicts
+    :rtype: dict
+    """
     # synonymous with {**dict for dict in dicts}
     return {k: v for d in dicts for k, v in d.items()}

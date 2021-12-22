@@ -3,7 +3,7 @@ __copyright__ = '(c) Oleg Butovich 2013-2017'
 __licence__ = 'MIT'
 
 from mock import patch, MagicMock
-from nose.tools import eq_, ok_
+from nose.tools import eq_, ok_, assert_raises
 from proxmoxer import ProxmoxAPI
 
 
@@ -46,11 +46,33 @@ def test_https_connection_with_bad_port_in_host(req_session):
     eq_(call['verify'], False)
 
 
-@patch('requests.sessions.Session')
-def test_https_api_token(req_session):
+def test_https_api_token():
     p = ProxmoxAPI('proxmox', user='root@pam', token_name='test', token_value='ab27beeb-9ac4-4df1-aa19-62639f27031e', verify_ssl=False)
     eq_(p.get_tokens()[0], None)
     eq_(p.get_tokens()[1], None)
+
+
+def test_https_pmg_token():
+    with assert_raises(NotImplementedError):
+        ProxmoxAPI('proxmox', user='root@pam', token_name='test', token_value='ab27beeb-9ac4-4df1-aa19-62639f27031e', verify_ssl=False, service='PMG')
+
+def test_https_invalid_service():
+    with assert_raises(NotImplementedError):
+        ProxmoxAPI('nothing', user='root@pam', token_name='test', token_value='ab27beeb-9ac4-4df1-aa19-62639f27031e', verify_ssl=False, service='asdf')
+
+
+@patch('requests.sessions.Session')
+def test_pbs_https_connection(req_session):
+    response = {'ticket': 'ticket',
+                'CSRFPreventionToken': 'CSRFPreventionToken'}
+    req_session.request.return_value = response
+    ProxmoxAPI('proxmox', user='root@pam', password='secret', verify_ssl=False, service='pbs')
+    call = req_session.return_value.request.call_args[1]
+    eq_(call['url'], 'https://proxmox:8007/api2/json/access/ticket')
+    eq_(call['data'], {'username': 'root@pam', 'password': 'secret'})
+    eq_(call['method'], 'post')
+    eq_(call['verify'], False)
+
 
 class TestSuite():
     proxmox = None

@@ -4,13 +4,16 @@ __licence__ = 'MIT'
 
 
 import json
+import os
 import sys
 import time
 import logging
-from proxmoxer.core import SUPPORTED_SERVICES
+from proxmoxer.core import SERVICES, config_failure
 
 logger = logging.getLogger(__name__)
 logger.setLevel(level=logging.WARNING)
+
+STREAMING_SIZE_THRESHOLD = 100 * 1024 * 1024 # 10 MiB
 
 try:
     import requests
@@ -45,12 +48,6 @@ class AuthenticationError(Exception):
 
 
 class ProxmoxHTTPAuthBase(AuthBase):
-    def __init__(self, service):
-        if service.upper() in SUPPORTED_SERVICES:
-            self.service = service.upper()
-        else:
-            logger.error("Unsupported service: \"{0}\"".format(service.upper()))
-            sys.exit(1)
 
     def get_cookies(self):
         return cookiejar_from_dict({})
@@ -65,11 +62,11 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
     renew_age = 3600
 
     def __init__(self, base_url, username, password, otp=None, verify_ssl=False, timeout=5, service='PVE'):
-        super(ProxmoxHTTPAuth, self).__init__(service)
         self.base_url = base_url
         self.username = username
         self.verify_ssl = verify_ssl
         self.timeout = timeout
+        self.service = service
         self.pve_auth_ticket = ""
 
         self._getNewTokens(password=password, otp=otp)
@@ -131,15 +128,13 @@ class ProxmoxHTTPTicketAuth(ProxmoxHTTPAuth):
 
 class ProxmoxHTTPApiTokenAuth(ProxmoxHTTPAuthBase):
     def __init__(self, username, token_name, token_value, service):
-        super(ProxmoxHTTPApiTokenAuth, self).__init__(service)
-        if self.service == "PMG":
-            logger.warning("PMG service does not support API Tokens")
+        self.service = service
         self.username = username
         self.token_name = token_name
         self.token_value = token_value
 
     def __call__(self, r):
-        r.headers["Authorization"] = "{0}APIToken={1}!{2}={3}".format(self.service, self.username, self.token_name, self.token_value)
+        r.headers["Authorization"] = "{0}APIToken={1}!{2}{3}{4}".format(self.service, self.username, self.token_name, SERVICES[self.service]["token_separator"], self.token_value)
         return r
 
 
@@ -179,29 +174,57 @@ class ProxmoxHttpSession(requests.Session):
         if (not c) and a:
             cookies = a.get_cookies()
 
-        #filter out streams
+        # filter out streams
         files = files or {}
         data = data or {}
+        isLargePayload = False
+        totalFileSize = 0
         for k, v in data.copy().items():
             if is_file(v):
-                files[k] = v
+                totalFileSize += getFileSize(v)
+                if totalFileSize > STREAMING_SIZE_THRESHOLD:
+                    isLargePayload = True
+
+                # add in filename from file pointer (patch for https://github.com/requests/toolbelt/pull/316)
+                files[k] = (requests.utils.guess_filename(v), v)
                 del data[k]
 
-        headers = None
+        # if there are any large file, send all data and files using streaming multipart encoding
+        if isLargePayload:
+            try:
+                from requests_toolbelt import MultipartEncoder
+                encoder = MultipartEncoder(fields=mergeDicts(data, files))
+                data = encoder
+                files = None
+                headers = {'Content-Type': encoder.content_type}
+            except ImportError:
+                # if the files will cause issues with the SSL 2GiB limit (https://bugs.python.org/issue42853#msg384566)
+                if totalFileSize > 2147483135: #2^31 - 1 - 512
+                    logger.warn(
+                        "Install 'requests_toolbelt' to add support for files larger than 2GiB")
+                    raise OverflowError("Unable to upload a payload larger than 2 GiB")
+                else:
+                    logger.info("Installing 'requests_toolbelt' will deacrease memory used during upload")
+
+
         if not files and serializer:
-            headers = {"content-type": 'application/x-www-form-urlencoded'}
+            headers = {"Content-Type": 'application/x-www-form-urlencoded'}
 
         return super(ProxmoxHttpSession, self).request(method, url, params, data, headers, cookies, files, auth,
                                                        timeout, allow_redirects, proxies, hooks, stream, verify, cert)
 
 
 class Backend(object):
-    def __init__(self, host, user, password=None, otp=None, port=8006,
+    def __init__(self, host, user=None, password=None, otp=None, port=None,
                  verify_ssl=True, mode='json', timeout=5, auth_token=None,
                  csrf_token=None, token_name=None, token_value=None, service='PVE'):
         if ':' in host:
             host, host_port = host.split(':')
             port = host_port if host_port.isdigit() else port
+
+        # if a port is not specified, use the default port for this service
+        if not port:
+            port = SERVICES[service]["default_port"]
 
         self.base_url = "https://{0}:{1}/api2/{2}".format(host, port, mode)
 
@@ -209,8 +232,14 @@ class Backend(object):
             # DEPRECATED(1.1.0) - either use a password or the API Tokens
             self.auth = ProxmoxHTTPTicketAuth(auth_token, csrf_token)
         elif token_name is not None:
+            if not "token" in SERVICES[service]["supported_https_auths"]:
+                config_failure("{} does not support API Token authentication", service)
+
             self.auth = ProxmoxHTTPApiTokenAuth(user, token_name, token_value, service)
         elif password is not None:
+            if not "password" in SERVICES[service]["supported_https_auths"]:
+                config_failure("{} does not support password authentication", service)
+
             self.auth = ProxmoxHTTPAuth(self.base_url, user, password, otp, verify_ssl, timeout, service)
         self.verify_ssl = verify_ssl
         self.mode = mode
@@ -235,3 +264,57 @@ class Backend(object):
     def get_tokens(self):
         """Return the in-use auth and csrf tokens if using user/password auth."""
         return self.auth.get_tokens()
+
+
+def getFileSize(fileObj):
+    """Returns the number of bytes in the given file object in total
+    file cursor remains at the same location as when passed in
+
+    :param fileObj: file object of which the get size
+    :type fileObj: file object
+    :return: total bytes in file object
+    :rtype: int
+    """
+    # store existing file cursor location
+    startingCursor = fileObj.tell()
+
+    # seek to end of file
+    fileObj.seek(0, os.SEEK_END)
+
+    size = fileObj.tell()
+
+    # reset cursor
+    fileObj.seek(startingCursor)
+
+    return size
+
+def getFileSizePartial(fileObj):
+    """Returns the number of bytes in the given file object from the current cursor to the end
+
+    :param fileObj: file object of which the get size
+    :type fileObj: file object
+    :return: remaining bytes in file object
+    :rtype: int
+    """
+    # store existing file cursor location
+    startingCursor = fileObj.tell()
+
+    fileObj.seek(0, os.SEEK_END)
+
+    # get number of byte between where the cursor was set and the end
+    size = fileObj.tell() - startingCursor
+
+    # reset cursor
+    fileObj.seek(startingCursor)
+
+    return size
+
+def mergeDicts(*dicts):
+    """Compatibility polyfill for dict unpacking for python < 3.5
+    See PEP 448 for details on how merging functions
+
+    :return: merged dicts
+    :rtype: dict
+    """
+    # synonymous with {**dict for dict in dicts}
+    return {k: v for d in dicts for k, v in d.items()}

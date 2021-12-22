@@ -29,10 +29,10 @@ repos:
       # any flake8 plugins must be included in the hook venv
       # additional_dependencies: [flake8-docstrings]
 
-  - repo: https://github.com/PyCQA/pylint
-    rev: v2.8.2
-    hooks:
-      - id: pylint
+  # - repo: https://github.com/PyCQA/pylint
+  #   rev: v2.8.2
+  #   hooks:
+  #     - id: pylint
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.0.1
@@ -41,12 +41,14 @@ repos:
       - id: check-symlinks
       - id: destroyed-symlinks
       - id: check-merge-conflict
+      - id: check-docstring-first
       - id: mixed-line-ending
         args: [--fix=no]
 
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.8.0
     hooks:
+      - id: python-no-eval
       - id: rst-backticks
       - id: rst-directive-colons
       - id: rst-inline-touching-normal

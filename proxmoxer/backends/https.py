@@ -218,9 +218,17 @@ class Backend(object):
     def __init__(self, host, user=None, password=None, otp=None, port=None,
                  verify_ssl=True, mode='json', timeout=5, auth_token=None,
                  csrf_token=None, token_name=None, token_value=None, service='PVE'):
-        if ':' in host:
+
+        host_port = ''
+        if len(host.split(':')) > 2: # IPv6
+            if host.startswith('['):
+                if ']:' in host:
+                    host, host_port = host.rsplit(':', 1)
+            else:
+                host = "[{0}]".format(host)
+        elif ':' in host:
             host, host_port = host.split(':')
-            port = host_port if host_port.isdigit() else port
+        port = host_port if host_port.isdigit() else port
 
         # if a port is not specified, use the default port for this service
         if not port:

@@ -1,28 +1,33 @@
-__author__ = 'Oleg Butovich'
-__copyright__ = '(c) Oleg Butovich 2013-2017'
-__licence__ = 'MIT'
+__author__ = "Oleg Butovich"
+__copyright__ = "(c) Oleg Butovich 2013-2017"
+__licence__ = "MIT"
 
 
 import os
-from proxmoxer.backends.base_ssh import ProxmoxBaseSSHSession, BaseBackend
+
+from proxmoxer.backends.base_ssh import BaseBackend, ProxmoxBaseSSHSession
 
 try:
     import paramiko
 except ImportError:
     import sys
+
     sys.stderr.write("Chosen backend requires 'paramiko' module\n")
     sys.exit(1)
 
 
 class ProxmoxParamikoSession(ProxmoxBaseSSHSession):
-    def __init__(self, host,
-                 username,
-                 service='PVE',
-                 password=None,
-                 private_key_file=None,
-                 port=22,
-                 timeout=5,
-                 sudo=False):
+    def __init__(
+        self,
+        host,
+        username,
+        service="PVE",
+        password=None,
+        private_key_file=None,
+        port=22,
+        timeout=5,
+        sudo=False,
+    ):
         self.host = host
         self.username = username
         self.password = password
@@ -42,24 +47,26 @@ class ProxmoxParamikoSession(ProxmoxBaseSSHSession):
         else:
             key_filename = None
 
-        ssh_client.connect(self.host,
-                           username=self.username,
-                           allow_agent=(not self.password),
-                           look_for_keys=True,
-                           key_filename=key_filename,
-                           password=self.password,
-                           timeout=self.timeout,
-                           port=self.port)
+        ssh_client.connect(
+            self.host,
+            username=self.username,
+            allow_agent=(not self.password),
+            look_for_keys=True,
+            key_filename=key_filename,
+            password=self.password,
+            timeout=self.timeout,
+            port=self.port,
+        )
 
         return ssh_client
 
     def _exec(self, cmd):
         if self.sudo:
-            cmd = 'sudo ' + cmd
+            cmd = "sudo " + cmd
         session = self.ssh_client.get_transport().open_session()
         session.exec_command(cmd)
-        stdout = session.makefile('rb', -1).read().decode()
-        stderr = session.makefile_stderr('rb', -1).read().decode()
+        stdout = session.makefile("rb", -1).read().decode()
+        stderr = session.makefile_stderr("rb", -1).read().decode()
         return stdout, stderr
 
     def upload_file_obj(self, file_obj, remote_path):
@@ -69,11 +76,24 @@ class ProxmoxParamikoSession(ProxmoxBaseSSHSession):
 
 
 class Backend(BaseBackend):
-    def __init__(self, host, user, password=None, private_key_file=None, port=22, timeout=5, sudo=False, service='PVE'):
-        self.session = ProxmoxParamikoSession(host, user,
-                                              password=password,
-                                              private_key_file=private_key_file,
-                                              port=port,
-                                              timeout=timeout,
-                                              sudo=sudo,
-                                              service=service)
+    def __init__(
+        self,
+        host,
+        user,
+        password=None,
+        private_key_file=None,
+        port=22,
+        timeout=5,
+        sudo=False,
+        service="PVE",
+    ):
+        self.session = ProxmoxParamikoSession(
+            host,
+            user,
+            password=password,
+            private_key_file=private_key_file,
+            port=port,
+            timeout=timeout,
+            sudo=sudo,
+            service=service,
+        )

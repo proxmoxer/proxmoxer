@@ -1,28 +1,32 @@
-__author__ = 'Oleg Butovich'
-__copyright__ = '(c) Oleg Butovich 2013-2017'
-__licence__ = 'MIT'
+__author__ = "Oleg Butovich"
+__copyright__ = "(c) Oleg Butovich 2013-2017"
+__licence__ = "MIT"
 
 
-from proxmoxer.backends.base_ssh import ProxmoxBaseSSHSession, BaseBackend
+from proxmoxer.backends.base_ssh import BaseBackend, ProxmoxBaseSSHSession
 
 try:
     import openssh_wrapper
 except ImportError:
     import sys
+
     sys.stderr.write("Chosen backend requires 'openssh_wrapper' module\n")
     sys.exit(1)
 
 
 class ProxmoxOpenSSHSession(ProxmoxBaseSSHSession):
-    def __init__(self, host,
-                 username,
-                 service='PVE',
-                 configfile=None,
-                 port=22,
-                 timeout=5,
-                 forward_ssh_agent=False,
-                 sudo=False,
-                 identity_file=None):
+    def __init__(
+        self,
+        host,
+        username,
+        service="PVE",
+        configfile=None,
+        port=22,
+        timeout=5,
+        forward_ssh_agent=False,
+        sudo=False,
+        identity_file=None,
+    ):
         self.host = host
         self.username = username
         self.configfile = configfile
@@ -32,11 +36,13 @@ class ProxmoxOpenSSHSession(ProxmoxBaseSSHSession):
         self.forward_ssh_agent = forward_ssh_agent
         self.sudo = sudo
         self.identity_file = identity_file
-        self.ssh_client = openssh_wrapper.SSHConnection(self.host,
-                                                        login=self.username,
-                                                        port=self.port,
-                                                        timeout=self.timeout,
-                                                        identity_file=self.identity_file)
+        self.ssh_client = openssh_wrapper.SSHConnection(
+            self.host,
+            login=self.username,
+            port=self.port,
+            timeout=self.timeout,
+            identity_file=self.identity_file,
+        )
 
     def _exec(self, cmd):
         if self.sudo:
@@ -49,12 +55,26 @@ class ProxmoxOpenSSHSession(ProxmoxBaseSSHSession):
 
 
 class Backend(BaseBackend):
-    def __init__(self, host, user, configfile=None, port=22, timeout=5, forward_ssh_agent=False, sudo=False, identity_file=None, service='PVE'):
-        self.session = ProxmoxOpenSSHSession(host, user,
-                                             configfile=configfile,
-                                             port=port,
-                                             timeout=timeout,
-                                             forward_ssh_agent=forward_ssh_agent,
-                                             sudo=sudo,
-                                             identity_file=identity_file,
-                                             service=service)
+    def __init__(
+        self,
+        host,
+        user,
+        configfile=None,
+        port=22,
+        timeout=5,
+        forward_ssh_agent=False,
+        sudo=False,
+        identity_file=None,
+        service="PVE",
+    ):
+        self.session = ProxmoxOpenSSHSession(
+            host,
+            user,
+            configfile=configfile,
+            port=port,
+            timeout=timeout,
+            forward_ssh_agent=forward_ssh_agent,
+            sudo=sudo,
+            identity_file=identity_file,
+            service=service,
+        )

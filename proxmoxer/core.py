@@ -1,10 +1,10 @@
-__author__ = 'Oleg Butovich'
-__copyright__ = '(c) Oleg Butovich 2013-2017'
-__licence__ = 'MIT'
+__author__ = "Oleg Butovich"
+__copyright__ = "(c) Oleg Butovich 2013-2017"
+__licence__ = "MIT"
 
 import importlib
-import posixpath
 import logging
+import posixpath
 
 # Python 3 compatibility:
 try:
@@ -30,32 +30,49 @@ ANYEVENT_HTTP_STATUS_CODES = {
     596: "Errors during TLS negotiation, request sending and header processing",
     597: "Errors during body receiving or processing",
     598: "User aborted request via on_header or on_body",
-    599: "Other, usually nonretryable, errors (garbled URL etc.)"
+    599: "Other, usually nonretryable, errors (garbled URL etc.)",
 }
 
 SERVICES = {
-    "PVE": {"supported_backends": ["https", "openssh", "ssh_paramiko"], "supported_https_auths": ["password", "token"], "default_port": 8006, "token_separator": "=", "ssh_additional_options": "--output-format json"},
-    "PMG": {"supported_backends": ["https", "openssh", "ssh_paramiko"], "supported_https_auths": ["password"], "default_port": 8006},
-    "PBS": {"supported_backends": ["https"], "supported_https_auths": ["password", "token"], "default_port": 8007, "token_separator": ":"}}
+    "PVE": {
+        "supported_backends": ["https", "openssh", "ssh_paramiko"],
+        "supported_https_auths": ["password", "token"],
+        "default_port": 8006,
+        "token_separator": "=",
+        "ssh_additional_options": "--output-format json",
+    },
+    "PMG": {
+        "supported_backends": ["https", "openssh", "ssh_paramiko"],
+        "supported_https_auths": ["password"],
+        "default_port": 8006,
+    },
+    "PBS": {
+        "supported_backends": ["https"],
+        "supported_https_auths": ["password", "token"],
+        "default_port": 8007,
+        "token_separator": ":",
+    },
+}
+
 
 def config_failure(message, *args):
     raise NotImplementedError(message.format(*args))
 
-class ProxmoxResourceBase(object):
 
+class ProxmoxResourceBase(object):
     def __getattr__(self, item):
         if item.startswith("_"):
             raise AttributeError(item)
 
         kwargs = self._store.copy()
-        kwargs['base_url'] = self.url_join(self._store["base_url"], item)
+        kwargs["base_url"] = self.url_join(self._store["base_url"], item)
 
         return ProxmoxResource(**kwargs)
 
     def url_join(self, base, *args):
         scheme, netloc, path, query, fragment = urlparse.urlsplit(base)
         path = path if len(path) else "/"
-        path = posixpath.join(path, *[('%s' % x) for x in args])
+        path = posixpath.join(path, *[("%s" % x) for x in args])
         return urlparse.urlunsplit([scheme, netloc, path, query, fragment])
 
 
@@ -72,7 +89,6 @@ class ResourceException(Exception):
 
 
 class ProxmoxResource(ProxmoxResourceBase):
-
     def __init__(self, **kwargs):
         self._store = kwargs
 
@@ -94,27 +110,29 @@ class ProxmoxResource(ProxmoxResourceBase):
     def _request(self, method, data=None, params=None):
         url = self._store["base_url"]
         if data:
-            logger.info('%s %s %r', method, url, data)
+            logger.info("%s %s %r", method, url, data)
         else:
-            logger.info('%s %s', method, url)
+            logger.info("%s %s", method, url)
         resp = self._store["session"].request(method, url, data=data or None, params=params)
-        logger.debug('Status code: %s, output: %s', resp.status_code, resp.content)
+        logger.debug("Status code: %s, output: %s", resp.status_code, resp.content)
 
         if resp.status_code >= 400:
-            if hasattr(resp, 'reason'):
+            if hasattr(resp, "reason"):
                 raise ResourceException(
                     resp.status_code,
-                    httplib.responses.get(resp.status_code,
-                                        ANYEVENT_HTTP_STATUS_CODES.get(resp.status_code)),
+                    httplib.responses.get(
+                        resp.status_code, ANYEVENT_HTTP_STATUS_CODES.get(resp.status_code)
+                    ),
                     resp.reason,
-                    (self._store["serializer"].loads(resp) or {}).get('errors')
+                    (self._store["serializer"].loads(resp) or {}).get("errors"),
                 )
             else:
                 raise ResourceException(
                     resp.status_code,
-                    httplib.responses.get(resp.status_code,
-                                          ANYEVENT_HTTP_STATUS_CODES.get(resp.status_code)),
-                    resp.text
+                    httplib.responses.get(
+                        resp.status_code, ANYEVENT_HTTP_STATUS_CODES.get(resp.status_code)
+                    ),
+                    resp.text,
                 )
         elif 200 <= resp.status_code <= 299:
             return self._store["serializer"].loads(resp)
@@ -139,7 +157,7 @@ class ProxmoxResource(ProxmoxResourceBase):
 
 
 class ProxmoxAPI(ProxmoxResource):
-    def __init__(self, host, backend='https', service='PVE', **kwargs):
+    def __init__(self, host, backend="https", service="PVE", **kwargs):
         service = service.upper()
         backend = backend.lower()
 
@@ -151,8 +169,10 @@ class ProxmoxAPI(ProxmoxResource):
         if not backend in SERVICES[service]["supported_backends"]:
             config_failure("{} does not support {} backend", service, backend)
 
-        #load backend module
-        self._backend = importlib.import_module('.backends.%s' % backend, 'proxmoxer').Backend(host, service=service, **kwargs)
+        # load backend module
+        self._backend = importlib.import_module(".backends.%s" % backend, "proxmoxer").Backend(
+            host, service=service, **kwargs
+        )
         self._backend_name = backend
 
         self._store = {
@@ -166,7 +186,7 @@ class ProxmoxAPI(ProxmoxResource):
 
         Returns (None, None) if the backend is not https using password authentication.
         """
-        if self._backend_name != 'https':
+        if self._backend_name != "https":
             return None, None
 
         return self._backend.get_tokens()

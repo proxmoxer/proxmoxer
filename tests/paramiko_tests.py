@@ -1,6 +1,6 @@
 __author__ = "Oleg Butovich"
 __copyright__ = "(c) Oleg Butovich 2013-2017"
-__licence__ = "MIT"
+__license__ = "MIT"
 
 import io
 
@@ -47,7 +47,7 @@ class TestParamikoSuite(BaseSSHSuite):
 
     # noinspection PyMethodOverriding
     @patch("paramiko.SSHClient")
-    def setUp(self, _):
+    def setUp(self, _):  # pylint:disable=invalid-name
         self.proxmox = ProxmoxAPI("proxmox", user="root", backend="ssh_paramiko", port=123)
         self.client = self.proxmox._store["session"].ssh_client
         self.session = self.client.get_transport().open_session()
@@ -68,7 +68,7 @@ class TestParamikoSuiteWithSudo(BaseSSHSuite):
 
     # noinspection PyMethodOverriding
     @patch("paramiko.SSHClient")
-    def setUp(self, _):
+    def setUp(self, _):  # pylint:disable=invalid-name
         super(TestParamikoSuiteWithSudo, self).__init__(sudo=True)
         self.proxmox = ProxmoxAPI(
             "proxmox", user="root", backend="ssh_paramiko", port=123, sudo=True

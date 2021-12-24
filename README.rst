@@ -60,7 +60,7 @@ The first thing to do is import the proxmoxer library and create ProxmoxAPI inst
 
 This will connect by default to PVE through the 'https' backend.
 
-To select a different service, use the `service` argument (currently supports 'PVE',  'PMG', and):
+To select a different service, use the ``service`` argument (currently supports 'PVE',  'PMG', and):
 
 **Define PVE connection:**
 

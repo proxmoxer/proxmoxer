@@ -1,6 +1,8 @@
 __author__ = "Oleg Butovich"
 __copyright__ = "(c) Oleg Butovich 2013-2017"
-__licence__ = "MIT"
+__license__ = "MIT"
+
+# spell-checker:ignore urlunsplit
 
 import importlib
 import logging
@@ -82,7 +84,7 @@ class ResourceException(Exception):
         self.status_message = status_message
         self.content = content
         self.errors = errors
-        if errors != None:
+        if errors is not None:
             content += " - {0}".format(errors)
         message = "{0} {1}: {2}".format(status_code, status_message, content).strip()
         super(ResourceException, self).__init__(message)
@@ -162,11 +164,11 @@ class ProxmoxAPI(ProxmoxResource):
         backend = backend.lower()
 
         # throw error for unsupported services
-        if not service in SERVICES.keys():
+        if service not in SERVICES.keys():
             config_failure("{} service is not supported", service)
 
         # throw error for unsupported backend for service
-        if not backend in SERVICES[service]["supported_backends"]:
+        if backend not in SERVICES[service]["supported_backends"]:
             config_failure("{} does not support {} backend", service, backend)
 
         # load backend module

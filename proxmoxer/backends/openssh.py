@@ -1,6 +1,6 @@
 __author__ = "Oleg Butovich"
 __copyright__ = "(c) Oleg Butovich 2013-2017"
-__licence__ = "MIT"
+__license__ = "MIT"
 
 
 from proxmoxer.backends.base_ssh import BaseBackend, ProxmoxBaseSSHSession

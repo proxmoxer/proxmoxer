@@ -1,6 +1,6 @@
 __author__ = "Oleg Butovich"
 __copyright__ = "(c) Oleg Butovich 2013-2017"
-__licence__ = "MIT"
+__license__ = "MIT"
 
 from mock import MagicMock, patch
 from nose.tools import assert_raises, eq_, ok_
@@ -99,7 +99,7 @@ class TestSuite:
 
     # noinspection PyMethodOverriding
     @patch("requests.sessions.Session")
-    def setUp(self, session):
+    def setUp(self, session):  # pylint:disable=invalid-name
         response = {"ticket": "ticket", "CSRFPreventionToken": "CSRFPreventionToken"}
         session.request.return_value = response
         self.proxmox = ProxmoxAPI(

@@ -13,12 +13,16 @@
     }
   },
   "cSpell.words": [
+    "auths",
     "Butovich",
     "cpus",
     "Oleg",
     "onboot",
+    "ostemplate",
     "Paramiko",
     "proxmoxer",
-    "vmid"
+    "rtype",
+    "vmid",
+    "vztmpl"
   ],
 }

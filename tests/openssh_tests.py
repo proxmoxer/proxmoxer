@@ -1,6 +1,6 @@
 __author__ = "Oleg Butovich"
 __copyright__ = "(c) Oleg Butovich 2013-2017"
-__licence__ = "MIT"
+__license__ = "MIT"
 
 from mock import patch
 
@@ -14,7 +14,7 @@ class TestOpenSSHSuite(BaseSSHSuite):
 
     # noinspection PyMethodOverriding
     @patch("openssh_wrapper.SSHConnection")
-    def setUp(self, _):
+    def setUp(self, _):  # pylint:disable=invalid-name
         self.proxmox = ProxmoxAPI("proxmox", user="root", backend="openssh", port=123)
         self.client = self.proxmox._store["session"].ssh_client
         self._set_stderr("200 OK")

@@ -1,12 +1,11 @@
 __author__ = "Oleg Butovich"
 __copyright__ = "(c) Oleg Butovich 2013-2017"
-__licence__ = "MIT"
+__license__ = "MIT"
 
 
 import json
 import logging
 import re
-import sys
 from itertools import chain
 
 from proxmoxer.core import SERVICES

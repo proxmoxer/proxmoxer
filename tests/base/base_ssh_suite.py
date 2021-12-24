@@ -1,10 +1,13 @@
 __author__ = "Oleg Butovich"
 __copyright__ = "(c) Oleg Butovich 2013-2017"
-__licence__ = "MIT"
+__license__ = "MIT"
+
+# spell-checker:ignore izip pvesh rrddata
 
 from itertools import islice
 
 try:
+    # pylint:disable=redefined-builtin
     import itertools.izip as zip
 except ImportError:
     pass

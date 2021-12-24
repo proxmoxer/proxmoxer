@@ -1,6 +1,6 @@
 __author__ = "Oleg Butovich"
 __copyright__ = "(c) Oleg Butovich 2013-2017"
-__licence__ = "MIT"
+__license__ = "MIT"
 
 
 import json
@@ -33,7 +33,7 @@ if sys.version_info[0] >= 3:
     # prefer using monoatomic time if available
     def get_time(): return time.monotonic()
 else:
-    def is_file(obj): return isinstance(obj, file)
+    def is_file(obj): return isinstance(obj, file)  # noqa pylint:disable=undefined-variable
     def get_time(): return time.time()
 # fmt: on
 
@@ -73,10 +73,10 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
         self.service = service
         self.pve_auth_ticket = ""
 
-        self._getNewTokens(password=password, otp=otp)
+        self._get_new_tokens(password=password, otp=otp)
 
-    def _getNewTokens(self, password=None, otp=None):
-        if password == None:
+    def _get_new_tokens(self, password=None, otp=None):
+        if password is None:
             # refresh from existing (unexpired) ticket
             password = self.pve_auth_ticket
 
@@ -111,7 +111,7 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
         # refresh ticket if older than `renew_age`
         if (get_time() - self.birth_time) >= self.renew_age:
             logger.debug("refreshing ticket (age {0})".format(get_time() - self.birth_time))
-            self._getNewTokens()
+            self._get_new_tokens()
 
         # only attach CSRF token if needed (reduce interception risk)
         if r.method != "GET":
@@ -210,31 +210,32 @@ class ProxmoxHttpSession(requests.Session):
         # filter out streams
         files = files or {}
         data = data or {}
-        isLargePayload = False
-        totalFileSize = 0
+        is_large_payload = False
+        total_file_size = 0
         for k, v in data.copy().items():
             if is_file(v):
-                totalFileSize += getFileSize(v)
-                if totalFileSize > STREAMING_SIZE_THRESHOLD:
-                    isLargePayload = True
+                total_file_size += get_file_size(v)
+                if total_file_size > STREAMING_SIZE_THRESHOLD:
+                    is_large_payload = True
 
                 # add in filename from file pointer (patch for https://github.com/requests/toolbelt/pull/316)
                 files[k] = (requests.utils.guess_filename(v), v)
                 del data[k]
 
         # if there are any large file, send all data and files using streaming multipart encoding
-        if isLargePayload:
+        if is_large_payload:
             try:
+                # pylint:disable=import-outside-toplevel
                 from requests_toolbelt import MultipartEncoder
 
-                encoder = MultipartEncoder(fields=mergeDicts(data, files))
+                encoder = MultipartEncoder(fields=merge_dicts(data, files))
                 data = encoder
                 files = None
                 headers = {"Content-Type": encoder.content_type}
             except ImportError:
                 # if the files will cause issues with the SSL 2GiB limit (https://bugs.python.org/issue42853#msg384566)
-                if totalFileSize > 2147483135:  # 2^31 - 1 - 512
-                    logger.warn(
+                if total_file_size > 2147483135:  # 2^31 - 1 - 512
+                    logger.warning(
                         "Install 'requests_toolbelt' to add support for files larger than 2GiB"
                     )
                     raise OverflowError("Unable to upload a payload larger than 2 GiB")
@@ -296,12 +297,12 @@ class Backend(object):
             # DEPRECATED(1.1.0) - either use a password or the API Tokens
             self.auth = ProxmoxHTTPTicketAuth(auth_token, csrf_token)
         elif token_name is not None:
-            if not "token" in SERVICES[service]["supported_https_auths"]:
+            if "token" not in SERVICES[service]["supported_https_auths"]:
                 config_failure("{} does not support API Token authentication", service)
 
             self.auth = ProxmoxHTTPApiTokenAuth(user, token_name, token_value, service)
         elif password is not None:
-            if not "password" in SERVICES[service]["supported_https_auths"]:
+            if "password" not in SERVICES[service]["supported_https_auths"]:
                 config_failure("{} does not support password authentication", service)
 
             self.auth = ProxmoxHTTPAuth(
@@ -332,7 +333,7 @@ class Backend(object):
         return self.auth.get_tokens()
 
 
-def getFileSize(fileObj):
+def get_file_size(file_obj):
     """Returns the number of bytes in the given file object in total
     file cursor remains at the same location as when passed in
 
@@ -342,20 +343,20 @@ def getFileSize(fileObj):
     :rtype: int
     """
     # store existing file cursor location
-    startingCursor = fileObj.tell()
+    starting_cursor = file_obj.tell()
 
     # seek to end of file
-    fileObj.seek(0, os.SEEK_END)
+    file_obj.seek(0, os.SEEK_END)
 
-    size = fileObj.tell()
+    size = file_obj.tell()
 
     # reset cursor
-    fileObj.seek(startingCursor)
+    file_obj.seek(starting_cursor)
 
     return size
 
 
-def getFileSizePartial(fileObj):
+def get_file_size_partial(file_obj):
     """Returns the number of bytes in the given file object from the current cursor to the end
 
     :param fileObj: file object of which the get size
@@ -364,20 +365,20 @@ def getFileSizePartial(fileObj):
     :rtype: int
     """
     # store existing file cursor location
-    startingCursor = fileObj.tell()
+    starting_cursor = file_obj.tell()
 
-    fileObj.seek(0, os.SEEK_END)
+    file_obj.seek(0, os.SEEK_END)
 
     # get number of byte between where the cursor was set and the end
-    size = fileObj.tell() - startingCursor
+    size = file_obj.tell() - starting_cursor
 
     # reset cursor
-    fileObj.seek(startingCursor)
+    file_obj.seek(starting_cursor)
 
     return size
 
 
-def mergeDicts(*dicts):
+def merge_dicts(*dicts):
     """Compatibility polyfill for dict unpacking for python < 3.5
     See PEP 448 for details on how merging functions
 

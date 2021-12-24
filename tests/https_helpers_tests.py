@@ -1,106 +1,106 @@
 import tempfile
 
-from nose.tools import assert_raises, eq_, ok_
+from nose.tools import eq_
 
 from proxmoxer.backends import https
 
 
-def test_getFileSize_empty():
+def test_get_file_size_empty():
     with tempfile.TemporaryFile("w+b") as f_obj:
-        eq_(https.getFileSize(f_obj), 0)
+        eq_(https.get_file_size(f_obj), 0)
 
 
-def test_getFileSize_small():
+def test_get_file_size_small():
     size = 100
     with tempfile.TemporaryFile("w+b") as f_obj:
         f_obj.write(b"a" * size)
-        eq_(https.getFileSize(f_obj), size)
+        eq_(https.get_file_size(f_obj), size)
 
 
-def test_getFileSize_large():
+def test_get_file_size_large():
     size = 10 * 1024 * 1024  # 10 MB
     with tempfile.TemporaryFile("w+b") as f_obj:
         f_obj.write(b"a" * size)
-        eq_(https.getFileSize(f_obj), size)
+        eq_(https.get_file_size(f_obj), size)
 
 
-def test_getFileSize_half_seek():
+def test_get_file_size_half_seek():
     size = 200
     with tempfile.TemporaryFile("w+b") as f_obj:
         f_obj.write(b"a" * size)
         f_obj.seek(int(size / 2))
-        eq_(https.getFileSize(f_obj), size)
+        eq_(https.get_file_size(f_obj), size)
 
 
-def test_getFileSize_full_seek():
+def test_get_file_size_full_seek():
     size = 200
     with tempfile.TemporaryFile("w+b") as f_obj:
         f_obj.write(b"a" * size)
         f_obj.seek(size)
-        eq_(https.getFileSize(f_obj), size)
+        eq_(https.get_file_size(f_obj), size)
 
 
-def test_getFileSizePartial_half_seek():
+def test_get_file_size_partial_half_seek():
     size = 200
     with tempfile.TemporaryFile("w+b") as f_obj:
         f_obj.write(b"a" * size)
         f_obj.seek(int(size / 2))
-        eq_(https.getFileSizePartial(f_obj), size / 2)
+        eq_(https.get_file_size_partial(f_obj), size / 2)
 
 
-def test_getFileSizePartial_full_seek():
+def test_get_file_size_partial_full_seek():
     size = 200
     with tempfile.TemporaryFile("w+b") as f_obj:
         f_obj.write(b"a" * size)
         f_obj.seek(size)
-        eq_(https.getFileSizePartial(f_obj), 0)
+        eq_(https.get_file_size_partial(f_obj), 0)
 
 
-def test_getFileSizePartial_no_seek():
+def test_get_file_size_partial_no_seek():
     size = 200
     with tempfile.TemporaryFile("w+b") as f_obj:
         f_obj.write(b"a" * size)
         f_obj.seek(0)
-        eq_(https.getFileSizePartial(f_obj), size)
+        eq_(https.get_file_size_partial(f_obj), size)
 
 
-def test_mergeDicts_empty():
+def test_merge_dicts_empty():
     a = {}
     b = {}
-    c = https.mergeDicts(a, b)
+    c = https.merge_dicts(a, b)
     eq_(c, {})
 
 
-def test_mergeDicts_simple():
+def test_merge_dicts_simple():
     a = {"a": 1}
     b = {"b": 2}
-    c = https.mergeDicts(a, b)
+    c = https.merge_dicts(a, b)
     eq_(c, {"a": 1, "b": 2})
 
 
-def test_mergeDicts_unordered():
+def test_merge_dicts_unordered():
     a = {"a": 1}
     b = {"b": 2}
-    c = https.mergeDicts(b, a)
+    c = https.merge_dicts(b, a)
     eq_(c, {"a": 1, "b": 2})
 
 
-def test_mergeDicts_duplicate():
+def test_merge_dicts_duplicate():
     a = {"value": "a"}
     b = {"value": "b"}
-    c = https.mergeDicts(a, b)
+    c = https.merge_dicts(a, b)
     eq_(c, {"value": "b"})
 
 
-def test_mergeDicts_duplicate_reverse_order():
+def test_merge_dicts_duplicate_reverse_order():
     a = {"value": "a"}
     b = {"value": "b"}
-    c = https.mergeDicts(b, a)
+    c = https.merge_dicts(b, a)
     eq_(c, {"value": "a"})
 
 
-def test_mergeDicts_duplicate_deep():
+def test_merge_dicts_duplicate_deep():
     a = {"value": {"deep": "a"}, "a": 1}
     b = {"value": {"deep": "b"}, "b": 2}
-    c = https.mergeDicts(a, b)
+    c = https.merge_dicts(a, b)
     eq_(c, {"value": {"deep": "b"}, "a": 1, "b": 2})

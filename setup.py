@@ -11,7 +11,7 @@ import proxmoxer
 if not os.path.exists("README.txt") and "sdist" in sys.argv:
     with codecs.open("README.rst", encoding="utf8") as f:
         rst = f.read()
-    code_block = "(:\n\n)?\.\. code-block::.*"
+    code_block = r"(:\n\n)?\.\. code-block::.*"
     rst = re.sub(code_block, "::", rst)
     with codecs.open("README.txt", encoding="utf8", mode="wb") as f:
         f.write(rst)
@@ -20,7 +20,7 @@ if not os.path.exists("README.txt") and "sdist" in sys.argv:
 try:
     readme = "README.txt" if os.path.exists("README.txt") else "README.rst"
     long_description = codecs.open(readme, encoding="utf-8").read()
-except:
+except IOError:
     long_description = "Could not read README.txt"
 
 

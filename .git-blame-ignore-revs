@@ -1,0 +1,4 @@
+# use with `git config blame.ignorerevsfile .git-blame-ignore-revs`
+
+# Format code base with Black
+7a976de985fc7b71fdf31d3161f223eeaada38da

@@ -1,0 +1,196 @@
+{
+  "errors": [],
+  "generated_at": "2021-05-25T22:35:29Z",
+  "results": [
+    {
+      "code": "231     def get_serializer(self):\n232         assert self.mode == 'json'\n233         return JsonSerializer()\n",
+      "filename": "proxmoxer/backends/https.py",
+      "issue_confidence": "HIGH",
+      "issue_severity": "LOW",
+      "issue_text": "Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+      "line_number": 232,
+      "line_range": [
+        232
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/latest/plugins/b101_assert_used.html",
+      "test_id": "B101",
+      "test_name": "assert_used"
+    },
+    {
+      "code": "60         session = self.ssh_client.get_transport().open_session()\n61         session.exec_command(cmd)\n62         stdout = session.makefile('rb', -1).read().decode()\n",
+      "filename": "proxmoxer/backends/ssh_paramiko.py",
+      "issue_confidence": "MEDIUM",
+      "issue_severity": "MEDIUM",
+      "issue_text": "Possible shell injection via Paramiko call, check inputs are properly sanitized.",
+      "line_number": 61,
+      "line_range": [
+        61
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/latest/plugins/b601_paramiko_calls.html",
+      "test_id": "B601",
+      "test_name": "paramiko_calls"
+    },
+    {
+      "code": "84         node = self.proxmox.nodes('proxmox')\n85         node.openvz.create(vmid=800,\n86                            ostemplate='local:vztmpl/debian-6-turnkey-core_12.0-1_i386.tar.gz',\n87                            hostname='test',\n88                            storage='local',\n89                            memory=512,\n90                            swap=512,\n91                            cpus=1,\n92                            disk=4,\n93                            password='secret',\n94                            ip_address='10.0.100.222')\n95         cmd, options = self._split_cmd(self._get_called_cmd())\n",
+      "filename": "tests/base/base_ssh_suite.py",
+      "issue_confidence": "MEDIUM",
+      "issue_severity": "LOW",
+      "issue_text": "Possible hardcoded password: 'secret'",
+      "line_number": 85,
+      "line_range": [
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/latest/plugins/b106_hardcoded_password_funcarg.html",
+      "test_id": "B106",
+      "test_name": "hardcoded_password_funcarg"
+    },
+    {
+      "code": "109         node = self.proxmox.nodes('proxmox1')\n110         node.openvz.post(vmid=900,\n111                          ostemplate='local:vztmpl/debian-7-turnkey-core_12.0-1_i386.tar.gz',\n112                          hostname='test1',\n113                          storage='local1',\n114                          memory=1024,\n115                          swap=1024,\n116                          cpus=2,\n117                          disk=8,\n118                          password='secret1',\n119                          ip_address='10.0.100.111')\n120         cmd, options = self._split_cmd(self._get_called_cmd())\n",
+      "filename": "tests/base/base_ssh_suite.py",
+      "issue_confidence": "MEDIUM",
+      "issue_severity": "LOW",
+      "issue_text": "Possible hardcoded password: 'secret1'",
+      "line_number": 110,
+      "line_range": [
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/latest/plugins/b106_hardcoded_password_funcarg.html",
+      "test_id": "B106",
+      "test_name": "hardcoded_password_funcarg"
+    },
+    {
+      "code": "14     req_session.request.return_value = response\n15     ProxmoxAPI('proxmox', user='root@pam', password='secret', port=123, verify_ssl=False)\n16     call = req_session.return_value.request.call_args[1]\n",
+      "filename": "tests/https_tests.py",
+      "issue_confidence": "MEDIUM",
+      "issue_severity": "LOW",
+      "issue_text": "Possible hardcoded password: 'secret'",
+      "line_number": 15,
+      "line_range": [
+        15
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/latest/plugins/b106_hardcoded_password_funcarg.html",
+      "test_id": "B106",
+      "test_name": "hardcoded_password_funcarg"
+    },
+    {
+      "code": "27     req_session.request.return_value = response\n28     ProxmoxAPI('proxmox:123', user='root@pam', password='secret', port=124, verify_ssl=False)\n29     call = req_session.return_value.request.call_args[1]\n",
+      "filename": "tests/https_tests.py",
+      "issue_confidence": "MEDIUM",
+      "issue_severity": "LOW",
+      "issue_text": "Possible hardcoded password: 'secret'",
+      "line_number": 28,
+      "line_range": [
+        28
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/latest/plugins/b106_hardcoded_password_funcarg.html",
+      "test_id": "B106",
+      "test_name": "hardcoded_password_funcarg"
+    },
+    {
+      "code": "40     req_session.request.return_value = response\n41     ProxmoxAPI('proxmox:notaport', user='root@pam', password='secret', port=124, verify_ssl=False)\n42     call = req_session.return_value.request.call_args[1]\n",
+      "filename": "tests/https_tests.py",
+      "issue_confidence": "MEDIUM",
+      "issue_severity": "LOW",
+      "issue_text": "Possible hardcoded password: 'secret'",
+      "line_number": 41,
+      "line_range": [
+        41
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/latest/plugins/b106_hardcoded_password_funcarg.html",
+      "test_id": "B106",
+      "test_name": "hardcoded_password_funcarg"
+    },
+    {
+      "code": "50 def test_https_api_token(req_session):\n51     p = ProxmoxAPI('proxmox', user='root@pam', token_name='test', token_value='ab27beeb-9ac4-4df1-aa19-62639f27031e', verify_ssl=False)\n52     eq_(p.get_tokens()[0], None)\n",
+      "filename": "tests/https_tests.py",
+      "issue_confidence": "MEDIUM",
+      "issue_severity": "LOW",
+      "issue_text": "Possible hardcoded password: 'test'",
+      "line_number": 51,
+      "line_range": [
+        51
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/latest/plugins/b106_hardcoded_password_funcarg.html",
+      "test_id": "B106",
+      "test_name": "hardcoded_password_funcarg"
+    },
+    {
+      "code": "65         session.request.return_value = response\n66         self.proxmox = ProxmoxAPI('proxmox', user='root@pam', password='secret', port=123, verify_ssl=False)\n67         self.serializer = MagicMock()\n",
+      "filename": "tests/https_tests.py",
+      "issue_confidence": "MEDIUM",
+      "issue_severity": "LOW",
+      "issue_text": "Possible hardcoded password: 'secret'",
+      "line_number": 66,
+      "line_range": [
+        66
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/latest/plugins/b106_hardcoded_password_funcarg.html",
+      "test_id": "B106",
+      "test_name": "hardcoded_password_funcarg"
+    },
+    {
+      "code": "84         node = self.proxmox.nodes('proxmox')\n85         node.openvz.create(vmid=800,\n86                            ostemplate='local:vztmpl/debian-6-turnkey-core_12.0-1_i386.tar.gz',\n87                            hostname='test',\n88                            storage='local',\n89                            memory=512,\n90                            swap=512,\n91                            cpus=1,\n92                            disk=4,\n93                            password='secret',\n94                            ip_address='10.0.100.222')\n95         eq_(self.session.request.call_args[0], ('POST', 'https://proxmox:123/api2/json/nodes/proxmox/openvz'))\n",
+      "filename": "tests/https_tests.py",
+      "issue_confidence": "MEDIUM",
+      "issue_severity": "LOW",
+      "issue_text": "Possible hardcoded password: 'secret'",
+      "line_number": 85,
+      "line_range": [
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/latest/plugins/b106_hardcoded_password_funcarg.html",
+      "test_id": "B106",
+      "test_name": "hardcoded_password_funcarg"
+    },
+    {
+      "code": "109         node = self.proxmox.nodes('proxmox1')\n110         node.openvz.post(vmid=900,\n111                          ostemplate='local:vztmpl/debian-7-turnkey-core_12.0-1_i386.tar.gz',\n112                          hostname='test1',\n113                          storage='local1',\n114                          memory=1024,\n115                          swap=1024,\n116                          cpus=2,\n117                          disk=8,\n118                          password='secret1',\n119                          ip_address='10.0.100.111')\n120         eq_(self.session.request.call_args[0], ('POST', 'https://proxmox:123/api2/json/nodes/proxmox1/openvz'))\n",
+      "filename": "tests/https_tests.py",
+      "issue_confidence": "MEDIUM",
+      "issue_severity": "LOW",
+      "issue_text": "Possible hardcoded password: 'secret1'",
+      "line_number": 110,
+      "line_range": [
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/latest/plugins/b106_hardcoded_password_funcarg.html",
+      "test_id": "B106",
+      "test_name": "hardcoded_password_funcarg"
+    }
+  ]
+}

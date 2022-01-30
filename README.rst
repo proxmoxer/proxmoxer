@@ -53,28 +53,42 @@ The first thing to do is import the proxmoxer library and create ProxmoxAPI inst
 .. code-block:: python
 
     from proxmoxer import ProxmoxAPI
-    proxmox = ProxmoxAPI('proxmox_host', user='admin@pam',
-                         password='secret_word', verify_ssl=False)
+
+    proxmox = ProxmoxAPI(
+        "proxmox_host", user="admin@pam", password="secret_word", verify_ssl=False
+    )
 
 This will connect by default to PVE through the 'https' backend.
 
-To select a different service, use the `service` argument (currently supports 'PVE',  'PMG', and):
+To select a different service, use the ``service`` argument (currently supports 'PVE',  'PMG', and):
 
 **Define PVE connection:**
 
 .. code-block:: python
 
     from proxmoxer import ProxmoxAPI
-    proxmox = ProxmoxAPI('proxmox_host', user='admin@pam',
-                         password='secret_word', verify_ssl=False, service='PVE')
+
+    proxmox = ProxmoxAPI(
+        "proxmox_host",
+        user="admin@pam",
+        password="secret_word",
+        verify_ssl=False,
+        service="PVE",
+    )
 
 **Define PMG connection:**
 
 .. code-block:: python
 
     from proxmoxer import ProxmoxAPI
-    proxmox = ProxmoxAPI('proxmox_host', user='admin@pam',
-                         password='secret_word', verify_ssl=False, service='PMG')
+
+    proxmox = ProxmoxAPI(
+        "proxmox_host",
+        user="admin@pam",
+        password="secret_word",
+        verify_ssl=False,
+        service="PMG",
+    )
 
 
 You can also setup `API Tokens <https://pve.proxmox.com/wiki/User_Management#pveum_tokens>`_ which allow tighter access controls.
@@ -84,14 +98,21 @@ API tokens can be created through the web UI or through the `API <https://pve.pr
 .. code-block:: python
 
     from proxmoxer import ProxmoxAPI
-    proxmox = ProxmoxAPI('proxmox_host', user='admin', token_name='test_token', token_value='ab27beeb-9ac4-4df1-aa19-62639f27031e')
+
+    proxmox = ProxmoxAPI(
+        "proxmox_host",
+        user="admin",
+        token_name="test_token",
+        token_value="ab27beeb-9ac4-4df1-aa19-62639f27031e",
+    )
 
 For SSH access, it is possible to use pre-prepared public/private key authentication and ssh-agent.
 
 .. code-block:: python
 
     from proxmoxer import ProxmoxAPI
-    proxmox = ProxmoxAPI('proxmox_host', user='proxmox_admin', backend='ssh_paramiko')
+
+    proxmox = ProxmoxAPI("proxmox_host", user="proxmox_admin", backend="ssh_paramiko")
 
 **Note: ensure you have the required libraries (listed above) for the connection method you are using**
 
@@ -101,36 +122,37 @@ synonyms are available: **create** for **post**, and **set** for **put**.
 Using the paths from the `Proxmox REST API v2 <https://pve.proxmox.com/pve-docs/api-viewer/index.html>`_, you can create
 API calls using the access methods above.
 
-.. code-block:: python
+.. code-block:: pycon
 
-    for node in proxmox.nodes.get():
-        for vm in proxmox.nodes(node['node']).openvz.get():
-            print "{0}. {1} => {2}" .format(vm['vmid'], vm['name'], vm['status'])
+    >>> for node in proxmox.nodes.get():
+    ...     for vm in proxmox.nodes(node["node"]).openvz.get():
+    ...         print "{0}. {1} => {2}".format(vm["vmid"], vm["name"], vm["status"])
+    ...
 
-    >>> 141. puppet-2.london.example.com => running
-        101. munki.london.example.com => running
-        102. redmine.london.example.com => running
-        140. dns-1.london.example.com => running
-        126. ns-3.london.example.com => running
-        113. rabbitmq.london.example.com => running
+    141. puppet-2.london.example.com => running
+    101. munki.london.example.com => running
+    102. redmine.london.example.com => running
+    140. dns-1.london.example.com => running
+    126. ns-3.london.example.com => running
+    113. rabbitmq.london.example.com => running
 
 same code can be rewritten in the next way:
 
 .. code-block:: python
 
-    for node in proxmox.get('nodes'):
-        for vm in proxmox.get('nodes/%s/openvz' % node['node']):
-            print "%s. %s => %s" %  (vm['vmid'], vm['name'], vm['status'])
+    for node in proxmox.get("nodes"):
+        for vm in proxmox.get("nodes/%s/openvz" % node["node"]):
+            print "%s. %s => %s" % (vm["vmid"], vm["name"], vm["status"])
 
 
 As a demonstration of the flexibility of usage of this library, the following lines accomplish the equivalent function:
 
 .. code-block:: python
 
-    proxmox.nodes(node['node']).openvz.get()
-    proxmox.nodes(node['node']).get('openvz')
-    proxmox.get('nodes/%s/openvz' % node['node'])
-    proxmox.get('nodes', node['node'], 'openvz')
+    proxmox.nodes(node["node"]).openvz.get()
+    proxmox.nodes(node["node"]).get("openvz")
+    proxmox.get("nodes/%s/openvz" % node["node"])
+    proxmox.get("nodes", node["node"], "openvz")
 
 
 Some more examples:
@@ -139,15 +161,15 @@ Listing VMs:
 
 .. code-block:: python
 
-    for vm in proxmox.cluster.resources.get(type='vm'):
-        print("{0}. {1} => {2}" .format(vm['vmid'], vm['name'], vm['status']))
+    for vm in proxmox.cluster.resources.get(type="vm"):
+        print("{0}. {1} => {2}".format(vm["vmid"], vm["name"], vm["status"]))
 
 Listing contents of the ``local`` storage on the ``proxmox_node`` node (method 1):
 
 .. code-block:: python
 
-    node = proxmox.nodes('proxmox_node')
-    pprint(node.storage('local').content.get())
+    node = proxmox.nodes("proxmox_node")
+    pprint(node.storage("local").content.get())
 
 Listing contents of the ``local`` storage on the ``proxmox_node`` node (method 2):
 
@@ -161,41 +183,49 @@ creating a new lxc container:
 
 .. code-block:: python
 
-    node = proxmox.nodes('proxmox_node')
-    node.lxc.create(vmid=202,
-        ostemplate='local:vztmpl/debian-9.0-standard_20170530_amd64.tar.gz',
-        hostname='debian-stretch',
-        storage='local',
+    node = proxmox.nodes("proxmox_node")
+    node.lxc.create(
+        vmid=202,
+        ostemplate="local:vztmpl/debian-9.0-standard_20170530_amd64.tar.gz",
+        hostname="debian-stretch",
+        storage="local",
         memory=512,
         swap=512,
         cores=1,
-        password='secret',
-        net0='name=eth0,bridge=vmbr0,ip=192.168.22.1/20,gw=192.168.16.1')
+        password="secret",
+        net0="name=eth0,bridge=vmbr0,ip=192.168.22.1/20,gw=192.168.16.1",
+    )
 
 The same lxc container can be created with options set in a dictionary.
 This approach allows adding ``ssh-public-keys`` without getting syntax errors.
 
 .. code-block:: python
 
-    newcontainer = { 'vmid': 202,
-        'ostemplate': 'local:vztmpl/debian-9.0-standard_20170530_amd64.tar.gz',
-        'hostname': 'debian-stretch',
-        'storage': 'local',
-        'memory': 512,
-        'swap': 512,
-        'cores': 1,
-        'password': 'secret',
-        'net0': 'name=eth0,bridge=vmbr0,ip=192.168.22.1/20,gw=192.168.16.1' }
-    node = proxmox.nodes('proxmox_node')
+    newcontainer = {
+        "vmid": 202,
+        "ostemplate": "local:vztmpl/debian-9.0-standard_20170530_amd64.tar.gz",
+        "hostname": "debian-stretch",
+        "storage": "local",
+        "memory": 512,
+        "swap": 512,
+        "cores": 1,
+        "password": "secret",
+        "net0": "name=eth0,bridge=vmbr0,ip=192.168.22.1/20,gw=192.168.16.1",
+    }
+    node = proxmox.nodes("proxmox_node")
     node.lxc.create(**newcontainer)
 
 Uploading a template:
 
 .. code-block:: python
 
-    local_storage = proxmox.nodes('proxmox_node').storage('local')
-    local_storage.upload.create(content='vztmpl',
-        filename=open(os.path.expanduser('~/templates/debian-6-my-core_1.0-1_i386.tar.gz'),'rb')))
+    local_storage = proxmox.nodes("proxmox_node").storage("local")
+    local_storage.upload.create(
+        content="vztmpl",
+        filename=open(
+            os.path.expanduser("~/templates/debian-6-my-core_1.0-1_i386.tar.gz"), "rb"
+        ),
+    )
 
 NOTE: for large file uploads, please ensure the ``requests_toolbelt`` pip module is installed. This provides support for larger files and reduces the memory requirement of uploads.
 
@@ -203,16 +233,18 @@ Downloading rrd CPU image data to a file:
 
 .. code-block:: python
 
-    response = proxmox.nodes('proxmox').rrd.get(ds='cpu', timeframe='hour')
-    with open('cpu.png', 'wb') as f:
-        f.write(response['image'].encode('raw_unicode_escape'))
+    response = proxmox.nodes("proxmox").rrd.get(ds="cpu", timeframe="hour")
+    with open("cpu.png", "wb") as f:
+        f.write(response["image"].encode("raw_unicode_escape"))
 
 Example of usage of logging:
 
 .. code-block:: python
 
     # now logging debug info will be written to stdout
-    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s:%(name)s: %(message)s')
+    logging.basicConfig(
+        level=logging.DEBUG, format="%(asctime)s %(levelname)s:%(name)s: %(message)s"
+    )
 
 Example of PMG usage:
 
@@ -221,8 +253,13 @@ Example of PMG usage:
     from proxmoxer import ProxmoxAPI
     import json
 
-    proxmox = ProxmoxAPI('proxmox_host', user='admin@pam',
-                         password='secret_word', verify_ssl=False, service='PMG')
+    proxmox = ProxmoxAPI(
+        "proxmox_host",
+        user="admin@pam",
+        password="secret_word",
+        verify_ssl=False,
+        service="PMG",
+    )
 
     a = proxmox.statistics.sender.get()
     c = json_formatted_str = json.dumps(a, indent=2)

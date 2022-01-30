@@ -174,6 +174,12 @@ class JsonSerializer(object):
         except (UnicodeDecodeError, ValueError):
             return {"errors": response.content}
 
+    def loads_errors(self, response):
+        try:
+            return json.loads(response.text)["errors"]
+        except (UnicodeDecodeError, ValueError):
+            return {"errors": response.content}
+
 
 class ProxmoxHttpSession(requests.Session):
     def request(
@@ -283,9 +289,17 @@ class Backend(object):
         token_value=None,
         service="PVE",
     ):
-        if ":" in host:
+
+        host_port = ""
+        if len(host.split(":")) > 2:  # IPv6
+            if host.startswith("["):
+                if "]:" in host:
+                    host, host_port = host.rsplit(":", 1)
+            else:
+                host = "[{0}]".format(host)
+        elif ":" in host:
             host, host_port = host.split(":")
-            port = host_port if host_port.isdigit() else port
+        port = host_port if host_port.isdigit() else port
 
         # if a port is not specified, use the default port for this service
         if not port:

@@ -3,12 +3,13 @@ __copyright__ = "(c) Oleg Butovich 2013-2017"
 __license__ = "MIT"
 
 import io
+import shlex
 
 from mock import patch
 from nose.tools import assert_raises, eq_
 
 from proxmoxer import ProxmoxAPI
-from tests.base.base_ssh_suite import BaseSSHSuite
+from tests.base.base_suite import BaseSuite
 
 
 @patch("paramiko.SSHClient")
@@ -43,46 +44,24 @@ def test_paramiko_tokens(_):
     eq_(p.get_tokens()[1], None)
 
 
-class TestParamikoSuite(BaseSSHSuite):
+class TestParamikoSuite(BaseSuite):
 
     # noinspection PyMethodOverriding
     @patch("paramiko.SSHClient")
-    def setUp(self, _):  # pylint:disable=invalid-name
-        self.proxmox = ProxmoxAPI("proxmox", user="root", backend="ssh_paramiko", port=123)
+    def setup(self, _):
+        self.proxmox = ProxmoxAPI("proxmox", user="root", backend="ssh_paramiko", port=123, sudo=self.sudo)
         self.client = self.proxmox._store["session"].ssh_client
         self.session = self.client.get_transport().open_session()
-        self._set_stderr("200 OK")
-        self._set_stdout("")
+        self._set_output(stdout="200 OK")
 
     def _get_called_cmd(self):
-        return self.session.exec_command.call_args[0][0]
+        return shlex.split(self.session.exec_command.call_args[0][0])
 
-    def _set_stdout(self, stdout):
+    def _set_output(self, stdout='', stderr=''):
         self.session.makefile.return_value = io.BytesIO(stdout.encode("utf-8"))
-
-    def _set_stderr(self, stderr):
         self.session.makefile_stderr.return_value = io.BytesIO(stderr.encode("utf-8"))
 
 
-class TestParamikoSuiteWithSudo(BaseSSHSuite):
-
-    # noinspection PyMethodOverriding
-    @patch("paramiko.SSHClient")
-    def setUp(self, _):  # pylint:disable=invalid-name
+class TestParamikoSuiteWithSudo(TestParamikoSuite):
+    def __init__(self):
         super(TestParamikoSuiteWithSudo, self).__init__(sudo=True)
-        self.proxmox = ProxmoxAPI(
-            "proxmox", user="root", backend="ssh_paramiko", port=123, sudo=True
-        )
-        self.client = self.proxmox._store["session"].ssh_client
-        self.session = self.client.get_transport().open_session()
-        self._set_stderr("200 OK")
-        self._set_stdout("")
-
-    def _get_called_cmd(self):
-        return self.session.exec_command.call_args[0][0]
-
-    def _set_stdout(self, stdout):
-        self.session.makefile.return_value = io.BytesIO(stdout.encode("utf-8"))
-
-    def _set_stderr(self, stderr):
-        self.session.makefile_stderr.return_value = io.BytesIO(stderr.encode("utf-8"))

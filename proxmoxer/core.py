@@ -41,7 +41,7 @@ SERVICES = {
         "supported_https_auths": ["password", "token"],
         "default_port": 8006,
         "token_separator": "=",
-        "ssh_additional_options": "--output-format json",
+        "ssh_additional_options": ["--output-format", "json"],
     },
     "PMG": {
         "supported_backends": ["https", "openssh", "ssh_paramiko"],

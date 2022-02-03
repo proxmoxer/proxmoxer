@@ -5,8 +5,10 @@ __license__ = "MIT"
 # spell-checker:ignore putfo
 
 import os
+import shlex
 
-from proxmoxer.backends.base_ssh import BaseBackend, ProxmoxBaseSSHSession
+from proxmoxer.backends.base import BaseBackend, BaseSession
+from proxmoxer.backends.utils import shelljoin
 
 try:
     import paramiko
@@ -17,26 +19,23 @@ except ImportError:
     sys.exit(1)
 
 
-class ProxmoxParamikoSession(ProxmoxBaseSSHSession):
+class SshParamikoSession(BaseSession):
     def __init__(
         self,
         host,
-        username,
-        service="PVE",
+        user,
         password=None,
         private_key_file=None,
         port=22,
-        timeout=5,
-        sudo=False,
+        **kwargs
     ):
+        super(SshParamikoSession, self).__init__(**kwargs)
         self.host = host
-        self.username = username
+        self.user = user
         self.password = password
-        self.service = service.lower()
         self.private_key_file = private_key_file
         self.port = port
-        self.timeout = timeout
-        self.sudo = sudo
+
         self.ssh_client = self._connect()
 
     def _connect(self):
@@ -50,7 +49,7 @@ class ProxmoxParamikoSession(ProxmoxBaseSSHSession):
 
         ssh_client.connect(
             self.host,
-            username=self.username,
+            username=self.user,
             allow_agent=(not self.password),
             look_for_keys=True,
             key_filename=key_filename,
@@ -62,10 +61,8 @@ class ProxmoxParamikoSession(ProxmoxBaseSSHSession):
         return ssh_client
 
     def _exec(self, cmd):
-        if self.sudo:
-            cmd = "sudo " + cmd
         session = self.ssh_client.get_transport().open_session()
-        session.exec_command(cmd)
+        session.exec_command(shelljoin(cmd))
         stdout = session.makefile("rb", -1).read().decode()
         stderr = session.makefile_stderr("rb", -1).read().decode()
         return stdout, stderr
@@ -77,24 +74,5 @@ class ProxmoxParamikoSession(ProxmoxBaseSSHSession):
 
 
 class Backend(BaseBackend):
-    def __init__(
-        self,
-        host,
-        user,
-        password=None,
-        private_key_file=None,
-        port=22,
-        timeout=5,
-        sudo=False,
-        service="PVE",
-    ):
-        self.session = ProxmoxParamikoSession(
-            host,
-            user,
-            password=password,
-            private_key_file=private_key_file,
-            port=port,
-            timeout=timeout,
-            sudo=sudo,
-            service=service,
-        )
+    def __init__(self, *args, **kwargs):
+        self.session = SshParamikoSession(*args, **kwargs)

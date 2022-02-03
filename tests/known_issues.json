@@ -32,7 +32,7 @@
     },
     {
       "code": "84         node = self.proxmox.nodes('proxmox')\n85         node.openvz.create(vmid=800,\n86                            ostemplate='local:vztmpl/debian-6-turnkey-core_12.0-1_i386.tar.gz',\n87                            hostname='test',\n88                            storage='local',\n89                            memory=512,\n90                            swap=512,\n91                            cpus=1,\n92                            disk=4,\n93                            password='secret',\n94                            ip_address='10.0.100.222')\n95         cmd, options = self._split_cmd(self._get_called_cmd())\n",
-      "filename": "tests/base/base_ssh_suite.py",
+      "filename": "tests/base/base_suite.py",
       "issue_confidence": "MEDIUM",
       "issue_severity": "LOW",
       "issue_text": "Possible hardcoded password: 'secret'",
@@ -55,7 +55,7 @@
     },
     {
       "code": "109         node = self.proxmox.nodes('proxmox1')\n110         node.openvz.post(vmid=900,\n111                          ostemplate='local:vztmpl/debian-7-turnkey-core_12.0-1_i386.tar.gz',\n112                          hostname='test1',\n113                          storage='local1',\n114                          memory=1024,\n115                          swap=1024,\n116                          cpus=2,\n117                          disk=8,\n118                          password='secret1',\n119                          ip_address='10.0.100.111')\n120         cmd, options = self._split_cmd(self._get_called_cmd())\n",
-      "filename": "tests/base/base_ssh_suite.py",
+      "filename": "tests/base/base_suite.py",
       "issue_confidence": "MEDIUM",
       "issue_severity": "LOW",
       "issue_text": "Possible hardcoded password: 'secret1'",

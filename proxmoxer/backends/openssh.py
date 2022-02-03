@@ -2,8 +2,10 @@ __author__ = "Oleg Butovich"
 __copyright__ = "(c) Oleg Butovich 2013-2017"
 __license__ = "MIT"
 
+import shlex
 
-from proxmoxer.backends.base_ssh import BaseBackend, ProxmoxBaseSSHSession
+from proxmoxer.backends.base import BaseBackend, BaseSession
+from proxmoxer.backends.utils import shelljoin
 
 try:
     import openssh_wrapper
@@ -14,40 +16,38 @@ except ImportError:
     sys.exit(1)
 
 
-class ProxmoxOpenSSHSession(ProxmoxBaseSSHSession):
+class OpenSSHSession(BaseSession):
     def __init__(
         self,
         host,
-        username,
-        service="PVE",
+        user,
         configfile=None,
         port=22,
-        timeout=5,
         forward_ssh_agent=False,
-        sudo=False,
         identity_file=None,
+        **kwargs
     ):
+        super(OpenSSHSession, self).__init__(**kwargs)
         self.host = host
-        self.username = username
+        self.user = user
         self.configfile = configfile
-        self.service = service.lower()
         self.port = port
-        self.timeout = timeout
         self.forward_ssh_agent = forward_ssh_agent
-        self.sudo = sudo
         self.identity_file = identity_file
-        self.ssh_client = openssh_wrapper.SSHConnection(
+
+        self.ssh_client = self._connect()
+
+    def _connect(self):
+        return openssh_wrapper.SSHConnection(
             self.host,
-            login=self.username,
+            login=self.user,
             port=self.port,
             timeout=self.timeout,
             identity_file=self.identity_file,
         )
 
     def _exec(self, cmd):
-        if self.sudo:
-            cmd = "sudo " + cmd
-        ret = self.ssh_client.run(cmd, forward_ssh_agent=self.forward_ssh_agent)
+        ret = self.ssh_client.run(shelljoin(cmd), forward_ssh_agent=self.forward_ssh_agent)
         return ret.stdout, ret.stderr
 
     def upload_file_obj(self, file_obj, remote_path):
@@ -55,26 +55,5 @@ class ProxmoxOpenSSHSession(ProxmoxBaseSSHSession):
 
 
 class Backend(BaseBackend):
-    def __init__(
-        self,
-        host,
-        user,
-        configfile=None,
-        port=22,
-        timeout=5,
-        forward_ssh_agent=False,
-        sudo=False,
-        identity_file=None,
-        service="PVE",
-    ):
-        self.session = ProxmoxOpenSSHSession(
-            host,
-            user,
-            configfile=configfile,
-            port=port,
-            timeout=timeout,
-            forward_ssh_agent=forward_ssh_agent,
-            sudo=sudo,
-            identity_file=identity_file,
-            service=service,
-        )
+    def __init__(self, *args, **kwargs):
+        self.session = OpenSSHSession(*args, **kwargs)

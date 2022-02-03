@@ -125,7 +125,7 @@ class TestSuite:
 
     # noinspection PyMethodOverriding
     @patch("requests.sessions.Session")
-    def setUp(self, session):  # pylint:disable=invalid-name
+    def setup(self, session):
         response = {"ticket": "ticket", "CSRFPreventionToken": "CSRFPreventionToken"}
         session.request.return_value = response
         self.proxmox = ProxmoxAPI(

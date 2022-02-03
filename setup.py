@@ -6,8 +6,6 @@ import sys
 
 from setuptools import setup
 
-import proxmoxer
-
 if not os.path.exists("README.txt") and "sdist" in sys.argv:
     with codecs.open("README.rst", encoding="utf8") as f:
         rst = f.read()
@@ -16,17 +14,18 @@ if not os.path.exists("README.txt") and "sdist" in sys.argv:
     with codecs.open("README.txt", encoding="utf8", mode="wb") as f:
         f.write(rst)
 
-
 try:
     readme = "README.txt" if os.path.exists("README.txt") else "README.rst"
     long_description = codecs.open(readme, encoding="utf-8").read()
 except IOError:
     long_description = "Could not read README.txt"
 
+with open("proxmoxer/version.py") as f:
+    exec(f.read())
 
 setup(
     name="proxmoxer",
-    version=proxmoxer.__version__,
+    version=__version__,
     description="Python Wrapper for the Proxmox 2.x API (HTTP and SSH)",
     author="Oleg Butovich",
     author_email="obutovich@gmail.com",

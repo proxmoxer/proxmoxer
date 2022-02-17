@@ -14,6 +14,22 @@ logger = logging.getLogger(__name__)
 logger.setLevel(level=logging.WARNING)
 
 
+try:
+    from shlex import join
+
+    def shelljoin(args):
+        return join(args)
+
+except ImportError:
+    try:
+        from shlex import quote
+    except ImportError:
+        from shellescape import quote
+
+    def shelljoin(args):
+        return " ".join([quote(arg) for arg in args])
+
+
 class Response(object):
     def __init__(self, content, status_code):
         self.status_code = status_code
@@ -22,7 +38,7 @@ class Response(object):
         self.headers = {"content-type": "application/json"}
 
 
-class BaseSession(object):
+class CommandBaseSession(object):
     def __init__(
         self,
         service="PVE",
@@ -46,8 +62,10 @@ class BaseSession(object):
         cmd = {"post": "create", "put": "set"}.get(method, method)
 
         command = ["{0}sh".format(self.service), cmd, url]
+        # convert the options dict into a 2-tuple with the key formatted as a flag
         option_pairs = [("-{0}".format(k), str(v)) for k, v in chain(data.items(), params.items())]
-        options = [o for pair in option_pairs for o in pair]
+        # expand the list of 2-tuples into a flat list
+        options = [val for pair in option_pairs for val in pair]
         additional_options = SERVICES[self.service.upper()].get("ssh_additional_options", [])
         full_cmd = command + options + additional_options
 
@@ -71,12 +89,19 @@ class BaseSession(object):
 
         stdout, stderr = self._exec(full_cmd)
 
-        def match(s):
+        def is_http_status_string(s):
             return re.match(r"\d\d\d [a-zA-Z]", s)
 
         if stderr:
             # sometimes contains extra text like 'trying to acquire lock...OK'
-            status_code = next((int(s.split()[0]) for s in stderr.splitlines() if match(s)), 500)
+            status_code = next(
+                (
+                    int(line.split()[0])
+                    for line in stderr.splitlines()
+                    if is_http_status_string(line)
+                ),
+                500,
+            )
         else:
             status_code = 200
         if stdout:
@@ -95,7 +120,7 @@ class JsonSimpleSerializer(object):
             return {"errors": response.content}
 
 
-class BaseBackend(object):
+class CommandBaseBackend(object):
     def get_session(self):
         return self.session
 

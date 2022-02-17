@@ -9,7 +9,7 @@ from mock import patch
 from nose.tools import assert_raises, eq_
 
 from proxmoxer import ProxmoxAPI
-from tests.base.base_suite import BaseSuite
+from tests.base.base_suite import CommandBaseSuite
 
 
 @patch("paramiko.SSHClient")
@@ -44,7 +44,7 @@ def test_paramiko_tokens(_):
     eq_(p.get_tokens()[1], None)
 
 
-class TestParamikoSuite(BaseSuite):
+class TestParamikoSuite(CommandBaseSuite):
 
     # noinspection PyMethodOverriding
     @patch("paramiko.SSHClient")

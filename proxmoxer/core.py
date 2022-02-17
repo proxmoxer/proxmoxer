@@ -160,6 +160,7 @@ class ProxmoxResource(ProxmoxResourceBase):
 
 class ProxmoxAPI(ProxmoxResource):
     def __init__(self, host=None, backend="https", service="PVE", **kwargs):
+        super(ProxmoxAPI, self).__init__(**kwargs)
         service = service.upper()
         backend = backend.lower()
 

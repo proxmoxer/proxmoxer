@@ -3,7 +3,7 @@ from nose.tools import assert_raises
 from testfixtures import Replacer
 
 from proxmoxer import ProxmoxAPI
-from tests.base.base_suite import BaseSuite
+from tests.base.base_suite import CommandBaseSuite
 
 
 def test_local_invalid_backend():
@@ -11,7 +11,7 @@ def test_local_invalid_backend():
         ProxmoxAPI(backend="local", service="PBS")
 
 
-class TestLocalSuite(BaseSuite):
+class TestLocalSuite(CommandBaseSuite):
     def setup(self):
         self.proxmox = ProxmoxAPI(backend="local")
 

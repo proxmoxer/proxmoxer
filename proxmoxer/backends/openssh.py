@@ -2,8 +2,11 @@ __author__ = "Oleg Butovich"
 __copyright__ = "(c) Oleg Butovich 2013-2017"
 __license__ = "MIT"
 
-from proxmoxer.backends.base import BaseBackend, BaseSession
-from proxmoxer.backends.utils import shelljoin
+from proxmoxer.backends.command_base import (
+    CommandBaseBackend,
+    CommandBaseSession,
+    shelljoin,
+)
 
 try:
     import openssh_wrapper
@@ -14,7 +17,7 @@ except ImportError:
     sys.exit(1)
 
 
-class OpenSSHSession(BaseSession):
+class OpenSSHSession(CommandBaseSession):
     def __init__(
         self,
         host,
@@ -52,6 +55,6 @@ class OpenSSHSession(BaseSession):
         self.ssh_client.scp((file_obj,), target=remote_path)
 
 
-class Backend(BaseBackend):
+class Backend(CommandBaseBackend):
     def __init__(self, *args, **kwargs):
         self.session = OpenSSHSession(*args, **kwargs)

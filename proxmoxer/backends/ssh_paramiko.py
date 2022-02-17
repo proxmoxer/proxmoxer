@@ -6,8 +6,11 @@ __license__ = "MIT"
 
 import os
 
-from proxmoxer.backends.base import BaseBackend, BaseSession
-from proxmoxer.backends.utils import shelljoin
+from proxmoxer.backends.command_base import (
+    CommandBaseBackend,
+    CommandBaseSession,
+    shelljoin,
+)
 
 try:
     import paramiko
@@ -18,7 +21,7 @@ except ImportError:
     sys.exit(1)
 
 
-class SshParamikoSession(BaseSession):
+class SshParamikoSession(CommandBaseSession):
     def __init__(self, host, user, password=None, private_key_file=None, port=22, **kwargs):
         super(SshParamikoSession, self).__init__(**kwargs)
         self.host = host
@@ -64,6 +67,6 @@ class SshParamikoSession(BaseSession):
         sftp.close()
 
 
-class Backend(BaseBackend):
+class Backend(CommandBaseBackend):
     def __init__(self, *args, **kwargs):
         self.session = SshParamikoSession(*args, **kwargs)

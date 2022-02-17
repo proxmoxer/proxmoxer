@@ -7,10 +7,10 @@ import shlex
 from mock import patch
 
 from proxmoxer import ProxmoxAPI
-from tests.base.base_suite import BaseSuite
+from tests.base.base_suite import CommandBaseSuite
 
 
-class TestOpenSSHSuite(BaseSuite):
+class TestOpenSSHSuite(CommandBaseSuite):
     # noinspection PyMethodOverriding
     @patch("openssh_wrapper.SSHConnection")
     def setup(self, _):

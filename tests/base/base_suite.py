@@ -18,7 +18,7 @@ from nose.tools import eq_, ok_, raises
 from proxmoxer.core import ResourceException
 
 
-class BaseSuite(object):
+class CommandBaseSuite(object):
     proxmox = None
     client = None
     session = None
@@ -41,7 +41,7 @@ class BaseSuite(object):
     def _get_called_cmd(self):
         raise NotImplementedError()
 
-    def _set_output(self, stdout, stderr):
+    def _set_output(self, stdout=None, stderr=None):
         raise NotImplementedError()
 
     def test_get(self):

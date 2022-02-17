@@ -5,7 +5,6 @@ __license__ = "MIT"
 # spell-checker:ignore putfo
 
 import os
-import shlex
 
 from proxmoxer.backends.base import BaseBackend, BaseSession
 from proxmoxer.backends.utils import shelljoin
@@ -20,15 +19,7 @@ except ImportError:
 
 
 class SshParamikoSession(BaseSession):
-    def __init__(
-        self,
-        host,
-        user,
-        password=None,
-        private_key_file=None,
-        port=22,
-        **kwargs
-    ):
+    def __init__(self, host, user, password=None, private_key_file=None, port=22, **kwargs):
         super(SshParamikoSession, self).__init__(**kwargs)
         self.host = host
         self.user = user

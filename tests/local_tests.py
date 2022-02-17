@@ -1,7 +1,5 @@
 import mock
-from mock import patch
 from nose.tools import assert_raises
-
 from testfixtures import Replacer
 
 from proxmoxer import ProxmoxAPI
@@ -19,7 +17,7 @@ class TestLocalSuite(BaseSuite):
 
         self.Popen = mock.Mock()
         self.r = Replacer()
-        self.r.replace('proxmoxer.backends.local.Popen', self.Popen)
+        self.r.replace("proxmoxer.backends.local.Popen", self.Popen)
 
         self._set_output(stdout="200 OK")
 
@@ -29,7 +27,7 @@ class TestLocalSuite(BaseSuite):
     def _get_called_cmd(self):
         return list(self.Popen.call_args.args[0])
 
-    def _set_output(self, stdout='', stderr=''):
+    def _set_output(self, stdout="", stderr=""):
         self.Popen.return_value.communicate.return_value = (
             stdout.encode("utf-8"),
             stderr.encode("utf-8"),

@@ -172,12 +172,12 @@ class ProxmoxAPI(ProxmoxResource):
             config_failure("{} backend does not support {} backend", service, backend)
 
         if host is not None:
-            if backend == 'local':
+            if backend == "local":
                 config_failure("{} backend does not support host keyword", backend)
             else:
-                kwargs['host'] = host
+                kwargs["host"] = host
 
-        kwargs['service'] = service
+        kwargs["service"] = service
 
         # load backend module
         self._backend = importlib.import_module(".backends.%s" % backend, "proxmoxer").Backend(

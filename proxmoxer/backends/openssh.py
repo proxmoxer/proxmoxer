@@ -2,8 +2,6 @@ __author__ = "Oleg Butovich"
 __copyright__ = "(c) Oleg Butovich 2013-2017"
 __license__ = "MIT"
 
-import shlex
-
 from proxmoxer.backends.base import BaseBackend, BaseSession
 from proxmoxer.backends.utils import shelljoin
 
@@ -25,7 +23,7 @@ class OpenSSHSession(BaseSession):
         port=22,
         forward_ssh_agent=False,
         identity_file=None,
-        **kwargs
+        **kwargs,
     ):
         super(OpenSSHSession, self).__init__(**kwargs)
         self.host = host

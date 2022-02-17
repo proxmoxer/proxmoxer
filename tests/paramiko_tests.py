@@ -49,7 +49,9 @@ class TestParamikoSuite(BaseSuite):
     # noinspection PyMethodOverriding
     @patch("paramiko.SSHClient")
     def setup(self, _):
-        self.proxmox = ProxmoxAPI("proxmox", user="root", backend="ssh_paramiko", port=123, sudo=self.sudo)
+        self.proxmox = ProxmoxAPI(
+            "proxmox", user="root", backend="ssh_paramiko", port=123, sudo=self.sudo
+        )
         self.client = self.proxmox._store["session"].ssh_client
         self.session = self.client.get_transport().open_session()
         self._set_output(stdout="200 OK")
@@ -57,7 +59,7 @@ class TestParamikoSuite(BaseSuite):
     def _get_called_cmd(self):
         return shlex.split(self.session.exec_command.call_args[0][0])
 
-    def _set_output(self, stdout='', stderr=''):
+    def _set_output(self, stdout="", stderr=""):
         self.session.makefile.return_value = io.BytesIO(stdout.encode("utf-8"))
         self.session.makefile_stderr.return_value = io.BytesIO(stderr.encode("utf-8"))
 

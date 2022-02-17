@@ -45,24 +45,26 @@ class BaseSession(object):
 
         cmd = {"post": "create", "put": "set"}.get(method, method)
 
-        command = ['{0}sh'.format(self.service), cmd, url]
-        option_pairs = [('-{0}'.format(k), str(v)) for k, v in chain(data.items(), params.items())]
+        command = ["{0}sh".format(self.service), cmd, url]
+        option_pairs = [("-{0}".format(k), str(v)) for k, v in chain(data.items(), params.items())]
         options = [o for pair in option_pairs for o in pair]
         additional_options = SERVICES[self.service.upper()].get("ssh_additional_options", [])
         full_cmd = command + options + additional_options
 
         if self.sudo:
-          full_cmd = ['sudo'] + full_cmd
+            full_cmd = ["sudo"] + full_cmd
 
         # for 'upload' call some workaround
         tmp_filename = ""
         if url.endswith("upload"):
             # copy file to temporary location on proxmox host
-            tmp_filename, _ = self._exec([
-                'python',
-                '-c',
-                'import tempfile; import sys; tf = tempfile.NamedTemporaryFile(); sys.stdout.write(tf.name)',
-            ])
+            tmp_filename, _ = self._exec(
+                [
+                    "python",
+                    "-c",
+                    "import tempfile; import sys; tf = tempfile.NamedTemporaryFile(); sys.stdout.write(tf.name)",
+                ]
+            )
             self.upload_file_obj(data["filename"], tmp_filename)
             data["filename"] = data["filename"].name
             data["tmpfilename"] = tmp_filename

@@ -4,8 +4,8 @@ __license__ = "MIT"
 
 # spell-checker:ignore izip pvesh rrddata
 
-from itertools import islice
 import shlex
+from itertools import islice
 
 try:
     # pylint:disable=redefined-builtin
@@ -34,10 +34,7 @@ class BaseSuite(object):
             eq_(cmd[1], "pvesh")
             cmd.pop(0)
         options_set = set(
-            (
-                " ".join((k, v))
-                for k, v in zip(islice(cmd, 3, None, 2), islice(cmd, 4, None, 2))
-            )
+            (" ".join((k, v)) for k, v in zip(islice(cmd, 3, None, 2), islice(cmd, 4, None, 2)))
         )
         return " ".join(cmd[1:3]), options_set
 

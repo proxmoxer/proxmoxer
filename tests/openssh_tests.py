@@ -2,8 +2,9 @@ __author__ = "Oleg Butovich"
 __copyright__ = "(c) Oleg Butovich 2013-2017"
 __license__ = "MIT"
 
-from mock import patch
 import shlex
+
+from mock import patch
 
 from proxmoxer import ProxmoxAPI
 from tests.base.base_suite import BaseSuite
@@ -20,6 +21,6 @@ class TestOpenSSHSuite(BaseSuite):
     def _get_called_cmd(self):
         return shlex.split(self.client.run.call_args[0][0])
 
-    def _set_output(self, stdout='', stderr=''):
+    def _set_output(self, stdout="", stderr=""):
         self.client.run.return_value.stdout = stdout
         self.client.run.return_value.stderr = stderr

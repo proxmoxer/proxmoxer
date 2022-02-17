@@ -1,5 +1,5 @@
-from subprocess import Popen, PIPE
 import shutil
+from subprocess import PIPE, Popen
 
 from proxmoxer.backends.base import BaseBackend, BaseSession
 
@@ -11,8 +11,8 @@ class LocalSession(BaseSession):
         return stdout.decode(), stderr.decode()
 
     def upload_file_obj(self, file_obj, remote_path):
-        with open(remote_path, 'wb') as fp:
-             shutil.copyfileobj(file_obj, fp)
+        with open(remote_path, "wb") as fp:
+            shutil.copyfileobj(file_obj, fp)
 
 
 class Backend(BaseBackend):

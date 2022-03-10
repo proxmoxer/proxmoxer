@@ -51,5 +51,8 @@ setup(
         "Topic :: System :: Monitoring",
         "Topic :: System :: Systems Administration",
     ],
+    install_requires=[
+        "shellescape >= 3.0.0; python_version < '3.3'",
+    ],
     long_description=long_description,
 )

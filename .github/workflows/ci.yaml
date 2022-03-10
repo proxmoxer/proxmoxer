@@ -1,14 +1,16 @@
 name: CI
 
 on:
+  push:
+
   pull_request:
 
-   # Allows you to run this workflow manually from the Actions tab
+  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
   unit-test:
-    continue-on-error: true
+    continue-on-error: ${{ github.repository == 'proxmoxer/proxmoxer' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -49,6 +51,7 @@ jobs:
         run: nosetests --with-coverage --cover-erase --cover-branches --cover-package=proxmoxer tests/
 
       - name: Upload coverage data to coveralls.io
+        if: github.repository == 'proxmoxer/proxmoxer'
         run: coveralls --service=github
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -59,6 +62,7 @@ jobs:
 
   complete:
     name: Finalize Coveralls Report
+    if: github.repository == 'proxmoxer/proxmoxer'
     needs: unit-test
     runs-on: ubuntu-latest
     steps:

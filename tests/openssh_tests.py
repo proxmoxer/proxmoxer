@@ -2,29 +2,25 @@ __author__ = "Oleg Butovich"
 __copyright__ = "(c) Oleg Butovich 2013-2017"
 __license__ = "MIT"
 
+import shlex
+
 from mock import patch
 
 from proxmoxer import ProxmoxAPI
-from tests.base.base_ssh_suite import BaseSSHSuite
+from tests.base.base_suite import CommandBaseSuite
 
 
-class TestOpenSSHSuite(BaseSSHSuite):
-    proxmox = None
-    client = None
-
+class TestOpenSSHSuite(CommandBaseSuite):
     # noinspection PyMethodOverriding
     @patch("openssh_wrapper.SSHConnection")
-    def setUp(self, _):  # pylint:disable=invalid-name
+    def setup(self, _):
         self.proxmox = ProxmoxAPI("proxmox", user="root", backend="openssh", port=123)
         self.client = self.proxmox._store["session"].ssh_client
-        self._set_stderr("200 OK")
-        self._set_stdout("")
+        self._set_output(stdout="200 OK")
 
     def _get_called_cmd(self):
-        return self.client.run.call_args[0][0]
+        return shlex.split(self.client.run.call_args[0][0])
 
-    def _set_stdout(self, stdout):
+    def _set_output(self, stdout="", stderr=""):
         self.client.run.return_value.stdout = stdout
-
-    def _set_stderr(self, stderr):
         self.client.run.return_value.stderr = stderr

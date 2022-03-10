@@ -1,3 +1,9 @@
+## Unreleased
+..................
+
+* Addition (local): Added `local` backend for running directly on Proxmox hosts. (`Markus Reiter <https://github.com/reitermarkus>`_)
+* Improvement: Cleaned up SSH backends so they now share more common code. (`Markus Reiter <https://github.com/reitermarkus>`_)
+
 ## 1.2.0 (2021-10-07)
 * Addition (https): Added OTP code support to authentication ([John Hollowell](https://github.com/jhollowe))
 * Addition (https): Added support for large file uploads using requests_toolbelt module ([John Hollowell](https://github.com/jhollowe))

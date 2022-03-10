@@ -90,7 +90,7 @@ class CommandBaseSession(object):
         stdout, stderr = self._exec(full_cmd)
 
         def is_http_status_string(s):
-            return re.match(r"\d\d\d [a-zA-Z]", s)
+            return re.match(r"\d\d\d [a-zA-Z]", str(s))
 
         if stderr:
             # sometimes contains extra text like 'trying to acquire lock...OK'

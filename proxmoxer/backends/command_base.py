@@ -7,6 +7,7 @@ import json
 import logging
 import re
 from itertools import chain
+from shlex import split as shell_split
 
 from proxmoxer.core import SERVICES
 
@@ -61,9 +62,21 @@ class CommandBaseSession(object):
 
         cmd = {"post": "create", "put": "set"}.get(method, method)
 
+        # separate out qemu exec commands to split into multiple argument pairs (issue#89)
+        data_command = data.get("command")
+        if data_command is not None:
+            del data["command"]
+
         command = ["{0}sh".format(self.service), cmd, url]
         # convert the options dict into a 2-tuple with the key formatted as a flag
         option_pairs = [("-{0}".format(k), str(v)) for k, v in chain(data.items(), params.items())]
+        # add back in all the command arguments as their own pairs
+        if data_command is not None:
+            command_arr = (
+                data_command if isinstance(data_command, list) else shell_split(data_command)
+            )
+            for arg in command_arr:
+                option_pairs.append(("-command", arg))
         # expand the list of 2-tuples into a flat list
         options = [val for pair in option_pairs for val in pair]
         additional_options = SERVICES[self.service.upper()].get("ssh_additional_options", [])

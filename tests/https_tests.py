@@ -145,20 +145,20 @@ class TestSuite:
         )
 
     def test_delete(self):
-        self.proxmox.nodes("proxmox").openvz(100).delete()
+        self.proxmox.nodes("proxmox").qemu(100).delete()
         eq_(
             self.session.request.call_args[0],
-            ("DELETE", "https://proxmox:123/api2/json/nodes/proxmox/openvz/100"),
+            ("DELETE", "https://proxmox:123/api2/json/nodes/proxmox/qemu/100"),
         )
-        self.proxmox.nodes("proxmox").openvz("101").delete()
+        self.proxmox.nodes("proxmox").qemu("101").delete()
         eq_(
             self.session.request.call_args[0],
-            ("DELETE", "https://proxmox:123/api2/json/nodes/proxmox/openvz/101"),
+            ("DELETE", "https://proxmox:123/api2/json/nodes/proxmox/qemu/101"),
         )
 
     def test_post(self):
         node = self.proxmox.nodes("proxmox")
-        node.openvz.create(
+        node.qemu.create(
             vmid=800,
             ostemplate="local:vztmpl/debian-6-turnkey-core_12.0-1_i386.tar.gz",
             hostname="test",
@@ -172,7 +172,7 @@ class TestSuite:
         )
         eq_(
             self.session.request.call_args[0],
-            ("POST", "https://proxmox:123/api2/json/nodes/proxmox/openvz"),
+            ("POST", "https://proxmox:123/api2/json/nodes/proxmox/qemu"),
         )
         ok_("data" in self.session.request.call_args[1])
         data = self.session.request.call_args[1]["data"]
@@ -188,7 +188,7 @@ class TestSuite:
         eq_(data["vmid"], 800)
 
         node = self.proxmox.nodes("proxmox1")
-        node.openvz.post(
+        node.qemu.post(
             vmid=900,
             ostemplate="local:vztmpl/debian-7-turnkey-core_12.0-1_i386.tar.gz",
             hostname="test1",
@@ -202,7 +202,7 @@ class TestSuite:
         )
         eq_(
             self.session.request.call_args[0],
-            ("POST", "https://proxmox:123/api2/json/nodes/proxmox1/openvz"),
+            ("POST", "https://proxmox:123/api2/json/nodes/proxmox1/qemu"),
         )
         ok_("data" in self.session.request.call_args[1])
         data = self.session.request.call_args[1]["data"]
@@ -219,10 +219,10 @@ class TestSuite:
 
     def test_put(self):
         node = self.proxmox.nodes("proxmox")
-        node.openvz(101).config.set(cpus=4, memory=1024, ip_address="10.0.100.100", onboot=True)
+        node.qemu(101).config.set(cpus=4, memory=1024, ip_address="10.0.100.100", onboot=True)
         eq_(
             self.session.request.call_args[0],
-            ("PUT", "https://proxmox:123/api2/json/nodes/proxmox/openvz/101/config"),
+            ("PUT", "https://proxmox:123/api2/json/nodes/proxmox/qemu/101/config"),
         )
         data = self.session.request.call_args[1]["data"]
         eq_(data["cpus"], 4)
@@ -231,10 +231,10 @@ class TestSuite:
         eq_(data["onboot"], True)
 
         node = self.proxmox.nodes("proxmox1")
-        node.openvz(102).config.put(cpus=2, memory=512, ip_address="10.0.100.200", onboot=False)
+        node.qemu(102).config.put(cpus=2, memory=512, ip_address="10.0.100.200", onboot=False)
         eq_(
             self.session.request.call_args[0],
-            ("PUT", "https://proxmox:123/api2/json/nodes/proxmox1/openvz/102/config"),
+            ("PUT", "https://proxmox:123/api2/json/nodes/proxmox1/qemu/102/config"),
         )
         data = self.session.request.call_args[1]["data"]
         eq_(data["cpus"], 2)

@@ -41,6 +41,12 @@ class CommandBaseSuite(object):
     def _get_called_cmd(self):
         raise NotImplementedError()
 
+    def _called_cmd(self, cmd):
+        called_cmd = cmd
+        if self.sudo:
+            called_cmd = "sudo " + cmd
+        return shlex.split(called_cmd)
+
     def _set_output(self, stdout=None, stderr=None):
         raise NotImplementedError()
 
@@ -185,8 +191,22 @@ class CommandBaseSuite(object):
         self._set_output(stderr="Extra output\n500 whoops")
         self.proxmox.nodes("proxmox").get()
 
-    def _called_cmd(self, cmd):
-        called_cmd = cmd
-        if self.sudo:
-            called_cmd = "sudo " + cmd
-        return shlex.split(called_cmd)
+    def test_qemu_command_string(self):
+        self.proxmox.nodes("proxmox").qemu(100).agent.exec.post(
+            command='bash -c "sleep 5 && echo \'hello \\"world\\"\'"'
+        )
+        eq_(
+            self._get_called_cmd(),
+            self._called_cmd(
+                'pvesh create /nodes/proxmox/qemu/100/agent/exec -command bash -command -c -command "sleep 5 && echo \'hello \\"world\\"\'" --output-format json'
+            ),
+        )
+
+    def test_qemu_command_array(self):
+        self.proxmox.nodes("proxmox").qemu(100).agent.exec.post(command=["echo", 'hello "world"'])
+        eq_(
+            self._get_called_cmd(),
+            self._called_cmd(
+                "pvesh create /nodes/proxmox/qemu/100/agent/exec -command echo -command 'hello \"world\"' --output-format json"
+            ),
+        )

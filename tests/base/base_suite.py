@@ -192,21 +192,25 @@ class CommandBaseSuite(object):
         self.proxmox.nodes("proxmox").get()
 
     def test_qemu_command_string(self):
-        self.proxmox.nodes("proxmox").qemu(100).agent.exec.post(
+        # "TMP" added to path to resolve Python 2.7 SyntaxError with "exec" here
+        self.proxmox.nodes("proxmox").qemu(100).agent.execTMP.post(
             command='bash -c "sleep 5 && echo \'hello \\"world\\"\'"'
         )
         eq_(
             self._get_called_cmd(),
             self._called_cmd(
-                'pvesh create /nodes/proxmox/qemu/100/agent/exec -command bash -command -c -command "sleep 5 && echo \'hello \\"world\\"\'" --output-format json'
+                'pvesh create /nodes/proxmox/qemu/100/agent/execTMP -command bash -command -c -command "sleep 5 && echo \'hello \\"world\\"\'" --output-format json'
             ),
         )
 
     def test_qemu_command_array(self):
-        self.proxmox.nodes("proxmox").qemu(100).agent.exec.post(command=["echo", 'hello "world"'])
+        # "TMP" added to path to resolve Python 2.7 SyntaxError with "exec" here
+        self.proxmox.nodes("proxmox").qemu(100).agent.execTMP.post(
+            command=["echo", 'hello "world"']
+        )
         eq_(
             self._get_called_cmd(),
             self._called_cmd(
-                "pvesh create /nodes/proxmox/qemu/100/agent/exec -command echo -command 'hello \"world\"' --output-format json"
+                "pvesh create /nodes/proxmox/qemu/100/agent/execTMP -command echo -command 'hello \"world\"' --output-format json"
             ),
         )

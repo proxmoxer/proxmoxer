@@ -5,3 +5,4 @@ coveralls
 paramiko
 openssh_wrapper
 testfixtures
+shellescape

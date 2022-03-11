@@ -63,9 +63,11 @@ class CommandBaseSession(object):
         cmd = {"post": "create", "put": "set"}.get(method, method)
 
         # separate out qemu exec commands to split into multiple argument pairs (issue#89)
-        data_command = data.get("command")
-        if data_command is not None:
-            del data["command"]
+        data_command = None
+        if "/agent/exec" in url:
+            data_command = data.get("command")
+            if data_command is not None:
+                del data["command"]
 
         command = ["{0}sh".format(self.service), cmd, url]
         # convert the options dict into a 2-tuple with the key formatted as a flag

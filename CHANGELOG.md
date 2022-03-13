@@ -1,8 +1,12 @@
-## Unreleased
-..................
+## 1.3.0 (2022-03-13)
 
-* Addition (local): Added `local` backend for running directly on Proxmox hosts. (`Markus Reiter <https://github.com/reitermarkus>`_)
-* Improvement: Cleaned up SSH backends so they now share more common code. (`Markus Reiter <https://github.com/reitermarkus>`_)
+* Addition (local): Added `local` backend for running directly on Proxmox hosts. ([Markus Reiter](https://github.com/reitermarkus))
+* Bugfix (all): properly parse command string sent to QEMU guest agent ([John Hollowell](https://github.com/jhollowe))
+* Improvement (command_base): Refactor code to have a unified CLI backend base for `openssh`, `ssh_paramiko`, and `local` backends ([Markus Reiter](https://github.com/reitermarkus))
+* Improvement (https): Support IPv6 addresses (TODO)[https://github.com/TODO]
+* Improvement: Move CI to GitHub actions from Travis.ci ([John Hollowell](https://github.com/jhollowe))
+* Improvement: Cleanup documentaiton and move to dedicated site ([John Hollowell](https://github.com/jhollowe))
+* Improvement: Add `pre-commit` hooks for formatting and linting and format all code ([John Hollowell](https://github.com/jhollowe))
 
 ## 1.2.0 (2021-10-07)
 * Addition (https): Added OTP code support to authentication ([John Hollowell](https://github.com/jhollowe))
@@ -33,9 +37,9 @@
 * Transferred development to proxmoxer organization
 
 ## 1.0.3 (2018-09-10)
-* Improvement: Added option to specify port in hostname parameter ([pvanagtmaal](https://github.com/pvanagtmaal))
+* Improvement (https): Added option to specify port in hostname parameter ([pvanagtmaal](https://github.com/pvanagtmaal))
 * Improvement: Added stderr to the Response content ([Jérôme Schneider](https://github.com/merinos))
-* Bugfix: Paramiko python3: stdout and stderr must be a str not bytes ([Jérôme Schneider](https://github.com/merinos))
+* Bugfix (ssh_paramiko): Paramiko python3: stdout and stderr must be a str not bytes ([Jérôme Schneider](https://github.com/merinos))
 * New lxc example in docu ([Geert Stappers](https://github.com/stappersg))
 
 ## 1.0.2 (2017-12-02)

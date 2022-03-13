@@ -41,6 +41,12 @@ class CommandBaseSuite(object):
     def _get_called_cmd(self):
         raise NotImplementedError()
 
+    def _called_cmd(self, cmd):
+        called_cmd = cmd
+        if self.sudo:
+            called_cmd = "sudo " + cmd
+        return shlex.split(called_cmd)
+
     def _set_output(self, stdout=None, stderr=None):
         raise NotImplementedError()
 
@@ -77,28 +83,28 @@ class CommandBaseSuite(object):
         eq_(result[4]["subdir"], "rrddata")
 
     def test_delete(self):
-        self.proxmox.nodes("proxmox").openvz(100).delete()
+        self.proxmox.nodes("proxmox").qemu(100).delete()
         eq_(
             self._get_called_cmd(),
-            self._called_cmd("pvesh delete /nodes/proxmox/openvz/100 --output-format json"),
+            self._called_cmd("pvesh delete /nodes/proxmox/qemu/100 --output-format json"),
         )
         self._set_output(stderr="200 OK")
-        self.proxmox.nodes("proxmox").openvz("101").delete()
+        self.proxmox.nodes("proxmox").qemu("101").delete()
         eq_(
             self._get_called_cmd(),
-            self._called_cmd("pvesh delete /nodes/proxmox/openvz/101 --output-format json"),
+            self._called_cmd("pvesh delete /nodes/proxmox/qemu/101 --output-format json"),
         )
         self._set_output(stderr="200 OK")
-        self.proxmox.nodes("proxmox").openvz.delete("102")
+        self.proxmox.nodes("proxmox").qemu.delete("102")
         eq_(
             self._get_called_cmd(),
-            self._called_cmd("pvesh delete /nodes/proxmox/openvz/102 --output-format json"),
+            self._called_cmd("pvesh delete /nodes/proxmox/qemu/102 --output-format json"),
         )
 
     def test_post(self):
         self._set_output(stderr="200 OK")
         node = self.proxmox.nodes("proxmox")
-        node.openvz.create(
+        node.qemu.create(
             vmid=800,
             ostemplate="local:vztmpl/debian-6-turnkey-core_12.0-1_i386.tar.gz",
             hostname="test",
@@ -111,7 +117,7 @@ class CommandBaseSuite(object):
             ip_address="10.0.100.222",
         )
         cmd, options = self._split_cmd(self._get_called_cmd())
-        eq_(cmd, "create /nodes/proxmox/openvz")
+        eq_(cmd, "create /nodes/proxmox/qemu")
         ok_("-cpus 1" in options)
         ok_("-disk 4" in options)
         ok_("-hostname test" in options)
@@ -125,7 +131,7 @@ class CommandBaseSuite(object):
 
         self._set_output(stderr="200 OK")
         node = self.proxmox.nodes("proxmox1")
-        node.openvz.post(
+        node.qemu.post(
             vmid=900,
             ostemplate="local:vztmpl/debian-7-turnkey-core_12.0-1_i386.tar.gz",
             hostname="test1",
@@ -138,7 +144,7 @@ class CommandBaseSuite(object):
             ip_address="10.0.100.111",
         )
         cmd, options = self._split_cmd(self._get_called_cmd())
-        eq_(cmd, "create /nodes/proxmox1/openvz")
+        eq_(cmd, "create /nodes/proxmox1/qemu")
         ok_("-cpus 2" in options)
         ok_("-disk 8" in options)
         ok_("-hostname test1" in options)
@@ -153,9 +159,9 @@ class CommandBaseSuite(object):
     def test_put(self):
         self._set_output(stderr="200 OK")
         node = self.proxmox.nodes("proxmox")
-        node.openvz(101).config.set(cpus=4, memory=1024, ip_address="10.0.100.100", onboot=True)
+        node.qemu(101).config.set(cpus=4, memory=1024, ip_address="10.0.100.100", onboot=True)
         cmd, options = self._split_cmd(self._get_called_cmd())
-        eq_(cmd, "set /nodes/proxmox/openvz/101/config")
+        eq_(cmd, "set /nodes/proxmox/qemu/101/config")
         ok_("-memory 1024" in options)
         ok_("-ip_address 10.0.100.100" in options)
         ok_("-onboot True" in options)
@@ -163,9 +169,9 @@ class CommandBaseSuite(object):
 
         self._set_output(stderr="200 OK")
         node = self.proxmox.nodes("proxmox1")
-        node.openvz("102").config.put(cpus=2, memory=512, ip_address="10.0.100.200", onboot=False)
+        node.qemu("102").config.put(cpus=2, memory=512, ip_address="10.0.100.200", onboot=False)
         cmd, options = self._split_cmd(self._get_called_cmd())
-        eq_(cmd, "set /nodes/proxmox1/openvz/102/config")
+        eq_(cmd, "set /nodes/proxmox1/qemu/102/config")
         ok_("-memory 512" in options)
         ok_("-ip_address 10.0.100.200" in options)
         ok_("-onboot False" in options)
@@ -185,8 +191,26 @@ class CommandBaseSuite(object):
         self._set_output(stderr="Extra output\n500 whoops")
         self.proxmox.nodes("proxmox").get()
 
-    def _called_cmd(self, cmd):
-        called_cmd = cmd
-        if self.sudo:
-            called_cmd = "sudo " + cmd
-        return shlex.split(called_cmd)
+    def test_qemu_command_string(self):
+        # "TMP" added to path to resolve Python 2.7 SyntaxError with "exec" here
+        self.proxmox.nodes("proxmox").qemu(100).agent.execTMP.post(
+            command='bash -c "sleep 5 && echo \'hello \\"world\\"\'"'
+        )
+        eq_(
+            self._get_called_cmd(),
+            self._called_cmd(
+                'pvesh create /nodes/proxmox/qemu/100/agent/execTMP -command bash -command -c -command "sleep 5 && echo \'hello \\"world\\"\'" --output-format json'
+            ),
+        )
+
+    def test_qemu_command_array(self):
+        # "TMP" added to path to resolve Python 2.7 SyntaxError with "exec" here
+        self.proxmox.nodes("proxmox").qemu(100).agent.execTMP.post(
+            command=["echo", 'hello "world"']
+        )
+        eq_(
+            self._get_called_cmd(),
+            self._called_cmd(
+                "pvesh create /nodes/proxmox/qemu/100/agent/execTMP -command echo -command 'hello \"world\"' --output-format json"
+            ),
+        )

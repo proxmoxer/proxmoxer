@@ -8,6 +8,7 @@ import logging
 import os
 import sys
 import time
+from shlex import split as shell_split
 
 from proxmoxer.core import SERVICES, config_failure
 
@@ -216,20 +217,20 @@ class ProxmoxHttpSession(requests.Session):
         # filter out streams
         files = files or {}
         data = data or {}
-        is_large_payload = False
         total_file_size = 0
         for k, v in data.copy().items():
+            # split qemu exec commands for proper parsing by PVE (issue#89)
+            if k == "command":
+                data[k] = v if isinstance(v, list) else shell_split(v)
             if is_file(v):
                 total_file_size += get_file_size(v)
-                if total_file_size > STREAMING_SIZE_THRESHOLD:
-                    is_large_payload = True
 
                 # add in filename from file pointer (patch for https://github.com/requests/toolbelt/pull/316)
                 files[k] = (requests.utils.guess_filename(v), v)
                 del data[k]
 
-        # if there are any large file, send all data and files using streaming multipart encoding
-        if is_large_payload:
+        # if there are any large files, send all data and files using streaming multipart encoding
+        if total_file_size > STREAMING_SIZE_THRESHOLD:
             try:
                 # pylint:disable=import-outside-toplevel
                 from requests_toolbelt import MultipartEncoder

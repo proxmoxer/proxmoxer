@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+
+  pull_request:
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  unit-test:
+    continue-on-error: ${{ github.repository == 'proxmoxer/proxmoxer' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - "2.7"
+          - "3.5"
+          - "3.7"
+          - "3.8"
+          - "3.9"
+          # - "3.10"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Cache PIP packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-python${{ matrix.python-version }}-${{ hashFiles('*requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-python${{ matrix.python-version }}-
+            ${{ runner.os }}-pip-
+
+      - name: Install pip Packages
+        run: pip install -r test_requirements.txt
+
+      - name: Install Self as Package
+        run: pip install .
+
+      - name: Run Tests
+        run: nosetests --with-coverage --cover-erase --cover-branches --cover-package=proxmoxer tests/
+
+      - name: Upload coverage data to coveralls.io
+        if: github.repository == 'proxmoxer/proxmoxer'
+        run: coveralls --service=github
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COVERALLS_FLAG_NAME: Unit Test (${{ matrix.python-version }})
+          COVERALLS_PARALLEL: true
+          COVERALLS_REPO_TOKEN: ${{ matrix.python-version == '2.7' && secrets.GITHUB_TOKEN || ''}}
+
+
+  complete:
+    name: Finalize Coveralls Report
+    if: github.repository == 'proxmoxer/proxmoxer'
+    needs: unit-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@1.1.3
+        with:
+          parallel-finished: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}

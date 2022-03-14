@@ -1,2 +1,3 @@
 twine
 setuptools
+pre-commit

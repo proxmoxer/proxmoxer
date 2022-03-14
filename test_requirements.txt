@@ -4,4 +4,5 @@ requests < 2.9
 coveralls
 paramiko
 openssh_wrapper
-
+testfixtures
+shellescape

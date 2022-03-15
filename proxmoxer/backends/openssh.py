@@ -18,23 +18,20 @@ except ImportError:
 
 
 class OpenSSHSession(CommandBaseSession):
-    # formatting disabled due to python <= 3.5 syntax error with comma after **kwargs
     def __init__(
         self,
         host,
         user,
-        configfile=None,
+        config_file=None,
         port=22,
-        forward_ssh_agent=False,
         identity_file=None,
-        # fmt: off
-        **kwargs
-        # fmt: on
+        forward_ssh_agent=False,
+        **kwargs,
     ):
         super(OpenSSHSession, self).__init__(**kwargs)
         self.host = host
         self.user = user
-        self.configfile = configfile
+        self.config_file = config_file
         self.port = port
         self.forward_ssh_agent = forward_ssh_agent
         self.identity_file = identity_file
@@ -46,8 +43,9 @@ class OpenSSHSession(CommandBaseSession):
             self.host,
             login=self.user,
             port=self.port,
-            timeout=self.timeout,
+            configfile=self.config_file,
             identity_file=self.identity_file,
+            timeout=self.timeout,
         )
 
     def _exec(self, cmd):

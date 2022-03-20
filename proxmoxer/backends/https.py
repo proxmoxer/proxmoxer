@@ -120,25 +120,6 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
         return r
 
 
-# DEPRECATED(1.1.0) - either use a password or the API Tokens
-class ProxmoxHTTPTicketAuth(ProxmoxHTTPAuth):
-    """Use existing ticket/token to create a session.
-
-    Overrides ProxmoxHTTPAuth so that an existing auth ticket and csrf token
-    may be used instead of passing username/password.
-    """
-
-    def __init__(self, auth_ticket, csrf_token):
-        self.pve_auth_ticket = auth_ticket
-        self.csrf_prevention_token = csrf_token
-        self.birth_time = get_time()
-
-        # deprecation notice
-        logger.warning(
-            "** Existing token auth is Deprecated as of 1.1.0\n** Please use the API Token Auth for long-running programs or pass existing ticket as password to the user/password auth"
-        )
-
-
 class ProxmoxHTTPApiTokenAuth(ProxmoxHTTPAuthBase):
     def __init__(self, username, token_name, token_value, service):
         self.service = service
@@ -284,8 +265,6 @@ class Backend(object):
         verify_ssl=True,
         mode="json",
         timeout=5,
-        auth_token=None,
-        csrf_token=None,
         token_name=None,
         token_value=None,
         service="PVE",
@@ -308,10 +287,7 @@ class Backend(object):
 
         self.base_url = "https://{0}:{1}/api2/{2}".format(host, port, mode)
 
-        if auth_token is not None:
-            # DEPRECATED(1.1.0) - either use a password or the API Tokens
-            self.auth = ProxmoxHTTPTicketAuth(auth_token, csrf_token)
-        elif token_name is not None:
+        if token_name is not None:
             if "token" not in SERVICES[service]["supported_https_auths"]:
                 config_failure("{} does not support API Token authentication", service)
 

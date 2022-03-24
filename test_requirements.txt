@@ -1,8 +1,6 @@
 mock
-nose
-requests < 2.9
-coveralls
+pytest
+requests
 paramiko
 openssh_wrapper
 testfixtures
-shellescape

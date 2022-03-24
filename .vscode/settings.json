@@ -26,4 +26,6 @@
     "vmid",
     "vztmpl"
   ],
+  "autoDocstring.docstringFormat": "sphinx",
+  "autoDocstring.startOnNewLine": true,
 }

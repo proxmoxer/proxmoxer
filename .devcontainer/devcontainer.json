@@ -28,7 +28,8 @@
   "extensions": [
     "ms-python.python",
     "streetsidesoftware.code-spell-checker",
-    "mhutchie.git-graph"
+	"mhutchie.git-graph",
+	"njpwerner.autodocstring"
   ],
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   // "forwardPorts": [],

@@ -3,6 +3,7 @@ __copyright__ = "(c) Oleg Butovich 2013-2017"
 __license__ = "MIT"
 
 
+import io
 import json
 import logging
 import os
@@ -20,22 +21,15 @@ STREAMING_SIZE_THRESHOLD = 100 * 1024 * 1024  # 10 MiB
 # fmt: off
 try:
     import requests
-    urllib3 = requests.packages.urllib3
-    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     from requests.auth import AuthBase
     from requests.cookies import cookiejar_from_dict
 except ImportError:
     logger.error("Chosen backend requires 'requests' module\n")
     sys.exit(1)
 
-if sys.version_info[0] >= 3:
-    import io
-    def is_file(obj): return isinstance(obj, io.IOBase)
-    # prefer using monoatomic time if available
-    def get_time(): return time.monotonic()
-else:
-    def is_file(obj): return isinstance(obj, file)  # noqa pylint:disable=undefined-variable
-    def get_time(): return time.time()
+
+def is_file(obj): return isinstance(obj, io.IOBase)
+def get_time(): return time.monotonic()
 # fmt: on
 
 
@@ -243,7 +237,7 @@ class ProxmoxHttpSession(requests.Session):
                 # pylint:disable=import-outside-toplevel
                 from requests_toolbelt import MultipartEncoder
 
-                encoder = MultipartEncoder(fields=merge_dicts(data, files))
+                encoder = MultipartEncoder(fields={**data, **files})
                 data = encoder
                 files = None
                 headers = {"Content-Type": encoder.content_type}
@@ -403,14 +397,3 @@ def get_file_size_partial(file_obj):
     file_obj.seek(starting_cursor)
 
     return size
-
-
-def merge_dicts(*dicts):
-    """Compatibility polyfill for dict unpacking for python < 3.5
-    See PEP 448 for details on how merging functions
-
-    :return: merged dicts
-    :rtype: dict
-    """
-    # synonymous with {**dict for dict in dicts}
-    return {k: v for d in dicts for k, v in d.items()}

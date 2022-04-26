@@ -6,6 +6,7 @@ __license__ = "MIT"
 import json
 import logging
 import os
+import platform
 import sys
 import time
 from shlex import split as shell_split
@@ -202,7 +203,10 @@ class ProxmoxHttpSession(requests.Session):
         for k, v in data.copy().items():
             # split qemu exec commands for proper parsing by PVE (issue#89)
             if k == "command":
-                data[k] = v if isinstance(v, list) else shell_split(v)
+                if isinstance(v, list):
+                    data[k] = v
+                elif 'Linux' in platform.platfor()
+                    data[k] = shell_split(v)
             if is_file(v):
                 total_file_size += get_file_size(v)
 

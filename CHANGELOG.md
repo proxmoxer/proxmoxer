@@ -1,3 +1,7 @@
+## 1.3.1 (2022-05-14)
+
+* Bugfix (all): fix error handling for APIs that don't give a dict in the response ([Alex Wuillaume](https://github.com/wuillaumea))
+
 ## 1.3.0 (2022-03-13)
 
 * Addition (local): Added `local` backend for running directly on Proxmox hosts. ([Markus Reiter](https://github.com/reitermarkus))

@@ -158,7 +158,7 @@ class JsonSerializer(object):
 
     def loads_errors(self, response):
         try:
-            return json.loads(response.text)["errors"]
+            return json.loads(response.text).get("errors")
         except (UnicodeDecodeError, ValueError):
             return {"errors": response.content}
 

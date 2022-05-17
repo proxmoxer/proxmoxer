@@ -205,7 +205,7 @@ class ProxmoxHttpSession(requests.Session):
             if k == "command":
                 if isinstance(v, list):
                     data[k] = v
-                elif 'Windows' not in platform.platfor()
+                elif "Windows" not in platform.platform():
                     data[k] = shell_split(v)
             if is_file(v):
                 total_file_size += get_file_size(v)

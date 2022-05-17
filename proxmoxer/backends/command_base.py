@@ -77,7 +77,7 @@ class CommandBaseSession(object):
         if data_command is not None:
             if isinstance(data_command, list):
                 command_arr = data_command
-            elif 'Windows' not in platform.platform():
+            elif "Windows" not in platform.platform():
                 command_arr = shell_split(data_command)
             for arg in command_arr:
                 option_pairs.append(("-command", arg))

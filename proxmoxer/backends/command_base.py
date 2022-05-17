@@ -5,6 +5,7 @@ __license__ = "MIT"
 
 import json
 import logging
+import platform
 import re
 from itertools import chain
 from shlex import split as shell_split
@@ -74,9 +75,10 @@ class CommandBaseSession(object):
         option_pairs = [("-{0}".format(k), str(v)) for k, v in chain(data.items(), params.items())]
         # add back in all the command arguments as their own pairs
         if data_command is not None:
-            command_arr = (
-                data_command if isinstance(data_command, list) else shell_split(data_command)
-            )
+            if isinstance(data_command, list):
+                command_arr = data_command
+            elif "Windows" not in platform.platform():
+                command_arr = shell_split(data_command)
             for arg in command_arr:
                 option_pairs.append(("-command", arg))
         # expand the list of 2-tuples into a flat list

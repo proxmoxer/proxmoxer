@@ -7,7 +7,7 @@
 * Addition (local): Added `local` backend for running directly on Proxmox hosts. ([Markus Reiter](https://github.com/reitermarkus))
 * Bugfix (all): properly parse command string sent to QEMU guest agent ([John Hollowell](https://github.com/jhollowe))
 * Improvement (command_base): Refactor code to have a unified CLI backend base for `openssh`, `ssh_paramiko`, and `local` backends ([Markus Reiter](https://github.com/reitermarkus))
-* Improvement (https): Support IPv6 addresses (TODO)[https://github.com/TODO]
+* Improvement (https): Support IPv6 addresses ([Daviddcc](https://github.com/dcasier))
 * Improvement: Move CI to GitHub actions from Travis.ci ([John Hollowell](https://github.com/jhollowe))
 * Improvement: Cleanup documentaiton and move to dedicated site ([John Hollowell](https://github.com/jhollowe))
 * Improvement: Add `pre-commit` hooks for formatting and linting and format all code ([John Hollowell](https://github.com/jhollowe))

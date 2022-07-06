@@ -1,7 +1,7 @@
 repos:
   ###### FORMATTING ######
   - repo: https://github.com/psf/black
-    rev: 22.1.0
+    rev: 22.6.0
     hooks:
       - id: black
         language_version: python3 # Should be a command that runs python3.6+
@@ -17,7 +17,7 @@ repos:
 
   ###### LINTING ######
   - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.2
+    rev: 1.7.4
     hooks:
       - id: bandit
         args: ["--baseline", "tests/known_issues.json"]
@@ -35,7 +35,7 @@ repos:
   #     - id: pylint
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.1.0
+    rev: v4.3.0
     hooks:
       - id: check-case-conflict
       - id: check-symlinks

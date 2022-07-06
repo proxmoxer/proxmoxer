@@ -28,4 +28,15 @@
   ],
   "autoDocstring.docstringFormat": "sphinx",
   "autoDocstring.startOnNewLine": true,
+  "python.testing.pytestArgs": [
+    "--cov",
+    "--cov-report",
+    "xml:coverage.xml",
+    "tests/",
+  ],
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestEnabled": true,
+  "coverage-gutters.coverageFileNames": [
+    "coverage.xml"
+  ],
 }

@@ -1,5 +1,6 @@
 mock
 pytest
+pytest-cov
 requests
 paramiko
 openssh_wrapper

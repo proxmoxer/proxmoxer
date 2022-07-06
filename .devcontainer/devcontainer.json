@@ -26,10 +26,11 @@
   },
   // Add the IDs of extensions you want installed when the container is created.
   "extensions": [
-    "ms-python.python",
-    "streetsidesoftware.code-spell-checker",
 	"mhutchie.git-graph",
-	"njpwerner.autodocstring"
+    "ms-python.python",
+    "njpwerner.autodocstring",
+    "ryanluker.vscode-coverage-gutters",
+    "streetsidesoftware.code-spell-checker"
   ],
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   // "forwardPorts": [],

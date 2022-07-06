@@ -189,7 +189,7 @@ class ProxmoxHttpSession(requests.Session):
 
         # take set verify flag from auth if request does not have this parameter explicitly
         if verify is None:
-            verify = a.verify
+            verify = a.verify_ssl
 
         if timeout is None:
             timeout = a.timeout

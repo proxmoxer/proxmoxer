@@ -3,15 +3,15 @@
   "generated_at": "2022-02-17T05:56:07Z",
   "results": [
     {
-      "code": "341     def get_serializer(self):\n342         assert self.mode == \"json\"\n343         return JsonSerializer()\n",
+      "code": "320     def get_serializer(self):\n321         assert self.mode == \"json\"\n322         return JsonSerializer()\n",
       "col_offset": 8,
       "filename": "proxmoxer/backends/https.py",
       "issue_confidence": "HIGH",
       "issue_severity": "LOW",
       "issue_text": "Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
-      "line_number": 342,
+      "line_number": 321,
       "line_range": [
-        342
+        321
       ],
       "more_info": "https://bandit.readthedocs.io/en/latest/plugins/b101_assert_used.html",
       "test_id": "B101",

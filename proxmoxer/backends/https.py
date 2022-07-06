@@ -299,6 +299,8 @@ class Backend(object):
             self.auth = ProxmoxHTTPAuth(
                 self.base_url, user, password, otp, verify_ssl, timeout, service
             )
+        else:
+            config_failure("No valid authentication credentials were supplied")
         self.verify_ssl = verify_ssl
         self.mode = mode
         self.timeout = timeout

@@ -1,7 +1,10 @@
 import pytest
-from requests import Response
+from api_mock import PVERegistry, mock_pve  # pylint: disable=unused-import # noqa: F401
+from requests import Request, Response
 
 import proxmoxer.backends.https as https
+
+# pylint: disable=no-self-use
 
 
 class TestHttpsBackend:
@@ -76,6 +79,12 @@ class TestHttpsBackend:
 
         assert backend.get_tokens() == (None, None)
 
+    def test_get_tokens_password(self, mock_pve):
+
+        backend = https.Backend("1.2.3.4:1234", password="name")
+
+        assert ("ticket", "CSRFPreventionToken") == backend.get_tokens()
+
 
 class TestProxmoxHTTPApiTokenAuth:
     """
@@ -90,6 +99,56 @@ class TestProxmoxHTTPApiTokenAuth:
         assert auth.token_value == "value"
         assert auth.service == "PMG"
         # TODO jhollowe update when HTTPS upgrade code gets merged
+
+
+class TestProxmoxHTTPAuth:
+    """
+    Tests the ProxmoxHTTPApiTokenAuth class
+    """
+
+    base_url = PVERegistry.base_url
+
+    # pylint: disable=redefined-outer-name
+
+    def test_init_all_args(self, mock_pve):
+        # auth = https.ProxmoxHTTPAuth("user", "name", "value", "PMG")
+
+        # assert auth.username == "user"
+        # assert auth.token_name == "name"
+        # assert auth.token_value == "value"
+        # assert auth.service == "PMG"
+        # TODO jhollowe update when HTTPS upgrade code gets merged
+        pass
+
+    def test_ticket_renewal(self, mock_pve):
+        auth = https.ProxmoxHTTPAuth(self.base_url, "user", "password")
+
+        auth(r=Request("HEAD", self.base_url + "/version").prepare())
+
+        # check starting auth tokens
+        assert auth.pve_auth_ticket == "ticket"
+        assert auth.csrf_prevention_token == "CSRFPreventionToken"
+
+        auth.renew_age = 0  # force renewing ticket now
+        auth(r=Request("GET", self.base_url + "/version").prepare())
+
+        # check renewed auth tokens
+        assert auth.pve_auth_ticket == "new_ticket"
+        assert auth.csrf_prevention_token == "CSRFPreventionToken_2"
+
+    def test_get_cookies(self, mock_pve):
+        auth = https.ProxmoxHTTPAuth(self.base_url, "user", "password", service="PVE")
+
+        assert auth.get_cookies().get_dict() == {"PVEAuthCookie": "ticket"}
+
+    def test_auth_failure(self, mock_pve):
+        with pytest.raises(https.AuthenticationError) as exc_info:
+            https.ProxmoxHTTPAuth(self.base_url, "bad_auth", "")
+
+        assert (
+            str(exc_info.value)
+            == f"Couldn't authenticate user: bad_auth to {self.base_url}/access/ticket"
+        )
 
 
 class TestProxmoxHttpSession:
@@ -180,7 +239,3 @@ class TestJsonSerializer:
         act_output = self._serializer.loads_errors(response)
 
         assert act_output == exp_output
-
-
-class MockRequest:
-    pass

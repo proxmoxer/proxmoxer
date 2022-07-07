@@ -47,9 +47,6 @@ class AuthenticationError(Exception):
     def __str__(self):
         return self.msg
 
-    def __repr__(self):
-        return self.__str__()
-
 
 class ProxmoxHTTPAuthBase(AuthBase):
     def get_cookies(self):
@@ -61,7 +58,7 @@ class ProxmoxHTTPAuthBase(AuthBase):
 
 class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
     # number of seconds between renewing access tickets (must be less than 7200 to function correctly)
-    # if calls are made less frequently than 2 hrs, using the API token auth is reccomended
+    # if calls are made less frequently than 2 hrs, using the API token auth is recommended
     renew_age = 3600
 
     def __init__(

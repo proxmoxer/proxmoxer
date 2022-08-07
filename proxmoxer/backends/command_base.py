@@ -19,7 +19,7 @@ logger.setLevel(level=logging.WARNING)
 try:
     from shlex import join
 
-    def shelljoin(args):
+    def shell_join(args):
         return join(args)
 
 except ImportError:
@@ -28,7 +28,7 @@ except ImportError:
     except ImportError:
         from shellescape import quote
 
-    def shelljoin(args):
+    def shell_join(args):
         return " ".join([quote(arg) for arg in args])
 
 

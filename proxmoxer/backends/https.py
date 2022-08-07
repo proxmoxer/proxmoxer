@@ -3,6 +3,7 @@ __copyright__ = "(c) Oleg Butovich 2013-2017"
 __license__ = "MIT"
 
 
+import io
 import json
 import logging
 import os
@@ -21,22 +22,15 @@ STREAMING_SIZE_THRESHOLD = 100 * 1024 * 1024  # 10 MiB
 # fmt: off
 try:
     import requests
-    urllib3 = requests.packages.urllib3
-    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     from requests.auth import AuthBase
     from requests.cookies import cookiejar_from_dict
 except ImportError:
     logger.error("Chosen backend requires 'requests' module\n")
     sys.exit(1)
 
-if sys.version_info[0] >= 3:
-    import io
-    def is_file(obj): return isinstance(obj, io.IOBase)
-    # prefer using monoatomic time if available
-    def get_time(): return time.monotonic()
-else:
-    def is_file(obj): return isinstance(obj, file)  # noqa pylint:disable=undefined-variable
-    def get_time(): return time.time()
+
+def is_file(obj): return isinstance(obj, io.IOBase)
+def get_time(): return time.monotonic()
 # fmt: on
 
 
@@ -53,11 +47,19 @@ class AuthenticationError(Exception):
 
 
 class ProxmoxHTTPAuthBase(AuthBase):
+    def __call__(self, req):
+        return req
+
     def get_cookies(self):
         return cookiejar_from_dict({})
 
     def get_tokens(self):
         return None, None
+
+    def __init__(self, timeout=5, service="PVE", verify_ssl=False):
+        self.timeout = timeout
+        self.service = service
+        self.verify_ssl = verify_ssl
 
 
 class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
@@ -65,14 +67,10 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
     # if calls are made less frequently than 2 hrs, using the API token auth is reccomended
     renew_age = 3600
 
-    def __init__(
-        self, base_url, username, password, otp=None, verify_ssl=False, timeout=5, service="PVE"
-    ):
+    def __init__(self, username, password, otp=None, base_url="", **kwargs):
+        super(ProxmoxHTTPAuth, self).__init__(**kwargs)
         self.base_url = base_url
         self.username = username
-        self.verify_ssl = verify_ssl
-        self.timeout = timeout
-        self.service = service
         self.pve_auth_ticket = ""
 
         self._get_new_tokens(password=password, otp=otp)
@@ -109,34 +107,34 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
     def get_tokens(self):
         return self.pve_auth_ticket, self.csrf_prevention_token
 
-    def __call__(self, r):
+    def __call__(self, req):
         # refresh ticket if older than `renew_age`
         if (get_time() - self.birth_time) >= self.renew_age:
-            logger.debug("refreshing ticket (age {0})".format(get_time() - self.birth_time))
+            logger.debug("refreshing ticket (age %d)", (get_time() - self.birth_time))
             self._get_new_tokens()
 
         # only attach CSRF token if needed (reduce interception risk)
-        if r.method != "GET":
-            r.headers["CSRFPreventionToken"] = self.csrf_prevention_token
-        return r
+        if req.method != "GET":
+            req.headers["CSRFPreventionToken"] = self.csrf_prevention_token
+        return req
 
 
 class ProxmoxHTTPApiTokenAuth(ProxmoxHTTPAuthBase):
-    def __init__(self, username, token_name, token_value, service):
-        self.service = service
+    def __init__(self, username, token_name, token_value, service, **kwargs):
+        super(ProxmoxHTTPApiTokenAuth, self).__init__(**kwargs)
         self.username = username
         self.token_name = token_name
         self.token_value = token_value
 
-    def __call__(self, r):
-        r.headers["Authorization"] = "{0}APIToken={1}!{2}{3}{4}".format(
+    def __call__(self, req):
+        req.headers["Authorization"] = "{0}APIToken={1}!{2}{3}{4}".format(
             self.service,
             self.username,
             self.token_name,
             SERVICES[self.service]["token_separator"],
             self.token_value,
         )
-        return r
+        return req
 
 
 class JsonSerializer(object):
@@ -164,6 +162,7 @@ class JsonSerializer(object):
             return {"errors": response.content}
 
 
+# pylint:disable=arguments-renamed
 class ProxmoxHttpSession(requests.Session):
     def request(
         self,
@@ -188,9 +187,12 @@ class ProxmoxHttpSession(requests.Session):
         a = auth or self.auth
         c = cookies or self.cookies
 
-        # take set verify flag from session if request does not have this parameter explicitly
+        # take set verify flag from auth if request does not have this parameter explicitly
         if verify is None:
-            verify = self.verify
+            verify = a.verify_ssl
+
+        if timeout is None:
+            timeout = a.timeout
 
         # pull cookies from auth if not present
         if (not c) and a:
@@ -220,7 +222,7 @@ class ProxmoxHttpSession(requests.Session):
                 # pylint:disable=import-outside-toplevel
                 from requests_toolbelt import MultipartEncoder
 
-                encoder = MultipartEncoder(fields=merge_dicts(data, files))
+                encoder = MultipartEncoder(fields={**data, **files})
                 data = encoder
                 files = None
                 headers = {"Content-Type": encoder.content_type}
@@ -271,6 +273,7 @@ class Backend(object):
         timeout=5,
         token_name=None,
         token_value=None,
+        path_prefix=None,
         service="PVE",
     ):
 
@@ -289,27 +292,33 @@ class Backend(object):
         if not port:
             port = SERVICES[service]["default_port"]
 
-        self.base_url = "https://{0}:{1}/api2/{2}".format(host, port, mode)
+        self.mode = mode
+        if path_prefix is not None:
+            self.base_url = "https://{0}:{1}/{2}/api2/{3}".format(host, port, path_prefix, mode)
+        else:
+            self.base_url = "https://{0}:{1}/api2/{2}".format(host, port, mode)
 
         if token_name is not None:
             if "token" not in SERVICES[service]["supported_https_auths"]:
                 config_failure("{} does not support API Token authentication", service)
 
-            self.auth = ProxmoxHTTPApiTokenAuth(user, token_name, token_value, service)
+            self.auth = ProxmoxHTTPApiTokenAuth(user, token_name, token_value, service=service)
         elif password is not None:
             if "password" not in SERVICES[service]["supported_https_auths"]:
                 config_failure("{} does not support password authentication", service)
 
             self.auth = ProxmoxHTTPAuth(
-                self.base_url, user, password, otp, verify_ssl, timeout, service
+                user,
+                password,
+                otp,
+                base_url=self.base_url,
+                verify_ssl=verify_ssl,
+                timeout=timeout,
+                service=service,
             )
-        self.verify_ssl = verify_ssl
-        self.mode = mode
-        self.timeout = timeout
 
     def get_session(self):
         session = ProxmoxHttpSession()
-        session.verify = self.verify_ssl
         session.auth = self.auth
         # cookies are taken from the auth
         session.headers["Connection"] = "keep-alive"
@@ -371,14 +380,3 @@ def get_file_size_partial(file_obj):
     file_obj.seek(starting_cursor)
 
     return size
-
-
-def merge_dicts(*dicts):
-    """Compatibility polyfill for dict unpacking for python < 3.5
-    See PEP 448 for details on how merging functions
-
-    :return: merged dicts
-    :rtype: dict
-    """
-    # synonymous with {**dict for dict in dicts}
-    return {k: v for d in dicts for k, v in d.items()}

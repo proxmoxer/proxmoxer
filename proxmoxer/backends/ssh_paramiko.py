@@ -9,7 +9,7 @@ import os
 from proxmoxer.backends.command_base import (
     CommandBaseBackend,
     CommandBaseSession,
-    shelljoin,
+    shell_join,
 )
 
 try:
@@ -56,7 +56,7 @@ class SshParamikoSession(CommandBaseSession):
 
     def _exec(self, cmd):
         session = self.ssh_client.get_transport().open_session()
-        session.exec_command(shelljoin(cmd))
+        session.exec_command(shell_join(cmd))
         stdout = session.makefile("rb", -1).read().decode()
         stderr = session.makefile_stderr("rb", -1).read().decode()
         return stdout, stderr

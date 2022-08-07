@@ -5,7 +5,7 @@ __license__ = "MIT"
 from proxmoxer.backends.command_base import (
     CommandBaseBackend,
     CommandBaseSession,
-    shelljoin,
+    shell_join,
 )
 
 try:
@@ -49,7 +49,7 @@ class OpenSSHSession(CommandBaseSession):
         )
 
     def _exec(self, cmd):
-        ret = self.ssh_client.run(shelljoin(cmd), forward_ssh_agent=self.forward_ssh_agent)
+        ret = self.ssh_client.run(shell_join(cmd), forward_ssh_agent=self.forward_ssh_agent)
         return ret.stdout, ret.stderr
 
     def upload_file_obj(self, file_obj, remote_path):

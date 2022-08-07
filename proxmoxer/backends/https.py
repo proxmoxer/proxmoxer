@@ -94,6 +94,10 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
                     self.username, self.base_url + "/access/ticket"
                 )
             )
+        if response_data.get("NeedTFA") is not None:
+            raise AuthenticationError(
+                "Couldn't authenticate user: missing Two Factor Authentication (TFA)"
+            )
 
         self.birth_time = get_time()
         self.pve_auth_ticket = response_data["ticket"]

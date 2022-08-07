@@ -76,6 +76,21 @@ class PVERegistry(responses.registries.FirstMatchRegistry):
                 self.common_headers,
                 json.dumps({"data": None}),
             )
+        # if this user requires OTP and it is not included
+        if form_data_dict.get("username") == "otp" and form_data_dict.get("otp") is None:
+            return (
+                200,
+                self.common_headers,
+                json.dumps(
+                    {
+                        "data": {
+                            "ticket": "otp_ticket",
+                            "CSRFPreventionToken": "CSRFPreventionToken",
+                            "NeedTFA": 1,
+                        }
+                    }
+                ),
+            )
 
         # if this is the first ticket
         if form_data_dict.get("password") != "ticket":

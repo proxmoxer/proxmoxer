@@ -86,19 +86,65 @@ class TestHttpsBackend:
         assert ("ticket", "CSRFPreventionToken") == backend.get_tokens()
 
 
+class TestProxmoxHTTPAuthBase:
+    """
+    Tests the ProxmoxHTTPAuthBase class
+    """
+
+    base_url = PVERegistry.base_url
+
+    def test_init_all_args(self):
+        auth = https.ProxmoxHTTPAuthBase(timeout=1234, service="PMG", verify_ssl=True)
+
+        assert auth.timeout == 1234
+        assert auth.service == "PMG"
+        assert auth.verify_ssl is True
+
+    def test_call(self):
+        auth = https.ProxmoxHTTPAuthBase()
+        req = Request("HEAD", self.base_url + "/version").prepare()
+        resp = auth(req)
+
+        assert resp == req
+
+    def test_get_cookies(self):
+        auth = https.ProxmoxHTTPAuthBase()
+
+        assert auth.get_cookies().get_dict() == {}
+
+
 class TestProxmoxHTTPApiTokenAuth:
     """
     Tests the ProxmoxHTTPApiTokenAuth class
     """
 
-    # def test_init_all_args(self):
-    #     auth = https.ProxmoxHTTPApiTokenAuth("user", "name", "value", "PMG")
+    base_url = PVERegistry.base_url
 
-    #     assert auth.username == "user"
-    #     assert auth.token_name == "name"
-    #     assert auth.token_value == "value"
-    #     assert auth.service == "PMG"
-    #     # TODO jhollowe update when HTTPS upgrade code gets merged
+    def test_init_all_args(self):
+        auth = https.ProxmoxHTTPApiTokenAuth(
+            "user", "name", "value", service="PMG", timeout=1234, verify_ssl=True
+        )
+
+        assert auth.username == "user"
+        assert auth.token_name == "name"
+        assert auth.token_value == "value"
+        assert auth.service == "PMG"
+        assert auth.timeout == 1234
+        assert auth.verify_ssl is True
+
+    def test_call_pve(self):
+        auth = https.ProxmoxHTTPApiTokenAuth("user", "name", "value", service="PVE")
+        req = Request("HEAD", self.base_url + "/version").prepare()
+        resp = auth(req)
+
+        assert resp.headers["Authorization"] == "PVEAPIToken=user!name=value"
+
+    def test_call_pbs(self):
+        auth = https.ProxmoxHTTPApiTokenAuth("user", "name", "value", service="PBS")
+        req = Request("HEAD", self.base_url + "/version").prepare()
+        resp = auth(req)
+
+        assert resp.headers["Authorization"] == "PBSAPIToken=user!name:value"
 
 
 class TestProxmoxHTTPAuth:

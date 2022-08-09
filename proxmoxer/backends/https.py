@@ -121,7 +121,7 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
 
 
 class ProxmoxHTTPApiTokenAuth(ProxmoxHTTPAuthBase):
-    def __init__(self, username, token_name, token_value, service, **kwargs):
+    def __init__(self, username, token_name, token_value, **kwargs):
         super(ProxmoxHTTPApiTokenAuth, self).__init__(**kwargs)
         self.username = username
         self.token_name = token_name

@@ -2,6 +2,7 @@ pytest
 pytest-cov
 responses
 requests
+requests_toolbelt
 paramiko
 openssh_wrapper
 testfixtures

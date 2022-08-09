@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(level=logging.WARNING)
 
 STREAMING_SIZE_THRESHOLD = 100 * 1024 * 1024  # 10 MiB
+SSL_OVERFLOW_THRESHOLD = 2147483135  # 2^31 - 1 - 512
 
 # fmt: off
 try:
@@ -229,20 +230,17 @@ class ProxmoxHttpSession(requests.Session):
                 headers = {"Content-Type": encoder.content_type}
             except ImportError:
                 # if the files will cause issues with the SSL 2GiB limit (https://bugs.python.org/issue42853#msg384566)
-                if total_file_size > 2147483135:  # 2^31 - 1 - 512
+                if total_file_size > SSL_OVERFLOW_THRESHOLD:
                     logger.warning(
                         "Install 'requests_toolbelt' to add support for files larger than 2GiB"
                     )
                     raise OverflowError("Unable to upload a payload larger than 2 GiB")
                 else:
                     logger.info(
-                        "Installing 'requests_toolbelt' will deacrease memory used during upload"
+                        "Installing 'requests_toolbelt' will decrease memory used during upload"
                     )
 
-        if not files and serializer:
-            headers = {"Content-Type": "application/x-www-form-urlencoded"}
-
-        return super(ProxmoxHttpSession, self).request(
+        return super().request(
             method,
             url,
             params,

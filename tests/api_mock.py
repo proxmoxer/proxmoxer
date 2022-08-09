@@ -3,6 +3,7 @@ from urllib.parse import parse_qsl
 
 import pytest
 import responses
+from requests_toolbelt import MultipartEncoder
 
 
 @pytest.fixture()
@@ -31,9 +32,6 @@ class PVERegistry(responses.registries.FirstMatchRegistry):
         for resp in self._generate_dynamic_responses():
             self.add(resp)
 
-    def set_base_url(self, base_url):
-        self.base_url = base_url
-
     def _generate_static_responses(self):
         resps = []
 
@@ -60,11 +58,37 @@ class PVERegistry(responses.registries.FirstMatchRegistry):
             )
         )
 
+        # Session testing
+        resps.append(
+            responses.CallbackResponse(
+                method="GET",
+                url=self.base_url + "/fake/echo",
+                callback=self._cb_echo,
+            )
+        )
+
         return resps
 
     ###################################
     # Callbacks for Dynamic Responses #
     ###################################
+
+    def _cb_echo(self, request):
+        body = request.body
+        if body is not None:
+            if isinstance(body, MultipartEncoder):
+                body = body.to_string()  # really, to byte string
+            body = body if isinstance(body, str) else str(body, "utf-8")
+
+        resp = {
+            "method": request.method,
+            "url": request.url,
+            "headers": dict(request.headers),
+            "cookies": request._cookies.get_dict(),
+            "body": body,
+            # "body_json": dict(parse_qsl(request.body)),
+        }
+        return (200, self.common_headers, json.dumps(resp))
 
     def _cb_password_auth(self, request):
         form_data_dict = dict(parse_qsl(request.body))

@@ -6,7 +6,8 @@
   "python.linting.pylintEnabled": true,
   "python.linting.banditEnabled": true,
   "python.linting.banditArgs": [
-    "--baseline tests/known_issues.json"
+    "--baseline tests/known_issues.json",
+    "--configfile .bandit"
   ],
   "[python]": {
     "editor.codeActionsOnSave": {

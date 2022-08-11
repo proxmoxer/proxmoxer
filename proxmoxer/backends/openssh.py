@@ -42,7 +42,7 @@ class OpenSSHSession(CommandBaseSession):
         return openssh_wrapper.SSHConnection(
             self.host,
             login=self.user,
-            port=self.port,
+            port=str(self.port),  # openssh_wrapper complains if this is an int
             configfile=self.config_file,
             identity_file=self.identity_file,
             timeout=self.timeout,

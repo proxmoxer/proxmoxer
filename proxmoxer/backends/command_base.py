@@ -23,10 +23,7 @@ try:
         return join(args)
 
 except ImportError:
-    try:
-        from shlex import quote
-    except ImportError:
-        from shellescape import quote
+    from shlex import quote
 
     def shell_join(args):
         return " ".join([quote(arg) for arg in args])
@@ -70,6 +67,22 @@ class CommandBaseSession(object):
             if data_command is not None:
                 del data["command"]
 
+        # for 'upload' call some workaround
+        tmp_filename = ""
+        if url.endswith("upload"):
+            # copy file to temporary location on proxmox host
+            tmp_filename, tmp_err = self._exec(
+                [
+                    "python3",
+                    "-c",
+                    "import tempfile; import sys; tf = tempfile.NamedTemporaryFile(); sys.stdout.write(tf.name)",
+                ]
+            )
+            tmp_filename = str(tmp_filename, "utf-8")
+            self.upload_file_obj(data["filename"], tmp_filename)
+            data["filename"] = data["filename"].name
+            data["tmpfilename"] = tmp_filename
+
         command = ["{0}sh".format(self.service), cmd, url]
         # convert the options dict into a 2-tuple with the key formatted as a flag
         option_pairs = [("-{0}".format(k), str(v)) for k, v in chain(data.items(), params.items())]
@@ -88,21 +101,6 @@ class CommandBaseSession(object):
 
         if self.sudo:
             full_cmd = ["sudo"] + full_cmd
-
-        # for 'upload' call some workaround
-        tmp_filename = ""
-        if url.endswith("upload"):
-            # copy file to temporary location on proxmox host
-            tmp_filename, _ = self._exec(
-                [
-                    "python",
-                    "-c",
-                    "import tempfile; import sys; tf = tempfile.NamedTemporaryFile(); sys.stdout.write(tf.name)",
-                ]
-            )
-            self.upload_file_obj(data["filename"], tmp_filename)
-            data["filename"] = data["filename"].name
-            data["tmpfilename"] = tmp_filename
 
         stdout, stderr = self._exec(full_cmd)
 
@@ -132,6 +130,7 @@ class CommandBaseSession(object):
 class JsonSimpleSerializer(object):
     def loads(self, response):
         try:
+            print(response.content)
             return json.loads(response.content)
         except (UnicodeDecodeError, ValueError):
             return {"errors": response.content}

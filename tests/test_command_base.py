@@ -140,7 +140,7 @@ class TestCommandBaseSession:
         ]
 
     def test_request_upload(self, mock_exec, mock_upload_file_obj):
-        with tempfile.TemporaryFile("w+b") as f_obj:
+        with tempfile.NamedTemporaryFile("w+b") as f_obj:
             resp = self._session.request(
                 "POST",
                 self.base_url + "/node/node1/storage/local/upload",

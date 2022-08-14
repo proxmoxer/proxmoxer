@@ -12,7 +12,14 @@
     {
       "label": "Run Tests",
       "type": "shell",
-      "command": "pytest -v tests/"
+      "command": "pytest -v tests/",
+      "problemMatcher": []
+    },
+    {
+      "label": "Update bandit baseline",
+      "type": "shell",
+      "command": "bandit --configfile .bandit -f json -r tests/ proxmoxer/ >| tests/known_issues.json",
+      "problemMatcher": []
     }
   ]
 }

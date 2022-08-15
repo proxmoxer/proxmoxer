@@ -1,17 +1,17 @@
 {
   "errors": [],
-  "generated_at": "2022-08-14T04:45:27Z",
+  "generated_at": "2022-08-15T06:28:55Z",
   "metrics": {
     "_totals": {
       "CONFIDENCE.HIGH": 3,
       "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 3,
+      "CONFIDENCE.MEDIUM": 5,
       "CONFIDENCE.UNDEFINED": 0,
       "SEVERITY.HIGH": 0,
       "SEVERITY.LOW": 3,
-      "SEVERITY.MEDIUM": 3,
+      "SEVERITY.MEDIUM": 5,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 1481,
+      "loc": 1562,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -89,7 +89,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 50,
+      "loc": 53,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -180,7 +180,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 50,
+      "loc": 65,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -194,6 +194,19 @@
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
       "loc": 35,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "tests/test_openssh.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 2,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 2,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 63,
       "nosec": 0,
       "skipped_tests": 0
     }
@@ -320,6 +333,44 @@
         160,
         161,
         162
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.7.4/plugins/b108_hardcoded_tmp_directory.html",
+      "test_id": "B108",
+      "test_name": "hardcoded_tmp_directory"
+    },
+    {
+      "code": "62         with tempfile.NamedTemporaryFile(\"r\") as f_obj:\n63             mock_session.upload_file_obj(f_obj, \"/tmp/file\")\n64 \n",
+      "col_offset": 48,
+      "filename": "tests/test_openssh.py",
+      "issue_confidence": "MEDIUM",
+      "issue_cwe": {
+        "id": 377,
+        "link": "https://cwe.mitre.org/data/definitions/377.html"
+      },
+      "issue_severity": "MEDIUM",
+      "issue_text": "Probable insecure usage of temp file/directory.",
+      "line_number": 63,
+      "line_range": [
+        63
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.7.4/plugins/b108_hardcoded_tmp_directory.html",
+      "test_id": "B108",
+      "test_name": "hardcoded_tmp_directory"
+    },
+    {
+      "code": "66                 (f_obj,),\n67                 target=\"/tmp/file\",\n68             )\n",
+      "col_offset": 23,
+      "filename": "tests/test_openssh.py",
+      "issue_confidence": "MEDIUM",
+      "issue_cwe": {
+        "id": 377,
+        "link": "https://cwe.mitre.org/data/definitions/377.html"
+      },
+      "issue_severity": "MEDIUM",
+      "issue_text": "Probable insecure usage of temp file/directory.",
+      "line_number": 67,
+      "line_range": [
+        67
       ],
       "more_info": "https://bandit.readthedocs.io/en/1.7.4/plugins/b108_hardcoded_tmp_directory.html",
       "test_id": "B108",

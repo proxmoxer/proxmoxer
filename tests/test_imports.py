@@ -22,6 +22,23 @@ def test_missing_requests(requests_off, caplog):
     ]
 
 
+def test_missing_openssh_wrapper(openssh_off, caplog):
+    with pytest.raises(SystemExit) as exit_exp:
+        import proxmoxer.backends.openssh as test_openssh
+
+        # force re-importing of the module with `openssh_wrapper` gone so the validation is triggered
+        reload(test_openssh)
+
+    assert exit_exp.value.code == 1
+    assert caplog.record_tuples == [
+        (
+            "proxmoxer.backends.openssh",
+            logging.ERROR,
+            "Chosen backend requires 'openssh_wrapper' module\n",
+        )
+    ]
+
+
 class TestCommandBase:
     def test_join_empty(self, shlex_join_on_off):
         from proxmoxer.backends import command_base
@@ -63,6 +80,11 @@ class TestCommandBase:
 @pytest.fixture()
 def requests_off(monkeypatch):
     return monkeypatch.setitem(sys.modules, "requests", None)
+
+
+@pytest.fixture()
+def openssh_off(monkeypatch):
+    return monkeypatch.setitem(sys.modules, "openssh_wrapper", None)
 
 
 @pytest.fixture(params=(False, True))

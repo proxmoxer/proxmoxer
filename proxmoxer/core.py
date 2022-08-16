@@ -66,7 +66,22 @@ def config_failure(message, *args):
     raise NotImplementedError(message.format(*args))
 
 
-class ProxmoxResourceBase(object):
+class ResourceException(Exception):
+    def __init__(self, status_code, status_message, content, errors=None):
+        self.status_code = status_code
+        self.status_message = status_message
+        self.content = content
+        self.errors = errors
+        if errors is not None:
+            content += " - {0}".format(errors)
+        message = "{0} {1}: {2}".format(status_code, status_message, content).strip()
+        super(ResourceException, self).__init__(message)
+
+
+class ProxmoxResource(object):
+    def __init__(self, **kwargs):
+        self._store = kwargs
+
     def __getattr__(self, item):
         if item.startswith("_"):
             raise AttributeError(item)
@@ -81,23 +96,6 @@ class ProxmoxResourceBase(object):
         path = path if len(path) else "/"
         path = posixpath.join(path, *[("%s" % x) for x in args])
         return urlparse.urlunsplit([scheme, netloc, path, query, fragment])
-
-
-class ResourceException(Exception):
-    def __init__(self, status_code, status_message, content, errors=None):
-        self.status_code = status_code
-        self.status_message = status_message
-        self.content = content
-        self.errors = errors
-        if errors is not None:
-            content += " - {0}".format(errors)
-        message = "{0} {1}: {2}".format(status_code, status_message, content).strip()
-        super(ResourceException, self).__init__(message)
-
-
-class ProxmoxResource(ProxmoxResourceBase):
-    def __init__(self, **kwargs):
-        self._store = kwargs
 
     def __call__(self, resource_id=None):
         if not resource_id:

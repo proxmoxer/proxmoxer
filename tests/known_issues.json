@@ -221,6 +221,10 @@
         "id": 703,
         "link": "https://cwe.mitre.org/data/definitions/703.html"
       },
+      "issue_cwe": {
+        "id": 703,
+        "link": "https://cwe.mitre.org/data/definitions/703.html"
+      },
       "issue_severity": "LOW",
       "issue_text": "Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
       "line_number": 333,
@@ -232,10 +236,14 @@
       "test_name": "assert_used"
     },
     {
-      "code": "1 import shutil\n2 from subprocess import PIPE, Popen\n3 \n4 from proxmoxer.backends.command_base import CommandBaseBackend, CommandBaseSession\n",
+      "code": "1 import shutil\n2 from subprocess import PIPE, Popen\n3 \n4 from proxmoxer.backends.command_command_base import CommandCommandBaseBackend, CommandCommandBaseSession\n",
       "col_offset": 0,
       "filename": "proxmoxer/backends/local.py",
       "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 78,
+        "link": "https://cwe.mitre.org/data/definitions/78.html"
+      },
       "issue_cwe": {
         "id": 78,
         "link": "https://cwe.mitre.org/data/definitions/78.html"
@@ -260,6 +268,10 @@
         "id": 78,
         "link": "https://cwe.mitre.org/data/definitions/78.html"
       },
+      "issue_cwe": {
+        "id": 78,
+        "link": "https://cwe.mitre.org/data/definitions/78.html"
+      },
       "issue_severity": "LOW",
       "issue_text": "subprocess call - check for execution of untrusted input.",
       "line_number": 9,
@@ -275,6 +287,10 @@
       "col_offset": 8,
       "filename": "proxmoxer/backends/ssh_paramiko.py",
       "issue_confidence": "MEDIUM",
+      "issue_cwe": {
+        "id": 78,
+        "link": "https://cwe.mitre.org/data/definitions/78.html"
+      },
       "issue_cwe": {
         "id": 78,
         "link": "https://cwe.mitre.org/data/definitions/78.html"

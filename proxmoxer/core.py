@@ -54,11 +54,6 @@ SERVICES = {
         "default_port": 8007,
         "token_separator": ":",
     },
-    "NONE": {
-        "supported_backends": [],
-        "supported_https_auths": [],
-        "default_port": 1234,
-    },
 }
 
 

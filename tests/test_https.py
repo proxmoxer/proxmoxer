@@ -76,13 +76,13 @@ class TestHttpsBackend:
 
         assert isinstance(backend.auth, https.ProxmoxHTTPApiTokenAuth)
 
-    def test_init_token_not_supported(self):
+    def test_init_token_not_supported(self, apply_none_service):
         with pytest.raises(NotImplementedError) as exc_info:
             https.Backend("1.2.3.4:1234", token_name="name", service="NONE")
 
         assert str(exc_info.value) == "NONE does not support API Token authentication"
 
-    def test_init_password_not_supported(self):
+    def test_init_password_not_supported(self, apply_none_service):
         with pytest.raises(NotImplementedError) as exc_info:
             https.Backend("1.2.3.4:1234", password="pass", service="NONE")
 
@@ -485,5 +485,21 @@ def toolbelt_on_off(request, monkeypatch):
 def shrink_thresholds():
     with mock.patch("proxmoxer.backends.https.STREAMING_SIZE_THRESHOLD", 100), mock.patch(
         "proxmoxer.backends.https.SSL_OVERFLOW_THRESHOLD", 1000
+    ):
+        yield
+
+
+@pytest.fixture
+def apply_none_service():
+    serv = {
+        "NONE": {
+            "supported_backends": [],
+            "supported_https_auths": [],
+            "default_port": 1234,
+        }
+    }
+
+    with mock.patch("proxmoxer.core.SERVICES", serv), mock.patch(
+        "proxmoxer.backends.https.SERVICES", serv
     ):
         yield

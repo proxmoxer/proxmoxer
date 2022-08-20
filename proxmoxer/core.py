@@ -113,7 +113,7 @@ class ProxmoxResource(object):
             logger.info("%s %s %r", method, url, data)
         else:
             logger.info("%s %s", method, url)
-        resp = self._store["session"].request(method, url, data=data or None, params=params)
+        resp = self._store["session"].request(method, url, data=data, params=params)
         logger.debug("Status code: %s, output: %s", resp.status_code, resp.content)
 
         if resp.status_code >= 400:
@@ -168,7 +168,7 @@ class ProxmoxAPI(ProxmoxResource):
 
         # throw error for unsupported backend for service
         if backend not in SERVICES[service]["supported_backends"]:
-            config_failure("{} backend does not support {} backend", service, backend)
+            config_failure("{} service does not support {} backend", service, backend)
 
         if host is not None:
             if backend == "local":

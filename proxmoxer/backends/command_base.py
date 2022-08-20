@@ -36,6 +36,9 @@ class Response(object):
         self.text = str(content)
         self.headers = {"content-type": "application/json"}
 
+    def __str__(self):
+        return f"Response ({self.status_code}) {self.content}"
+
 
 class CommandBaseSession(object):
     def __init__(
@@ -130,8 +133,13 @@ class CommandBaseSession(object):
 class JsonSimpleSerializer(object):
     def loads(self, response):
         try:
-            print(response.content)
             return json.loads(response.content)
+        except (UnicodeDecodeError, ValueError):
+            return {"errors": response.content}
+
+    def loads_errors(self, response):
+        try:
+            return json.loads(response.text).get("errors")
         except (UnicodeDecodeError, ValueError):
             return {"errors": response.content}
 

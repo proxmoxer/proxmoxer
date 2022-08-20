@@ -17,6 +17,7 @@ class TestResponse:
         assert resp.text == "b'content'"
         assert resp.status_code == 200
         assert resp.headers == {"content-type": "application/json"}
+        assert str(resp) == "Response (200) b'content'"
 
 
 class TestCommandBaseSession:

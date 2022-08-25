@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# install proxmoxer as an exitable package
+# install proxmoxer as an editable package
 pip3 install -e .
 rm -rf proxmoxer.egg-info/
 

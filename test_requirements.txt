@@ -1,8 +1,11 @@
+# required libraries for full functionality
+openssh_wrapper
+paramiko
+requests
+requests_toolbelt
+
+# used by test framework
+coveralls
 pytest
 pytest-cov
 responses
-requests
-requests_toolbelt
-paramiko
-openssh_wrapper
-testfixtures

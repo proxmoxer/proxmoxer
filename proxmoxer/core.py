@@ -93,7 +93,7 @@ class ProxmoxResource(object):
         return urlparse.urlunsplit([scheme, netloc, path, query, fragment])
 
     def __call__(self, resource_id=None):
-        if not resource_id:
+        if resource_id in (None, ''):
             return self
 
         if isinstance(resource_id, basestring):

@@ -39,6 +39,23 @@ def test_missing_openssh_wrapper(openssh_off, caplog):
     ]
 
 
+def test_missing_paramiko_off(paramiko_off, caplog):
+    with pytest.raises(SystemExit) as exit_exp:
+        import proxmoxer.backends.ssh_paramiko as ssh_paramiko
+
+        # force re-importing of the module with `ssh_paramiko` gone so the validation is triggered
+        reload(ssh_paramiko)
+
+    assert exit_exp.value.code == 1
+    assert caplog.record_tuples == [
+        (
+            "proxmoxer.backends.ssh_paramiko",
+            logging.ERROR,
+            "Chosen backend requires 'paramiko' module\n",
+        )
+    ]
+
+
 class TestCommandBase:
     def test_join_empty(self, shlex_join_on_off):
         from proxmoxer.backends import command_base
@@ -85,6 +102,11 @@ def requests_off(monkeypatch):
 @pytest.fixture()
 def openssh_off(monkeypatch):
     return monkeypatch.setitem(sys.modules, "openssh_wrapper", None)
+
+
+@pytest.fixture()
+def paramiko_off(monkeypatch):
+    return monkeypatch.setitem(sys.modules, "paramiko", None)
 
 
 @pytest.fixture(params=(False, True))

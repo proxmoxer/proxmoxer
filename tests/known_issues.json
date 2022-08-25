@@ -1,17 +1,17 @@
 {
   "errors": [],
-  "generated_at": "2022-08-15T06:28:55Z",
+  "generated_at": "2022-08-25T03:08:48Z",
   "metrics": {
     "_totals": {
       "CONFIDENCE.HIGH": 3,
       "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 5,
+      "CONFIDENCE.MEDIUM": 11,
       "CONFIDENCE.UNDEFINED": 0,
       "SEVERITY.HIGH": 0,
       "SEVERITY.LOW": 3,
-      "SEVERITY.MEDIUM": 5,
+      "SEVERITY.MEDIUM": 11,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 1562,
+      "loc": 1947,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -50,7 +50,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 109,
+      "loc": 115,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -102,7 +102,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 1,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 55,
+      "loc": 58,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -115,7 +115,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 161,
+      "loc": 155,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -141,7 +141,20 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 2,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 194,
+      "loc": 195,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "tests/test_core.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 241,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -154,7 +167,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 349,
+      "loc": 362,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -180,7 +193,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 65,
+      "loc": 80,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -206,7 +219,20 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 2,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 63,
+      "loc": 62,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "tests/test_paramiko.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 6,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 6,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 113,
       "nosec": 0,
       "skipped_tests": 0
     }
@@ -217,10 +243,6 @@
       "col_offset": 8,
       "filename": "proxmoxer/backends/https.py",
       "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
       "issue_cwe": {
         "id": 703,
         "link": "https://cwe.mitre.org/data/definitions/703.html"
@@ -236,14 +258,10 @@
       "test_name": "assert_used"
     },
     {
-      "code": "1 import shutil\n2 from subprocess import PIPE, Popen\n3 \n4 from proxmoxer.backends.command_command_base import CommandCommandBaseBackend, CommandCommandBaseSession\n",
+      "code": "1 import shutil\n2 from subprocess import PIPE, Popen\n3 \n4 from proxmoxer.backends.command_base import CommandBaseBackend, CommandBaseSession\n",
       "col_offset": 0,
       "filename": "proxmoxer/backends/local.py",
       "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 78,
-        "link": "https://cwe.mitre.org/data/definitions/78.html"
-      },
       "issue_cwe": {
         "id": 78,
         "link": "https://cwe.mitre.org/data/definitions/78.html"
@@ -268,10 +286,6 @@
         "id": 78,
         "link": "https://cwe.mitre.org/data/definitions/78.html"
       },
-      "issue_cwe": {
-        "id": 78,
-        "link": "https://cwe.mitre.org/data/definitions/78.html"
-      },
       "issue_severity": "LOW",
       "issue_text": "subprocess call - check for execution of untrusted input.",
       "line_number": 9,
@@ -283,7 +297,7 @@
       "test_name": "subprocess_without_shell_equals_true"
     },
     {
-      "code": "58         session = self.ssh_client.get_transport().open_session()\n59         session.exec_command(shell_join(cmd))\n60         stdout = session.makefile(\"rb\", -1).read().decode()\n",
+      "code": "62         session = self.ssh_client.get_transport().open_session()\n63         session.exec_command(shell_join(cmd))\n64         stdout = session.makefile(\"rb\", -1).read().decode()\n",
       "col_offset": 8,
       "filename": "proxmoxer/backends/ssh_paramiko.py",
       "issue_confidence": "MEDIUM",
@@ -291,22 +305,18 @@
         "id": 78,
         "link": "https://cwe.mitre.org/data/definitions/78.html"
       },
-      "issue_cwe": {
-        "id": 78,
-        "link": "https://cwe.mitre.org/data/definitions/78.html"
-      },
       "issue_severity": "MEDIUM",
       "issue_text": "Possible shell injection via Paramiko call, check inputs are properly sanitized.",
-      "line_number": 59,
+      "line_number": 63,
       "line_range": [
-        59
+        63
       ],
       "more_info": "https://bandit.readthedocs.io/en/1.7.4/plugins/b601_paramiko_calls.html",
       "test_id": "B601",
       "test_name": "paramiko_calls"
     },
     {
-      "code": "38         with pytest.raises(NotImplementedError), tempfile.TemporaryFile(\"w+b\") as f_obj:\n39             self._session.upload_file_obj(f_obj, \"/tmp/file.iso\")\n40 \n",
+      "code": "39         with pytest.raises(NotImplementedError), tempfile.TemporaryFile(\"w+b\") as f_obj:\n40             self._session.upload_file_obj(f_obj, \"/tmp/file.iso\")\n41 \n",
       "col_offset": 49,
       "filename": "tests/test_command_base.py",
       "issue_confidence": "MEDIUM",
@@ -316,16 +326,16 @@
       },
       "issue_severity": "MEDIUM",
       "issue_text": "Probable insecure usage of temp file/directory.",
-      "line_number": 39,
+      "line_number": 40,
       "line_range": [
-        39
+        40
       ],
       "more_info": "https://bandit.readthedocs.io/en/1.7.4/plugins/b108_hardcoded_tmp_directory.html",
       "test_id": "B108",
       "test_name": "hardcoded_tmp_directory"
     },
     {
-      "code": "159                 \"-tmpfilename\",\n160                 \"/tmp/tmpasdfasdf\",\n161                 \"--output-format\",\n162                 \"json\",\n163             ]\n164 \n165 \n166 class TestJsonSimpleSerializer:\n167     _serializer = command_base.JsonSimpleSerializer()\n168 \n169     def test_loads_pass(self):\n170         input_str = '{\"key1\": \"value1\", \"key2\": \"value2\"}'\n171         exp_output = {\"key1\": \"value1\", \"key2\": \"value2\"}\n172 \n",
+      "code": "160                 \"-tmpfilename\",\n161                 \"/tmp/tmpasdfasdf\",\n162                 \"--output-format\",\n163                 \"json\",\n164             ]\n165 \n166 \n167 class TestJsonSimpleSerializer:\n168     _serializer = command_base.JsonSimpleSerializer()\n169 \n170     def test_loads_pass(self):\n171         input_str = '{\"key1\": \"value1\", \"key2\": \"value2\"}'\n172         exp_output = {\"key1\": \"value1\", \"key2\": \"value2\"}\n173 \n",
       "col_offset": 16,
       "filename": "tests/test_command_base.py",
       "issue_confidence": "MEDIUM",
@@ -335,9 +345,8 @@
       },
       "issue_severity": "MEDIUM",
       "issue_text": "Probable insecure usage of temp file/directory.",
-      "line_number": 160,
+      "line_number": 161,
       "line_range": [
-        151,
         152,
         153,
         154,
@@ -348,14 +357,15 @@
         159,
         160,
         161,
-        162
+        162,
+        163
       ],
       "more_info": "https://bandit.readthedocs.io/en/1.7.4/plugins/b108_hardcoded_tmp_directory.html",
       "test_id": "B108",
       "test_name": "hardcoded_tmp_directory"
     },
     {
-      "code": "62         with tempfile.NamedTemporaryFile(\"r\") as f_obj:\n63             mock_session.upload_file_obj(f_obj, \"/tmp/file\")\n64 \n",
+      "code": "61         with tempfile.NamedTemporaryFile(\"r\") as f_obj:\n62             mock_session.upload_file_obj(f_obj, \"/tmp/file\")\n63 \n",
       "col_offset": 48,
       "filename": "tests/test_openssh.py",
       "issue_confidence": "MEDIUM",
@@ -365,16 +375,16 @@
       },
       "issue_severity": "MEDIUM",
       "issue_text": "Probable insecure usage of temp file/directory.",
-      "line_number": 63,
+      "line_number": 62,
       "line_range": [
-        63
+        62
       ],
       "more_info": "https://bandit.readthedocs.io/en/1.7.4/plugins/b108_hardcoded_tmp_directory.html",
       "test_id": "B108",
       "test_name": "hardcoded_tmp_directory"
     },
     {
-      "code": "66                 (f_obj,),\n67                 target=\"/tmp/file\",\n68             )\n",
+      "code": "65                 (f_obj,),\n66                 target=\"/tmp/file\",\n67             )\n",
       "col_offset": 23,
       "filename": "tests/test_openssh.py",
       "issue_confidence": "MEDIUM",
@@ -384,9 +394,123 @@
       },
       "issue_severity": "MEDIUM",
       "issue_text": "Probable insecure usage of temp file/directory.",
-      "line_number": 67,
+      "line_number": 66,
       "line_range": [
-        67
+        66
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.7.4/plugins/b108_hardcoded_tmp_directory.html",
+      "test_id": "B108",
+      "test_name": "hardcoded_tmp_directory"
+    },
+    {
+      "code": "23         sess = ssh_paramiko.SshParamikoSession(\n24             \"host\", \"user\", password=\"password\", private_key_file=\"/tmp/key_file\", port=1234\n25         )\n",
+      "col_offset": 66,
+      "filename": "tests/test_paramiko.py",
+      "issue_confidence": "MEDIUM",
+      "issue_cwe": {
+        "id": 377,
+        "link": "https://cwe.mitre.org/data/definitions/377.html"
+      },
+      "issue_severity": "MEDIUM",
+      "issue_text": "Probable insecure usage of temp file/directory.",
+      "line_number": 24,
+      "line_range": [
+        24
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.7.4/plugins/b108_hardcoded_tmp_directory.html",
+      "test_id": "B108",
+      "test_name": "hardcoded_tmp_directory"
+    },
+    {
+      "code": "29         assert sess.password == \"password\"\n30         assert sess.private_key_file == \"/tmp/key_file\"\n31         assert sess.port == 1234\n",
+      "col_offset": 40,
+      "filename": "tests/test_paramiko.py",
+      "issue_confidence": "MEDIUM",
+      "issue_cwe": {
+        "id": 377,
+        "link": "https://cwe.mitre.org/data/definitions/377.html"
+      },
+      "issue_severity": "MEDIUM",
+      "issue_text": "Probable insecure usage of temp file/directory.",
+      "line_number": 30,
+      "line_range": [
+        30
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.7.4/plugins/b108_hardcoded_tmp_directory.html",
+      "test_id": "B108",
+      "test_name": "hardcoded_tmp_directory"
+    },
+    {
+      "code": "55         sess = ssh_paramiko.SshParamikoSession(\n56             \"host\", \"user\", password=\"password\", private_key_file=\"/tmp/key_file\", port=1234\n57         )\n",
+      "col_offset": 66,
+      "filename": "tests/test_paramiko.py",
+      "issue_confidence": "MEDIUM",
+      "issue_cwe": {
+        "id": 377,
+        "link": "https://cwe.mitre.org/data/definitions/377.html"
+      },
+      "issue_severity": "MEDIUM",
+      "issue_text": "Probable insecure usage of temp file/directory.",
+      "line_number": 56,
+      "line_range": [
+        56
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.7.4/plugins/b108_hardcoded_tmp_directory.html",
+      "test_id": "B108",
+      "test_name": "hardcoded_tmp_directory"
+    },
+    {
+      "code": "63             look_for_keys=True,\n64             key_filename=\"/tmp/key_file\",\n65             password=\"password\",\n",
+      "col_offset": 25,
+      "filename": "tests/test_paramiko.py",
+      "issue_confidence": "MEDIUM",
+      "issue_cwe": {
+        "id": 377,
+        "link": "https://cwe.mitre.org/data/definitions/377.html"
+      },
+      "issue_severity": "MEDIUM",
+      "issue_text": "Probable insecure usage of temp file/directory.",
+      "line_number": 64,
+      "line_range": [
+        64
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.7.4/plugins/b108_hardcoded_tmp_directory.html",
+      "test_id": "B108",
+      "test_name": "hardcoded_tmp_directory"
+    },
+    {
+      "code": "110         with tempfile.NamedTemporaryFile(\"r\") as f_obj:\n111             sess.upload_file_obj(f_obj, \"/tmp/file\")\n112 \n",
+      "col_offset": 40,
+      "filename": "tests/test_paramiko.py",
+      "issue_confidence": "MEDIUM",
+      "issue_cwe": {
+        "id": 377,
+        "link": "https://cwe.mitre.org/data/definitions/377.html"
+      },
+      "issue_severity": "MEDIUM",
+      "issue_text": "Probable insecure usage of temp file/directory.",
+      "line_number": 111,
+      "line_range": [
+        111
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.7.4/plugins/b108_hardcoded_tmp_directory.html",
+      "test_id": "B108",
+      "test_name": "hardcoded_tmp_directory"
+    },
+    {
+      "code": "112 \n113             mock_sftp.putfo.assert_called_once_with(f_obj, \"/tmp/file\")\n114 \n",
+      "col_offset": 59,
+      "filename": "tests/test_paramiko.py",
+      "issue_confidence": "MEDIUM",
+      "issue_cwe": {
+        "id": 377,
+        "link": "https://cwe.mitre.org/data/definitions/377.html"
+      },
+      "issue_severity": "MEDIUM",
+      "issue_text": "Probable insecure usage of temp file/directory.",
+      "line_number": 113,
+      "line_range": [
+        113
       ],
       "more_info": "https://bandit.readthedocs.io/en/1.7.4/plugins/b108_hardcoded_tmp_directory.html",
       "test_id": "B108",

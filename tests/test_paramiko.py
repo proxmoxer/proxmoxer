@@ -46,8 +46,8 @@ class TestSshParamikoSession:
             timeout=5,
             port=1234,
         )
-        policy_obj = sess.ssh_client.set_missing_host_key_policy.call_args_list[0].args[0]
-        assert isinstance(policy_obj, paramiko.AutoAddPolicy)
+        policy_call_args, _ = sess.ssh_client.set_missing_host_key_policy.call_args_list[0]
+        assert isinstance(policy_call_args[0], paramiko.AutoAddPolicy)
 
     def test_connect_key_file(self, mock_ssh_client):
         import paramiko
@@ -66,8 +66,8 @@ class TestSshParamikoSession:
             timeout=5,
             port=1234,
         )
-        policy_obj = sess.ssh_client.set_missing_host_key_policy.call_args_list[0].args[0]
-        assert isinstance(policy_obj, paramiko.AutoAddPolicy)
+        policy_call_args, _ = sess.ssh_client.set_missing_host_key_policy.call_args_list[0]
+        assert isinstance(policy_call_args[0], paramiko.AutoAddPolicy)
 
     def test_connect_key_file_user(self, mock_ssh_client):
         import paramiko
@@ -86,8 +86,8 @@ class TestSshParamikoSession:
             timeout=5,
             port=1234,
         )
-        policy_obj = sess.ssh_client.set_missing_host_key_policy.call_args_list[0].args[0]
-        assert isinstance(policy_obj, paramiko.AutoAddPolicy)
+        policy_call_args, _ = sess.ssh_client.set_missing_host_key_policy.call_args_list[0]
+        assert isinstance(policy_call_args[0], paramiko.AutoAddPolicy)
 
     def test_exec(self, mock_ssh_client):
         mock_client, mock_session, _ = mock_ssh_client

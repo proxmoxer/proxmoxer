@@ -19,7 +19,7 @@ jobs:
           - "3.7"
           - "3.8"
           - "3.9"
-          # - "3.10"
+          - "3.10"
 
     steps:
       - name: Checkout
@@ -46,7 +46,7 @@ jobs:
         run: pip install .
 
       - name: Run Tests
-        run: nosetests --with-coverage --cover-erase --cover-branches --cover-package=proxmoxer tests/
+        run: pytest -v --cov tests/
 
       - name: Upload coverage data to coveralls.io
         if: github.repository == 'proxmoxer/proxmoxer'
@@ -55,7 +55,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COVERALLS_FLAG_NAME: Unit Test (${{ matrix.python-version }})
           COVERALLS_PARALLEL: true
-          COVERALLS_REPO_TOKEN: ${{ matrix.python-version == '2.7' && secrets.GITHUB_TOKEN || ''}}
 
 
   complete:

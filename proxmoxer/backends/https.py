@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(level=logging.WARNING)
 
 STREAMING_SIZE_THRESHOLD = 100 * 1024 * 1024  # 10 MiB
+SSL_OVERFLOW_THRESHOLD = 2147483135  # 2^31 - 1 - 512
 
 # fmt: off
 try:
@@ -42,9 +43,6 @@ class AuthenticationError(Exception):
     def __str__(self):
         return self.msg
 
-    def __repr__(self):
-        return self.__str__()
-
 
 class ProxmoxHTTPAuthBase(AuthBase):
     def __call__(self, req):
@@ -64,7 +62,7 @@ class ProxmoxHTTPAuthBase(AuthBase):
 
 class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
     # number of seconds between renewing access tickets (must be less than 7200 to function correctly)
-    # if calls are made less frequently than 2 hrs, using the API token auth is reccomended
+    # if calls are made less frequently than 2 hrs, using the API token auth is recommended
     renew_age = 3600
 
     def __init__(self, username, password, otp=None, base_url="", **kwargs):
@@ -96,6 +94,10 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
                     self.username, self.base_url + "/access/ticket"
                 )
             )
+        if response_data.get("NeedTFA") is not None:
+            raise AuthenticationError(
+                "Couldn't authenticate user: missing Two Factor Authentication (TFA)"
+            )
 
         self.birth_time = get_time()
         self.pve_auth_ticket = response_data["ticket"]
@@ -120,7 +122,7 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
 
 
 class ProxmoxHTTPApiTokenAuth(ProxmoxHTTPAuthBase):
-    def __init__(self, username, token_name, token_value, service, **kwargs):
+    def __init__(self, username, token_name, token_value, **kwargs):
         super(ProxmoxHTTPApiTokenAuth, self).__init__(**kwargs)
         self.username = username
         self.token_name = token_name
@@ -228,20 +230,17 @@ class ProxmoxHttpSession(requests.Session):
                 headers = {"Content-Type": encoder.content_type}
             except ImportError:
                 # if the files will cause issues with the SSL 2GiB limit (https://bugs.python.org/issue42853#msg384566)
-                if total_file_size > 2147483135:  # 2^31 - 1 - 512
+                if total_file_size > SSL_OVERFLOW_THRESHOLD:
                     logger.warning(
                         "Install 'requests_toolbelt' to add support for files larger than 2GiB"
                     )
                     raise OverflowError("Unable to upload a payload larger than 2 GiB")
                 else:
                     logger.info(
-                        "Installing 'requests_toolbelt' will deacrease memory used during upload"
+                        "Installing 'requests_toolbelt' will decrease memory used during upload"
                     )
 
-        if not files and serializer:
-            headers = {"Content-Type": "application/x-www-form-urlencoded"}
-
-        return super(ProxmoxHttpSession, self).request(
+        return super().request(
             method,
             url,
             params,
@@ -316,6 +315,8 @@ class Backend(object):
                 timeout=timeout,
                 service=service,
             )
+        else:
+            config_failure("No valid authentication credentials were supplied")
 
     def get_session(self):
         session = ProxmoxHttpSession()

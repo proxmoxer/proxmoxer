@@ -1,8 +1,11 @@
-mock
-nose
-requests < 2.9
-coveralls
-paramiko
+# required libraries for full functionality
 openssh_wrapper
-testfixtures
-shellescape
+paramiko
+requests
+requests_toolbelt
+
+# used by test framework
+coveralls
+pytest
+pytest-cov
+responses

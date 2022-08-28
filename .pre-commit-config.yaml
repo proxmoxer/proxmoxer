@@ -20,7 +20,7 @@ repos:
     rev: 1.7.4
     hooks:
       - id: bandit
-        args: ["--baseline", "tests/known_issues.json"]
+        args: ["--configfile", ".bandit", "--baseline", "tests/known_issues.json"]
 
   - repo: https://github.com/PyCQA/flake8
     rev: 4.0.1

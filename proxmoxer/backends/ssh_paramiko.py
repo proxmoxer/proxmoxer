@@ -4,6 +4,7 @@ __license__ = "MIT"
 
 # spell-checker:ignore putfo
 
+import logging
 import os
 
 from proxmoxer.backends.command_base import (
@@ -12,12 +13,15 @@ from proxmoxer.backends.command_base import (
     shell_join,
 )
 
+logger = logging.getLogger(__name__)
+logger.setLevel(level=logging.WARNING)
+
 try:
     import paramiko
 except ImportError:
     import sys
 
-    sys.stderr.write("Chosen backend requires 'paramiko' module\n")
+    logger.error("Chosen backend requires 'paramiko' module\n")
     sys.exit(1)
 
 

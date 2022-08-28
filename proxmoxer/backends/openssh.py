@@ -2,18 +2,23 @@ __author__ = "Oleg Butovich"
 __copyright__ = "(c) Oleg Butovich 2013-2017"
 __license__ = "MIT"
 
+import logging
+
 from proxmoxer.backends.command_base import (
     CommandBaseBackend,
     CommandBaseSession,
     shell_join,
 )
 
+logger = logging.getLogger(__name__)
+logger.setLevel(level=logging.WARNING)
+
 try:
     import openssh_wrapper
 except ImportError:
     import sys
 
-    sys.stderr.write("Chosen backend requires 'openssh_wrapper' module\n")
+    logger.error("Chosen backend requires 'openssh_wrapper' module\n")
     sys.exit(1)
 
 
@@ -42,7 +47,7 @@ class OpenSSHSession(CommandBaseSession):
         return openssh_wrapper.SSHConnection(
             self.host,
             login=self.user,
-            port=self.port,
+            port=str(self.port),  # openssh_wrapper complains if this is an int
             configfile=self.config_file,
             identity_file=self.identity_file,
             timeout=self.timeout,

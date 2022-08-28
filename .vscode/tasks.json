@@ -1,0 +1,25 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run Tests (with coverage)",
+      "type": "shell",
+      "command": "pytest -v --cov --cov-report xml:coverage.xml tests/",
+      "problemMatcher": []
+    },
+    {
+      "label": "Run Tests",
+      "type": "shell",
+      "command": "pytest -v tests/",
+      "problemMatcher": []
+    },
+    {
+      "label": "Update bandit baseline",
+      "type": "shell",
+      "command": "bandit --configfile .bandit -f json -r tests/ proxmoxer/ >| tests/known_issues.json",
+      "problemMatcher": []
+    }
+  ]
+}

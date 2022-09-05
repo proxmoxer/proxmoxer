@@ -2,9 +2,10 @@ import tempfile
 from unittest import mock
 
 import pytest
-from api_mock import PVERegistry
 
 import proxmoxer.backends.command_base as command_base
+
+from .api_mock import PVERegistry
 
 # pylint: disable=no-self-use
 

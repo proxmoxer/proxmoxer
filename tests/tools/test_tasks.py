@@ -45,21 +45,14 @@ class TestBlockingStatus:
         caplog.set_level(logging.DEBUG, logger="proxmoxer.core")
 
         status = Tasks.blocking_status(
-            mocked_prox, "UPID:node:00000000:00000000:00000000:task:id:root@pam:keep-running", 0.03
+            mocked_prox,
+            "UPID:node:00000000:00000000:00000000:task:id:root@pam:keep-running",
+            0.025,
+            0.01,
         )
 
         assert status is None
         assert caplog.record_tuples == [
-            (
-                "proxmoxer.core",
-                20,
-                "GET https://1.2.3.4:1234/api2/json/nodes/node/tasks/UPID:node:00000000:00000000:00000000:task:id:root@pam:keep-running/status",
-            ),
-            (
-                "proxmoxer.core",
-                10,
-                'Status code: 200, output: b\'{"data": {"id": "110", "pid": 1044989, "node": "node1", "pstart": 284768076, "status": "running", "upid": "UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:", "starttime": 1661825068, "user": "root@pam", "type": "vzdump"}}\'',
-            ),
             (
                 "proxmoxer.core",
                 20,

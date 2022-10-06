@@ -159,7 +159,7 @@ class PVERegistry(responses.registries.FirstMatchRegistry):
                     "node": "node1",
                     "pstart": 284768076,
                     "status": "running",
-                    "upid": "UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:",
+                    "upid": "UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:keep-running",
                     "starttime": 1661825068,
                     "user": "root@pam",
                     "type": "vzdump",
@@ -169,7 +169,7 @@ class PVERegistry(responses.registries.FirstMatchRegistry):
         elif "stopped" in request.url:
             resp = {
                 "data": {
-                    "upid": "UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:",
+                    "upid": "UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:stopped",
                     "starttime": 1661825068,
                     "user": "root@pam",
                     "type": "vzdump",
@@ -185,7 +185,7 @@ class PVERegistry(responses.registries.FirstMatchRegistry):
         elif "done" in request.url:
             resp = {
                 "data": {
-                    "upid": "UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:",
+                    "upid": "UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:done",
                     "starttime": 1661825068,
                     "user": "root@pam",
                     "type": "vzdump",
@@ -195,6 +195,22 @@ class PVERegistry(responses.registries.FirstMatchRegistry):
                     "pid": 1044989,
                     "id": "110",
                     "node": "node1",
+                }
+            }
+
+        elif "comment" in request.url:
+            resp = {
+                "data": {
+                    "upid": "UPID:node:00000000:00000000:00000000:task:id:root@pam:comment",
+                    "node": "node",
+                    "pid": 0,
+                    "pstart": 0,
+                    "starttime": 0,
+                    "type": "task",
+                    "id": "id",
+                    "user": "root@pam",
+                    "status": "stopped",
+                    "exitstatus": "OK",
                 }
             }
 

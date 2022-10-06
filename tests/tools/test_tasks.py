@@ -13,11 +13,11 @@ class TestBlockingStatus:
         caplog.set_level(logging.DEBUG, logger="proxmoxer.core")
 
         status = Tasks.blocking_status(
-            mocked_prox, "UPID:node:00000000:00000000:00000000:task:id:root@pam:done"
+            mocked_prox, "UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:done"
         )
 
         assert status == {
-            "upid": "UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:",
+            "upid": "UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:done",
             "starttime": 1661825068,
             "user": "root@pam",
             "type": "vzdump",
@@ -32,12 +32,76 @@ class TestBlockingStatus:
             (
                 "proxmoxer.core",
                 20,
-                "GET https://1.2.3.4:1234/api2/json/nodes/node/tasks/UPID:node:00000000:00000000:00000000:task:id:root@pam:done/status",
+                "GET https://1.2.3.4:1234/api2/json/nodes/node1/tasks/UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:done/status",
             ),
             (
                 "proxmoxer.core",
                 10,
-                'Status code: 200, output: b\'{"data": {"upid": "UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:", "starttime": 1661825068, "user": "root@pam", "type": "vzdump", "pstart": 284768076, "status": "stopped", "exitstatus": "OK", "pid": 1044989, "id": "110", "node": "node1"}}\'',
+                'Status code: 200, output: b\'{"data": {"upid": "UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:done", "starttime": 1661825068, "user": "root@pam", "type": "vzdump", "pstart": 284768076, "status": "stopped", "exitstatus": "OK", "pid": 1044989, "id": "110", "node": "node1"}}\'',
+            ),
+        ]
+
+    def test_zeroed(self, mocked_prox, caplog):
+        caplog.set_level(logging.DEBUG, logger="proxmoxer.core")
+
+        status = Tasks.blocking_status(
+            mocked_prox, "UPID:node:00000000:00000000:00000000:task:id:root@pam:comment"
+        )
+
+        assert status == {
+            "upid": "UPID:node:00000000:00000000:00000000:task:id:root@pam:comment",
+            "node": "node",
+            "pid": 0,
+            "pstart": 0,
+            "starttime": 0,
+            "type": "task",
+            "id": "id",
+            "user": "root@pam",
+            "status": "stopped",
+            "exitstatus": "OK",
+        }
+        assert caplog.record_tuples == [
+            (
+                "proxmoxer.core",
+                20,
+                "GET https://1.2.3.4:1234/api2/json/nodes/node/tasks/UPID:node:00000000:00000000:00000000:task:id:root@pam:comment/status",
+            ),
+            (
+                "proxmoxer.core",
+                10,
+                'Status code: 200, output: b\'{"data": {"upid": "UPID:node:00000000:00000000:00000000:task:id:root@pam:comment", "node": "node", "pid": 0, "pstart": 0, "starttime": 0, "type": "task", "id": "id", "user": "root@pam", "status": "stopped", "exitstatus": "OK"}}\'',
+            ),
+        ]
+
+    def test_killed(self, mocked_prox, caplog):
+        caplog.set_level(logging.DEBUG, logger="proxmoxer.core")
+
+        status = Tasks.blocking_status(
+            mocked_prox, "UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:stopped"
+        )
+
+        assert status == {
+            "upid": "UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:stopped",
+            "starttime": 1661825068,
+            "user": "root@pam",
+            "type": "vzdump",
+            "pstart": 284768076,
+            "status": "stopped",
+            "exitstatus": "interrupted by signal",
+            "pid": 1044989,
+            "id": "110",
+            "node": "node1",
+        }
+        assert caplog.record_tuples == [
+            (
+                "proxmoxer.core",
+                20,
+                "GET https://1.2.3.4:1234/api2/json/nodes/node1/tasks/UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:stopped/status",
+            ),
+            (
+                "proxmoxer.core",
+                10,
+                'Status code: 200, output: b\'{"data": {"upid": "UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:stopped", "starttime": 1661825068, "user": "root@pam", "type": "vzdump", "pstart": 284768076, "status": "stopped", "exitstatus": "interrupted by signal", "pid": 1044989, "id": "110", "node": "node1"}}\'',
             ),
         ]
 
@@ -46,8 +110,8 @@ class TestBlockingStatus:
 
         status = Tasks.blocking_status(
             mocked_prox,
-            "UPID:node:00000000:00000000:00000000:task:id:root@pam:keep-running",
-            0.025,
+            "UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:keep-running",
+            0.021,
             0.01,
         )
 
@@ -56,32 +120,32 @@ class TestBlockingStatus:
             (
                 "proxmoxer.core",
                 20,
-                "GET https://1.2.3.4:1234/api2/json/nodes/node/tasks/UPID:node:00000000:00000000:00000000:task:id:root@pam:keep-running/status",
+                "GET https://1.2.3.4:1234/api2/json/nodes/node1/tasks/UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:keep-running/status",
             ),
             (
                 "proxmoxer.core",
                 10,
-                'Status code: 200, output: b\'{"data": {"id": "110", "pid": 1044989, "node": "node1", "pstart": 284768076, "status": "running", "upid": "UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:", "starttime": 1661825068, "user": "root@pam", "type": "vzdump"}}\'',
+                'Status code: 200, output: b\'{"data": {"id": "110", "pid": 1044989, "node": "node1", "pstart": 284768076, "status": "running", "upid": "UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:keep-running", "starttime": 1661825068, "user": "root@pam", "type": "vzdump"}}\'',
             ),
             (
                 "proxmoxer.core",
                 20,
-                "GET https://1.2.3.4:1234/api2/json/nodes/node/tasks/UPID:node:00000000:00000000:00000000:task:id:root@pam:keep-running/status",
+                "GET https://1.2.3.4:1234/api2/json/nodes/node1/tasks/UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:keep-running/status",
             ),
             (
                 "proxmoxer.core",
                 10,
-                'Status code: 200, output: b\'{"data": {"id": "110", "pid": 1044989, "node": "node1", "pstart": 284768076, "status": "running", "upid": "UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:", "starttime": 1661825068, "user": "root@pam", "type": "vzdump"}}\'',
+                'Status code: 200, output: b\'{"data": {"id": "110", "pid": 1044989, "node": "node1", "pstart": 284768076, "status": "running", "upid": "UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:keep-running", "starttime": 1661825068, "user": "root@pam", "type": "vzdump"}}\'',
             ),
             (
                 "proxmoxer.core",
                 20,
-                "GET https://1.2.3.4:1234/api2/json/nodes/node/tasks/UPID:node:00000000:00000000:00000000:task:id:root@pam:keep-running/status",
+                "GET https://1.2.3.4:1234/api2/json/nodes/node1/tasks/UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:keep-running/status",
             ),
             (
                 "proxmoxer.core",
                 10,
-                'Status code: 200, output: b\'{"data": {"id": "110", "pid": 1044989, "node": "node1", "pstart": 284768076, "status": "running", "upid": "UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:", "starttime": 1661825068, "user": "root@pam", "type": "vzdump"}}\'',
+                'Status code: 200, output: b\'{"data": {"id": "110", "pid": 1044989, "node": "node1", "pstart": 284768076, "status": "running", "upid": "UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:keep-running", "starttime": 1661825068, "user": "root@pam", "type": "vzdump"}}\'',
             ),
         ]
 

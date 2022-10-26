@@ -1,4 +1,5 @@
 import json
+import re
 from urllib.parse import parse_qsl
 
 import pytest
@@ -64,6 +65,14 @@ class PVERegistry(responses.registries.FirstMatchRegistry):
                 method="GET",
                 url=self.base_url + "/fake/echo",
                 callback=self._cb_echo,
+            )
+        )
+
+        resps.append(
+            responses.CallbackResponse(
+                method="GET",
+                url=re.compile(self.base_url + r"/nodes/\w+/tasks/[^/]+/status"),
+                callback=self._cb_task_status,
             )
         )
 
@@ -139,3 +148,70 @@ class PVERegistry(responses.registries.FirstMatchRegistry):
                     }
                 ),
             )
+
+    def _cb_task_status(self, request):
+        resp = {}
+        if "keep-running" in request.url:
+            resp = {
+                "data": {
+                    "id": "110",
+                    "pid": 1044989,
+                    "node": "node1",
+                    "pstart": 284768076,
+                    "status": "running",
+                    "upid": "UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:keep-running",
+                    "starttime": 1661825068,
+                    "user": "root@pam",
+                    "type": "vzdump",
+                }
+            }
+
+        elif "stopped" in request.url:
+            resp = {
+                "data": {
+                    "upid": "UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:stopped",
+                    "starttime": 1661825068,
+                    "user": "root@pam",
+                    "type": "vzdump",
+                    "pstart": 284768076,
+                    "status": "stopped",
+                    "exitstatus": "interrupted by signal",
+                    "pid": 1044989,
+                    "id": "110",
+                    "node": "node1",
+                }
+            }
+
+        elif "done" in request.url:
+            resp = {
+                "data": {
+                    "upid": "UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:done",
+                    "starttime": 1661825068,
+                    "user": "root@pam",
+                    "type": "vzdump",
+                    "pstart": 284768076,
+                    "status": "stopped",
+                    "exitstatus": "OK",
+                    "pid": 1044989,
+                    "id": "110",
+                    "node": "node1",
+                }
+            }
+
+        elif "comment" in request.url:
+            resp = {
+                "data": {
+                    "upid": "UPID:node:00000000:00000000:00000000:task:id:root@pam:comment",
+                    "node": "node",
+                    "pid": 0,
+                    "pstart": 0,
+                    "starttime": 0,
+                    "type": "task",
+                    "id": "id",
+                    "user": "root@pam",
+                    "status": "stopped",
+                    "exitstatus": "OK",
+                }
+            }
+
+        return (200, self.common_headers, json.dumps(resp))

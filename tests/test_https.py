@@ -5,10 +5,14 @@ import tempfile
 from unittest import mock
 
 import pytest
-from api_mock import PVERegistry, mock_pve  # pylint: disable=unused-import # noqa: F401
 from requests import Request, Response
 
 import proxmoxer.backends.https as https
+
+from .api_mock import (  # pylint: disable=unused-import # noqa: F401
+    PVERegistry,
+    mock_pve,
+)
 
 # pylint: disable=no-self-use
 

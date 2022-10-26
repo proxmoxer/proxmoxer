@@ -2,11 +2,15 @@ import logging
 from unittest import mock
 
 import pytest
-from api_mock import PVERegistry, mock_pve  # pylint: disable=unused-import # noqa: F401
 
 import proxmoxer.core as core
 from proxmoxer import backends
 from proxmoxer.backends.command_base import JsonSimpleSerializer, Response
+
+from .api_mock import (  # pylint: disable=unused-import # noqa: F401
+    PVERegistry,
+    mock_pve,
+)
 
 # pylint: disable=no-self-use,protected-access
 

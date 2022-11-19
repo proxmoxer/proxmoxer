@@ -7,20 +7,8 @@ __license__ = "MIT"
 import importlib
 import logging
 import posixpath
-
-# Python 3 compatibility:
-try:
-    import httplib
-except ImportError:  # py3
-    from http import client as httplib
-try:
-    import urlparse
-except ImportError:  # py3
-    from urllib import parse as urlparse
-try:
-    basestring
-except NameError:  # py3
-    basestring = (bytes, str)
+from http import client as httplib
+from urllib import parse as urlparse
 
 logger = logging.getLogger(__name__)
 logger.setLevel(level=logging.WARNING)
@@ -41,7 +29,7 @@ SERVICES = {
         "supported_https_auths": ["password", "token"],
         "default_port": 8006,
         "token_separator": "=",
-        "ssh_additional_options": ["--output-format", "json"],
+        "cli_additional_options": ["--output-format", "json"],
     },
     "PMG": {
         "supported_backends": ["local", "https", "openssh", "ssh_paramiko"],
@@ -68,9 +56,9 @@ class ResourceException(Exception):
         self.content = content
         self.errors = errors
         if errors is not None:
-            content += " - {0}".format(errors)
-        message = "{0} {1}: {2}".format(status_code, status_message, content).strip()
-        super(ResourceException, self).__init__(message)
+            content += f" - {errors}"
+        message = f"{status_code} {status_message}: {content}".strip()
+        super().__init__(message)
 
 
 class ProxmoxResource(object):
@@ -96,7 +84,7 @@ class ProxmoxResource(object):
         if resource_id in (None, ''):
             return self
 
-        if isinstance(resource_id, basestring):
+        if isinstance(resource_id, (bytes, str)):
             resource_id = resource_id.split("/")
         elif not isinstance(resource_id, (tuple, list)):
             resource_id = [str(resource_id)]
@@ -110,9 +98,9 @@ class ProxmoxResource(object):
     def _request(self, method, data=None, params=None):
         url = self._store["base_url"]
         if data:
-            logger.info("%s %s %r", method, url, data)
+            logger.info(f"{method} {url} {data}")
         else:
-            logger.info("%s %s", method, url)
+            logger.info(f"{method} {url}")
         resp = self._store["session"].request(method, url, data=data, params=params)
         logger.debug("Status code: %s, output: %s", resp.status_code, resp.content)
 
@@ -158,7 +146,7 @@ class ProxmoxResource(object):
 
 class ProxmoxAPI(ProxmoxResource):
     def __init__(self, host=None, backend="https", service="PVE", **kwargs):
-        super(ProxmoxAPI, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         service = service.upper()
         backend = backend.lower()
 
@@ -179,7 +167,7 @@ class ProxmoxAPI(ProxmoxResource):
         kwargs["service"] = service
 
         # load backend module
-        self._backend = importlib.import_module(".backends.%s" % backend, "proxmoxer").Backend(
+        self._backend = importlib.import_module(f".backends.{backend}", "proxmoxer").Backend(
             **kwargs
         )
         self._backend_name = backend

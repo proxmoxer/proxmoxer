@@ -99,7 +99,7 @@ class CommandBaseSession(object):
                 option_pairs.append(("-command", arg))
         # expand the list of 2-tuples into a flat list
         options = [val for pair in option_pairs for val in pair]
-        additional_options = SERVICES[self.service.upper()].get("ssh_additional_options", [])
+        additional_options = SERVICES[self.service.upper()].get("cli_additional_options", [])
         full_cmd = command + options + additional_options
 
         if self.sudo:

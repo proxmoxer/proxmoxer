@@ -112,7 +112,7 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
     def __call__(self, req):
         # refresh ticket if older than `renew_age`
         if (get_time() - self.birth_time) >= self.renew_age:
-            logger.debug("refreshing ticket (age %d)", (get_time() - self.birth_time))
+            logger.debug(f"refreshing ticket (age {get_time() - self.birth_time})")
             self._get_new_tokens()
 
         # only attach CSRF token if needed (reduce interception risk)
@@ -282,7 +282,7 @@ class Backend(object):
                 if "]:" in host:
                     host, host_port = host.rsplit(":", 1)
             else:
-                host = "[{0}]".format(host)
+                host = f"[{host}]"
         elif ":" in host:
             host, host_port = host.split(":")
         port = host_port if host_port.isdigit() else port
@@ -293,9 +293,9 @@ class Backend(object):
 
         self.mode = mode
         if path_prefix is not None:
-            self.base_url = "https://{0}:{1}/{2}/api2/{3}".format(host, port, path_prefix, mode)
+            self.base_url = f"https://{host}:{port}/{path_prefix}/api2/{mode}"
         else:
-            self.base_url = "https://{0}:{1}/api2/{2}".format(host, port, mode)
+            self.base_url = f"https://{host}:{port}/api2/{mode}"
 
         if token_name is not None:
             if "token" not in SERVICES[service]["supported_https_auths"]:

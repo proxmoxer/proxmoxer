@@ -77,7 +77,7 @@ class ProxmoxResource(object):
     def url_join(self, base, *args):
         scheme, netloc, path, query, fragment = urlparse.urlsplit(base)
         path = path if len(path) else "/"
-        path = posixpath.join(path, *[("%s" % x) for x in args])
+        path = posixpath.join(path, *[str(x) for x in args])
         return urlparse.urlunsplit([scheme, netloc, path, query, fragment])
 
     def __call__(self, resource_id=None):
@@ -102,7 +102,7 @@ class ProxmoxResource(object):
         else:
             logger.info(f"{method} {url}")
         resp = self._store["session"].request(method, url, data=data, params=params)
-        logger.debug("Status code: %s, output: %s", resp.status_code, resp.content)
+        logger.debug(f"Status code: {resp.status_code}, output: {resp.content}")
 
         if resp.status_code >= 400:
             if hasattr(resp, "reason"):

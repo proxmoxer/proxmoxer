@@ -196,6 +196,16 @@ class TestProxmoxResource:
         assert exc_info.value.content == "this is the reason"
         assert exc_info.value.errors == {"errors": b"this is the error"}
 
+    def test_request_params_cleanup(self, mock_resource):
+        mock_resource._request("GET", params={"key": "value", "remove_me": None})
+
+        assert mock_resource._store["session"].params == {"key": "value"}
+
+    def test_request_data_cleanup(self, mock_resource):
+        mock_resource._request("POST", data={"key": "value", "remove_me": None})
+
+        assert mock_resource._store["session"].data == {"key": "value"}
+
 
 class TestProxmoxResourceMethods:
     _resource = core.ProxmoxResource(base_url="https://example.com")

@@ -50,7 +50,22 @@ def config_failure(message, *args):
 
 
 class ResourceException(Exception):
+    """
+    An Exception thrown when an Proxmox API call failed
+    """
     def __init__(self, status_code, status_message, content, errors=None):
+        """
+        Create a new ResourceException
+
+        :param status_code: The HTTP status code (faked by non-HTTP backends)
+        :type status_code: int
+        :param status_message: HTTP Status code (faked by non-HTTP backends)
+        :type status_message: str
+        :param content: Extended information on what went wrong
+        :type content: str
+        :param errors: Any specific errors that were encountered (converted to string), defaults to None
+        :type errors: Optional[object], optional
+        """
         self.status_code = status_code
         self.status_message = status_message
         self.content = content

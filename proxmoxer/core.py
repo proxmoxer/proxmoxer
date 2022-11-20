@@ -53,6 +53,7 @@ class ResourceException(Exception):
     """
     An Exception thrown when an Proxmox API call failed
     """
+
     def __init__(self, status_code, status_message, content, errors=None):
         """
         Create a new ResourceException
@@ -96,7 +97,7 @@ class ProxmoxResource(object):
         return urlparse.urlunsplit([scheme, netloc, path, query, fragment])
 
     def __call__(self, resource_id=None):
-        if resource_id in (None, ''):
+        if resource_id in (None, ""):
             return self
 
         if isinstance(resource_id, (bytes, str)):
@@ -116,6 +117,21 @@ class ProxmoxResource(object):
             logger.info(f"{method} {url} {data}")
         else:
             logger.info(f"{method} {url}")
+
+        # passing None values to pvesh command breaks it, let's remove them just as requests library does
+        # helpful when dealing with function default values higher in the chain, no need to clean up in multiple places
+        if params:
+            # remove keys that are set to None
+            params_none_keys = [k for (k, v) in params.items() if v is None]
+            for key in params_none_keys:
+                del params[key]
+
+        if data:
+            # remove keys that are set to None
+            data_none_keys = [k for (k, v) in data.items() if v is None]
+            for key in data_none_keys:
+                del data[key]
+
         resp = self._store["session"].request(method, url, data=data, params=params)
         logger.debug(f"Status code: {resp.status_code}, output: {resp.content}")
 

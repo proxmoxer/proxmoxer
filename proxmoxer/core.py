@@ -7,20 +7,8 @@ __license__ = "MIT"
 import importlib
 import logging
 import posixpath
-
-# Python 3 compatibility:
-try:
-    import httplib
-except ImportError:  # py3
-    from http import client as httplib
-try:
-    import urlparse
-except ImportError:  # py3
-    from urllib import parse as urlparse
-try:
-    basestring
-except NameError:  # py3
-    basestring = (bytes, str)
+from http import client as httplib
+from urllib import parse as urlparse
 
 logger = logging.getLogger(__name__)
 logger.setLevel(level=logging.WARNING)
@@ -41,7 +29,7 @@ SERVICES = {
         "supported_https_auths": ["password", "token"],
         "default_port": 8006,
         "token_separator": "=",
-        "ssh_additional_options": ["--output-format", "json"],
+        "cli_additional_options": ["--output-format", "json"],
     },
     "PMG": {
         "supported_backends": ["local", "https", "openssh", "ssh_paramiko"],
@@ -62,15 +50,31 @@ def config_failure(message, *args):
 
 
 class ResourceException(Exception):
+    """
+    An Exception thrown when an Proxmox API call failed
+    """
+
     def __init__(self, status_code, status_message, content, errors=None):
+        """
+        Create a new ResourceException
+
+        :param status_code: The HTTP status code (faked by non-HTTP backends)
+        :type status_code: int
+        :param status_message: HTTP Status code (faked by non-HTTP backends)
+        :type status_message: str
+        :param content: Extended information on what went wrong
+        :type content: str
+        :param errors: Any specific errors that were encountered (converted to string), defaults to None
+        :type errors: Optional[object], optional
+        """
         self.status_code = status_code
         self.status_message = status_message
         self.content = content
         self.errors = errors
         if errors is not None:
-            content += " - {0}".format(errors)
-        message = "{0} {1}: {2}".format(status_code, status_message, content).strip()
-        super(ResourceException, self).__init__(message)
+            content += f" - {errors}"
+        message = f"{status_code} {status_message}: {content}".strip()
+        super().__init__(message)
 
 
 class ProxmoxResource(object):
@@ -89,14 +93,14 @@ class ProxmoxResource(object):
     def url_join(self, base, *args):
         scheme, netloc, path, query, fragment = urlparse.urlsplit(base)
         path = path if len(path) else "/"
-        path = posixpath.join(path, *[("%s" % x) for x in args])
+        path = posixpath.join(path, *[str(x) for x in args])
         return urlparse.urlunsplit([scheme, netloc, path, query, fragment])
 
     def __call__(self, resource_id=None):
         if resource_id in (None, ""):
             return self
 
-        if isinstance(resource_id, basestring):
+        if isinstance(resource_id, (bytes, str)):
             resource_id = resource_id.split("/")
         elif not isinstance(resource_id, (tuple, list)):
             resource_id = [str(resource_id)]
@@ -110,9 +114,9 @@ class ProxmoxResource(object):
     def _request(self, method, data=None, params=None):
         url = self._store["base_url"]
         if data:
-            logger.info("%s %s %r", method, url, data)
+            logger.info(f"{method} {url} {data}")
         else:
-            logger.info("%s %s", method, url)
+            logger.info(f"{method} {url}")
 
         # passing None values to pvesh command breaks it, let's remove them just as requests library does
         # helpful when dealing with function default values higher in the chain, no need to clean up in multiple places
@@ -129,7 +133,7 @@ class ProxmoxResource(object):
                 del data[key]
 
         resp = self._store["session"].request(method, url, data=data, params=params)
-        logger.debug("Status code: %s, output: %s", resp.status_code, resp.content)
+        logger.debug(f"Status code: {resp.status_code}, output: {resp.content}")
 
         if resp.status_code >= 400:
             if hasattr(resp, "reason"):
@@ -173,7 +177,7 @@ class ProxmoxResource(object):
 
 class ProxmoxAPI(ProxmoxResource):
     def __init__(self, host=None, backend="https", service="PVE", **kwargs):
-        super(ProxmoxAPI, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         service = service.upper()
         backend = backend.lower()
 
@@ -194,7 +198,7 @@ class ProxmoxAPI(ProxmoxResource):
         kwargs["service"] = service
 
         # load backend module
-        self._backend = importlib.import_module(".backends.%s" % backend, "proxmoxer").Backend(
+        self._backend = importlib.import_module(f".backends.{backend}", "proxmoxer").Backend(
             **kwargs
         )
         self._backend_name = backend

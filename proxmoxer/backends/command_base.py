@@ -74,7 +74,7 @@ class CommandBaseSession(object):
         tmp_filename = ""
         if url.endswith("upload"):
             # copy file to temporary location on proxmox host
-            tmp_filename, tmp_err = self._exec(
+            tmp_filename, _ = self._exec(
                 [
                     "python3",
                     "-c",
@@ -86,9 +86,9 @@ class CommandBaseSession(object):
             data["filename"] = data["filename"].name
             data["tmpfilename"] = tmp_filename
 
-        command = ["{0}sh".format(self.service), cmd, url]
+        command = [f"{self.service}sh", cmd, url]
         # convert the options dict into a 2-tuple with the key formatted as a flag
-        option_pairs = [("-{0}".format(k), str(v)) for k, v in chain(data.items(), params.items())]
+        option_pairs = [(f"-{k}", str(v)) for k, v in chain(data.items(), params.items())]
         # add back in all the command arguments as their own pairs
         if data_command is not None:
             if isinstance(data_command, list):
@@ -99,7 +99,7 @@ class CommandBaseSession(object):
                 option_pairs.append(("-command", arg))
         # expand the list of 2-tuples into a flat list
         options = [val for pair in option_pairs for val in pair]
-        additional_options = SERVICES[self.service.upper()].get("ssh_additional_options", [])
+        additional_options = SERVICES[self.service.upper()].get("cli_additional_options", [])
         full_cmd = command + options + additional_options
 
         if self.sudo:

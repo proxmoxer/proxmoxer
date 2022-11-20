@@ -49,6 +49,9 @@ jobs:
       - name: Run Tests
         run: pytest -v --cov tests/
 
+      - name: Run pre-commit lint/format checks
+        uses: pre-commit/action@v3.0.0
+
       - name: Upload coverage data to coveralls.io
         if: github.repository == 'proxmoxer/proxmoxer'
         run: coveralls --service=github

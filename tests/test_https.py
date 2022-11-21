@@ -7,7 +7,8 @@ from unittest import mock
 import pytest
 from requests import Request, Response
 
-import proxmoxer.backends.https as https
+import proxmoxer as core
+from proxmoxer.backends import https
 
 from .api_mock import (  # pylint: disable=unused-import # noqa: F401
     PVERegistry,
@@ -214,7 +215,7 @@ class TestProxmoxHTTPAuth:
         assert auth.get_cookies().get_dict() == {"PVEAuthCookie": "ticket"}
 
     def test_auth_failure(self, mock_pve):
-        with pytest.raises(https.AuthenticationError) as exc_info:
+        with pytest.raises(core.AuthenticationError) as exc_info:
             https.ProxmoxHTTPAuth("bad_auth", "", base_url=self.base_url)
 
         assert (
@@ -228,7 +229,7 @@ class TestProxmoxHTTPAuth:
         )
 
     def test_auth_otp_missing(self, mock_pve):
-        with pytest.raises(https.AuthenticationError) as exc_info:
+        with pytest.raises(core.AuthenticationError) as exc_info:
             https.ProxmoxHTTPAuth("otp", "password", base_url=self.base_url, service="PVE")
 
         assert (

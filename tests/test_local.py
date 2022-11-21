@@ -1,6 +1,6 @@
 import tempfile
 
-import proxmoxer.backends.local as local
+from proxmoxer.backends import local
 
 # pylint: disable=no-self-use
 

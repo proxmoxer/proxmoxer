@@ -77,6 +77,15 @@ class ResourceException(Exception):
         super().__init__(message)
 
 
+class AuthenticationError(Exception):
+    def __init__(self, msg):
+        super().__init__(msg)
+        self.msg = msg
+
+    def __str__(self):
+        return self.msg
+
+
 class ProxmoxResource(object):
     def __init__(self, **kwargs):
         self._store = kwargs

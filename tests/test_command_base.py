@@ -3,7 +3,7 @@ from unittest import mock
 
 import pytest
 
-import proxmoxer.backends.command_base as command_base
+from proxmoxer.backends import command_base
 
 from .api_mock import PVERegistry
 

@@ -4,7 +4,7 @@ from unittest import mock
 import openssh_wrapper
 import pytest
 
-import proxmoxer.backends.openssh as openssh
+from proxmoxer.backends import openssh
 
 # pylint: disable=no-self-use
 

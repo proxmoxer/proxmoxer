@@ -12,15 +12,14 @@ import sys
 import time
 from shlex import split as shell_split
 
-from proxmoxer.core import SERVICES, config_failure
+from proxmoxer.core import SERVICES, AuthenticationError, config_failure
 
 logger = logging.getLogger(__name__)
 logger.setLevel(level=logging.WARNING)
 
-STREAMING_SIZE_THRESHOLD = 100 * 1024 * 1024  # 10 MiB
+STREAMING_SIZE_THRESHOLD = 10 * 1024 * 1024  # 10 MiB
 SSL_OVERFLOW_THRESHOLD = 2147483135  # 2^31 - 1 - 512
 
-# fmt: off
 try:
     import requests
     from requests.auth import AuthBase
@@ -28,20 +27,6 @@ try:
 except ImportError:
     logger.error("Chosen backend requires 'requests' module\n")
     sys.exit(1)
-
-
-def is_file(obj): return isinstance(obj, io.IOBase)
-def get_time(): return time.monotonic()
-# fmt: on
-
-
-class AuthenticationError(Exception):
-    def __init__(self, msg):
-        super(AuthenticationError, self).__init__(msg)
-        self.msg = msg
-
-    def __str__(self):
-        return self.msg
 
 
 class ProxmoxHTTPAuthBase(AuthBase):
@@ -99,7 +84,7 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
                 "Couldn't authenticate user: missing Two Factor Authentication (TFA)"
             )
 
-        self.birth_time = get_time()
+        self.birth_time = time.monotonic()
         self.pve_auth_ticket = response_data["ticket"]
         self.csrf_prevention_token = response_data["CSRFPreventionToken"]
 
@@ -111,8 +96,9 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
 
     def __call__(self, req):
         # refresh ticket if older than `renew_age`
-        if (get_time() - self.birth_time) >= self.renew_age:
-            logger.debug(f"refreshing ticket (age {get_time() - self.birth_time})")
+        time_diff = time.monotonic() - self.birth_time
+        if time_diff >= self.renew_age:
+            logger.debug(f"refreshing ticket (age {time_diff})")
             self._get_new_tokens()
 
         # only attach CSRF token if needed (reduce interception risk)
@@ -211,7 +197,7 @@ class ProxmoxHttpSession(requests.Session):
                     data[k] = v
                 elif "Windows" not in platform.platform():
                     data[k] = shell_split(v)
-            if is_file(v):
+            if isinstance(v, io.IOBase):
                 total_file_size += get_file_size(v)
 
                 # add in filename from file pointer (patch for https://github.com/requests/toolbelt/pull/316)

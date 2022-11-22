@@ -4,7 +4,7 @@ from unittest import mock
 
 import pytest
 
-import proxmoxer.backends.ssh_paramiko as ssh_paramiko
+from proxmoxer.backends import ssh_paramiko
 
 # pylint: disable=no-self-use
 

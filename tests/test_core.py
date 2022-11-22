@@ -3,8 +3,8 @@ from unittest import mock
 
 import pytest
 
-import proxmoxer.core as core
-from proxmoxer import backends
+from proxmoxer import core
+from proxmoxer.backends import https
 from proxmoxer.backends.command_base import JsonSimpleSerializer, Response
 
 from .api_mock import (  # pylint: disable=unused-import # noqa: F401
@@ -267,7 +267,7 @@ class TestProxmoxAPI:
 
         assert isinstance(prox, core.ProxmoxAPI)
         assert isinstance(prox, core.ProxmoxResource)
-        assert isinstance(prox._backend, backends.https.Backend)
+        assert isinstance(prox._backend, https.Backend)
         assert prox._backend.auth.service == "PVE"
 
     def test_init_invalid_service(self):

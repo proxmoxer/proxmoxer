@@ -1,3 +1,4 @@
+import json
 import logging
 from unittest import mock
 
@@ -119,22 +120,24 @@ class TestProxmoxResource:
         caplog.set_level(logging.DEBUG, logger=MODULE_LOGGER_NAME)
 
         ret = mock_resource._request("GET", params={"key": "value"})
+        exp_ret = {"method": "GET", "url": self.base_url, "params": {"key": "value"}}
 
         assert caplog.record_tuples == [
             (MODULE_LOGGER_NAME, logging.INFO, "GET " + self.base_url),
             (
                 MODULE_LOGGER_NAME,
                 logging.DEBUG,
-                'Status code: 200, output: b\'{"data": {"key": "value"}}\'',
+                "Status code: 200, output: b'%s'" % json.dumps(exp_ret),
             ),
         ]
 
-        assert ret == {"data": {"key": "value"}}
+        assert ret == exp_ret
 
     def test_request_basic_post(self, mock_resource, caplog):
         caplog.set_level(logging.DEBUG, logger=MODULE_LOGGER_NAME)
 
         ret = mock_resource._request("POST", data={"key": "value"})
+        exp_ret = {"method": "POST", "url": self.base_url, "data": {"key": "value"}}
 
         assert caplog.record_tuples == [
             (
@@ -145,10 +148,11 @@ class TestProxmoxResource:
             (
                 MODULE_LOGGER_NAME,
                 logging.DEBUG,
-                'Status code: 200, output: b\'{"data": {"key": "value"}}\'',
+                "Status code: 200, output: b'%s'" % json.dumps(exp_ret),
             ),
         ]
-        assert ret == {"data": {"key": "value"}}
+
+        assert ret == exp_ret
 
     def test_request_fail(self, mock_resource, caplog):
         caplog.set_level(logging.DEBUG, logger=MODULE_LOGGER_NAME)
@@ -197,14 +201,14 @@ class TestProxmoxResource:
         assert exc_info.value.errors == {"errors": b"this is the error"}
 
     def test_request_params_cleanup(self, mock_resource):
-        mock_resource._request("GET", params={"key": "value", "remove_me": None})
+        ret = mock_resource._request("GET", params={"key": "value", "remove_me": None})
 
-        assert mock_resource._store["session"].params == {"key": "value"}
+        assert ret["params"] == {"key": "value"}
 
     def test_request_data_cleanup(self, mock_resource):
-        mock_resource._request("POST", data={"key": "value", "remove_me": None})
+        ret = mock_resource._request("POST", data={"key": "value", "remove_me": None})
 
-        assert mock_resource._store["session"].data == {"key": "value"}
+        assert ret["data"] == {"key": "value"}
 
 
 class TestProxmoxResourceMethods:
@@ -305,19 +309,19 @@ class TestProxmoxAPI:
 
 class MockSession:
     def request(self, method, url, data=None, params=None):
-        # store the arguments in the session so they can be tested after the call
-        self.data = data
-        self.params = params
-        self.method = method
-        self.url = url
-
         if "fail" in url:
             r = Response(b"this is the error", 500)
             if "reason" in url:
                 r.reason = "this is the reason"
             return r
         else:
-            return Response(b'{"data": {"key": "value"}}', 200)
+            mock_response = dict(method=method, url=url)
+            if data:
+                mock_response["data"] = data
+            if params:
+                mock_response["params"] = params
+
+            return Response(json.dumps(mock_response).encode(), 200)
 
 
 @pytest.fixture

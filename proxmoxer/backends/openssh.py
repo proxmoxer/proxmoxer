@@ -33,7 +33,7 @@ class OpenSSHSession(CommandBaseSession):
         forward_ssh_agent=False,
         **kwargs,
     ):
-        super(OpenSSHSession, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.host = host
         self.user = user
         self.config_file = config_file

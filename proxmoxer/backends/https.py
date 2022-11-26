@@ -51,7 +51,7 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
     renew_age = 3600
 
     def __init__(self, username, password, otp=None, base_url="", **kwargs):
-        super(ProxmoxHTTPAuth, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.base_url = base_url
         self.username = username
         self.pve_auth_ticket = ""
@@ -109,7 +109,7 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
 
 class ProxmoxHTTPApiTokenAuth(ProxmoxHTTPAuthBase):
     def __init__(self, username, token_name, token_value, **kwargs):
-        super(ProxmoxHTTPApiTokenAuth, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.username = username
         self.token_name = token_name
         self.token_value = token_value
@@ -175,7 +175,7 @@ class ProxmoxHttpSession(requests.Session):
         a = auth or self.auth
         c = cookies or self.cookies
 
-        # take set verify flag from auth if request does not have this parameter explicitly
+        # set verify flag from auth if request does not have this parameter explicitly
         if verify is None:
             verify = a.verify_ssl
 

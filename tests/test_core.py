@@ -110,7 +110,7 @@ class TestProxmoxResource:
     def test_call_stringable(self):
         test_obj = core.ProxmoxResource(base_url=self.base_url)
 
-        class Thing(object):
+        class Thing:
             def __str__(self):
                 return "string"
 

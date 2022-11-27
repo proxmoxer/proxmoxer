@@ -125,7 +125,7 @@ class ProxmoxHTTPApiTokenAuth(ProxmoxHTTPAuthBase):
         return req
 
 
-class JsonSerializer(object):
+class JsonSerializer:
     content_types = [
         "application/json",
         "application/x-javascript",
@@ -245,7 +245,7 @@ class ProxmoxHttpSession(requests.Session):
         )
 
 
-class Backend(object):
+class Backend:
     def __init__(
         self,
         host,

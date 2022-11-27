@@ -86,7 +86,7 @@ class AuthenticationError(Exception):
         return self.msg
 
 
-class ProxmoxResource(object):
+class ProxmoxResource:
     def __init__(self, **kwargs):
         self._store = kwargs
 

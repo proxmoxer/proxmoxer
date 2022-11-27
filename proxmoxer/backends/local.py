@@ -1,3 +1,7 @@
+__author__ = "Markus Reiter"
+__copyright__ = "(c) Markus Reiter 2022"
+__license__ = "MIT"
+
 import shutil
 from subprocess import PIPE, Popen
 

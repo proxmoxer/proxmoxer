@@ -7,19 +7,89 @@
       "label": "Run Tests (with coverage)",
       "type": "shell",
       "command": "pytest -v --cov --cov-report xml:coverage.xml tests/",
-      "problemMatcher": []
+      "problemMatcher": [],
+      "icon": {
+        "id": "beaker",
+        "color": "terminal.ansiGreen"
+      },
+      "runOptions": {
+        "instanceLimit": 1
+      },
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "silent",
+        "focus": false,
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": true
+      },
     },
     {
       "label": "Run Tests",
       "type": "shell",
       "command": "pytest -v tests/",
-      "problemMatcher": []
+      "problemMatcher": [],
+      "icon": {
+        "id": "beaker",
+      },
+      "group": {
+        "kind": "test"
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": true
+      },
     },
     {
       "label": "Update bandit baseline",
       "type": "shell",
       "command": "bandit --configfile .bandit -f json -r tests/ proxmoxer/ >| tests/known_issues.json",
-      "problemMatcher": []
+      "problemMatcher": [],
+      "runOptions": {
+        "instanceLimit": 1
+      },
+      "group": {
+        "kind": "none"
+      },
+      "icon": {
+        "id": "bookmark"
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "never",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": false
+      },
+    },
+    {
+      "label": "Clean Cache/tmp files",
+      "type": "shell",
+      "command": "rm -rf ./.mypy_cache/ ./.pytest_cache/ ./.coverage.xml ./.coverage",
+      "problemMatcher": [],
+      "group": {
+        "kind": "none"
+      },
+      "icon": {
+        "id": "trashcan"
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "never",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": false
+      },
     }
   ]
 }

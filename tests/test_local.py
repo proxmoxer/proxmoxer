@@ -1,6 +1,10 @@
+__author__ = "John Hollowell"
+__copyright__ = "(c) John Hollowell 2022"
+__license__ = "MIT"
+
 import tempfile
 
-import proxmoxer.backends.local as local
+from proxmoxer.backends import local
 
 # pylint: disable=no-self-use
 

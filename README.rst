@@ -19,6 +19,11 @@ attributes you've attempted to reach.
 Full Documentation is available at https://proxmoxer.github.io/docs/
 --------------------------------------------------------------------
 
+Migrating to version 2
+......................
+
+Full instructions for the minimal steps needed to update to version 2 can be found in `Migration Docs <https://proxmoxer.github.io/docs/latest/v1_migration/>`_.
+
 Installation
 ............
 

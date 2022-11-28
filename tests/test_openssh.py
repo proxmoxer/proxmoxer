@@ -1,10 +1,14 @@
+__author__ = "John Hollowell"
+__copyright__ = "(c) John Hollowell 2022"
+__license__ = "MIT"
+
 import tempfile
 from unittest import mock
 
 import openssh_wrapper
 import pytest
 
-import proxmoxer.backends.openssh as openssh
+from proxmoxer.backends import openssh
 
 # pylint: disable=no-self-use
 

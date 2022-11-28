@@ -1,10 +1,14 @@
+__author__ = "John Hollowell"
+__copyright__ = "(c) John Hollowell 2022"
+__license__ = "MIT"
+
 import logging
 from unittest import mock
 
 import pytest
 
-import proxmoxer.core as core
-from proxmoxer import backends
+from proxmoxer import core
+from proxmoxer.backends import https
 from proxmoxer.backends.command_base import JsonSimpleSerializer, Response
 
 from .api_mock import (  # pylint: disable=unused-import # noqa: F401
@@ -106,7 +110,7 @@ class TestProxmoxResource:
     def test_call_stringable(self):
         test_obj = core.ProxmoxResource(base_url=self.base_url)
 
-        class Thing(object):
+        class Thing:
             def __str__(self):
                 return "string"
 
@@ -267,7 +271,7 @@ class TestProxmoxAPI:
 
         assert isinstance(prox, core.ProxmoxAPI)
         assert isinstance(prox, core.ProxmoxResource)
-        assert isinstance(prox._backend, backends.https.Backend)
+        assert isinstance(prox._backend, https.Backend)
         assert prox._backend.auth.service == "PVE"
 
     def test_init_invalid_service(self):

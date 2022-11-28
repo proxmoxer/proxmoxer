@@ -29,7 +29,7 @@ except ImportError:
         return " ".join([quote(arg) for arg in args])
 
 
-class Response(object):
+class Response:
     def __init__(self, content, status_code):
         self.status_code = status_code
         self.content = content
@@ -40,7 +40,7 @@ class Response(object):
         return f"Response ({self.status_code}) {self.content}"
 
 
-class CommandBaseSession(object):
+class CommandBaseSession:
     def __init__(
         self,
         service="PVE",
@@ -130,7 +130,7 @@ class CommandBaseSession(object):
         raise NotImplementedError()
 
 
-class JsonSimpleSerializer(object):
+class JsonSimpleSerializer:
     def loads(self, response):
         try:
             return json.loads(response.content)
@@ -144,7 +144,7 @@ class JsonSimpleSerializer(object):
             return {"errors": response.content}
 
 
-class CommandBaseBackend(object):
+class CommandBaseBackend:
     def get_session(self):
         return self.session
 

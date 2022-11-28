@@ -1,10 +1,14 @@
+__author__ = "John Hollowell"
+__copyright__ = "(c) John Hollowell 2022"
+__license__ = "MIT"
+
 import os.path
 import tempfile
 from unittest import mock
 
 import pytest
 
-import proxmoxer.backends.ssh_paramiko as ssh_paramiko
+from proxmoxer.backends import ssh_paramiko
 
 # pylint: disable=no-self-use
 

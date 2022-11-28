@@ -27,7 +27,7 @@ except ImportError:
 
 class SshParamikoSession(CommandBaseSession):
     def __init__(self, host, user, password=None, private_key_file=None, port=22, **kwargs):
-        super(SshParamikoSession, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.host = host
         self.user = user
         self.password = password

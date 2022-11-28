@@ -1,3 +1,25 @@
+## 2.0.0 (2022-11-27)
+
+* Improvement (all): Convert testing framework to use pytest ([John Hollowell](https://github.com/jhollowe))
+* Improvement (all): Remove Python 2.x support (minimum version of 3.7) ([John Hollowell](https://github.com/jhollowe))
+* Improvement (all): Refactor code to Python 3 standards ([John Hollowell](https://github.com/jhollowe))
+* Bugfix (all): Remove None values from request data and params ([Kristian Heljas](https://github.com/kristianheljas))
+* Addition (tools): Added Task tools ([John Hollowell](https://github.com/jhollowe))
+* Bugfix (all): Allow specifying resource_id as 0 ([John Bergvall](https://github.com/johnbergvall))
+* Improvement (all): Remove ProxmoxResourceBase ([John Hollowell](https://github.com/jhollowe))
+* Bugfix (all): Add platform detection before using shlex functions ([Kevin Boyd](https://github.com/r3d07))
+* Improvement (https): Added `path_prefix` argument which is appended after the root of the URL (before `api2/`) ([John Hollowell](https://github.com/jhollowe))
+
+### Breaking Changes
+* `ProxmoxResourceBase` removed
+* `proxmoxer.backends.https.AuthenticationError` moved to `proxmoxer.AuthenticationError`
+* Removed `ProxmoxHTTPTicketAuth` and its arguments `auth_token` and `csrf_token`
+* keyword arguments to backends order changed (should not affect users specifying arguments by name)
+
+## 1.3.1 (2022-05-14)
+
+* Bugfix (all): fix error handling for APIs that don't give a dict in the response ([Alex Wuillaume](https://github.com/wuillaumea))
+
 ## 1.3.0 (2022-03-13)
 
 * Addition (local): Added `local` backend for running directly on Proxmox hosts. ([Markus Reiter](https://github.com/reitermarkus))

@@ -16,24 +16,23 @@ jobs:
       fail-fast: false
       matrix:
         python-version:
-          - "2.7"
-          - "3.5"
           - "3.7"
           - "3.8"
           - "3.9"
-          # - "3.10"
+          - "3.10"
+          - "3.11"
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
 
       - name: Cache PIP packages
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-python${{ matrix.python-version }}-${{ hashFiles('*requirements.txt') }}
@@ -48,7 +47,10 @@ jobs:
         run: pip install .
 
       - name: Run Tests
-        run: nosetests --with-coverage --cover-erase --cover-branches --cover-package=proxmoxer tests/
+        run: pytest -v --cov tests/
+
+      - name: Run pre-commit lint/format checks
+        uses: pre-commit/action@v3.0.0
 
       - name: Upload coverage data to coveralls.io
         if: github.repository == 'proxmoxer/proxmoxer'
@@ -57,7 +59,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COVERALLS_FLAG_NAME: Unit Test (${{ matrix.python-version }})
           COVERALLS_PARALLEL: true
-          COVERALLS_REPO_TOKEN: ${{ matrix.python-version == '2.7' && secrets.GITHUB_TOKEN || ''}}
 
 
   complete:

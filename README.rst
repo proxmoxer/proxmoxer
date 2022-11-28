@@ -1,5 +1,5 @@
 =========================================
-Proxmoxer: A wrapper for Proxmox REST API
+Proxmoxer: A Python wrapper for Proxmox REST API
 =========================================
 
 master branch:  |master_build_status| |master_coverage_status| |pypi_version| |pypi_downloads|
@@ -18,6 +18,11 @@ attributes you've attempted to reach.
 
 Full Documentation is available at https://proxmoxer.github.io/docs/
 --------------------------------------------------------------------
+
+Migrating to version 2
+......................
+
+Full instructions for the minimal steps needed to update to version 2 can be found in `Migration Docs <https://proxmoxer.github.io/docs/latest/v1_migration/>`_.
 
 Installation
 ............
@@ -89,14 +94,14 @@ See Changelog in `CHANGELOG.md <https://github.com/proxmoxer/proxmoxer/blob/deve
 .. |master_build_status| image:: https://github.com/proxmoxer/proxmoxer/actions/workflows/ci.yaml/badge.svg?branch=master
     :target: https://github.com/proxmoxer/proxmoxer/actions
 
-.. |master_coverage_status| image:: https://coveralls.io/repos/proxmoxer/proxmoxer/badge.png?branch=master
-    :target: https://coveralls.io/r/proxmoxer/proxmoxer
+.. |master_coverage_status| image:: https://img.shields.io/coveralls/github/proxmoxer/proxmoxer/master
+    :target: https://coveralls.io/github/proxmoxer/proxmoxer?branch=master
 
 .. |develop_build_status| image:: https://github.com/proxmoxer/proxmoxer/actions/workflows/ci.yaml/badge.svg?branch=develop
     :target: https://github.com/proxmoxer/proxmoxer/actions
 
-.. |develop_coverage_status| image:: https://coveralls.io/repos/proxmoxer/proxmoxer/badge.png?branch=develop
-    :target: https://coveralls.io/r/proxmoxer/proxmoxer
+.. |develop_coverage_status| image:: https://img.shields.io/coveralls/github/proxmoxer/proxmoxer/develop
+    :target: https://coveralls.io/github/proxmoxer/proxmoxer?branch=develop
 
 .. |pypi_version| image:: https://img.shields.io/pypi/v/proxmoxer.svg
     :target: https://pypi.python.org/pypi/proxmoxer

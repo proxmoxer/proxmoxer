@@ -34,7 +34,7 @@ setup(
     url="https://proxmoxer.github.io/docs/",
     download_url="http://pypi.python.org/pypi/proxmoxer",
     keywords=["proxmox", "api"],
-    packages=["proxmoxer", "proxmoxer.backends"],
+    packages=["proxmoxer", "proxmoxer.backends", "proxmoxer.tools"],
     classifiers=[  # http://pypi.python.org/pypi?%3Aaction=list_classifiers
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
@@ -56,9 +56,6 @@ setup(
         "Topic :: System :: Clustering",
         "Topic :: System :: Monitoring",
         "Topic :: System :: Systems Administration",
-    ],
-    install_requires=[
-        "shellescape >= 3.0.0; python_version < '3.3'",
     ],
     long_description=long_description,
     long_description_content_type="text/x-rst",

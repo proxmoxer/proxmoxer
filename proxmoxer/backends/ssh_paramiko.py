@@ -4,26 +4,30 @@ __license__ = "MIT"
 
 # spell-checker:ignore putfo
 
+import logging
 import os
 
 from proxmoxer.backends.command_base import (
     CommandBaseBackend,
     CommandBaseSession,
-    shelljoin,
+    shell_join,
 )
+
+logger = logging.getLogger(__name__)
+logger.setLevel(level=logging.WARNING)
 
 try:
     import paramiko
 except ImportError:
     import sys
 
-    sys.stderr.write("Chosen backend requires 'paramiko' module\n")
+    logger.error("Chosen backend requires 'paramiko' module\n")
     sys.exit(1)
 
 
 class SshParamikoSession(CommandBaseSession):
     def __init__(self, host, user, password=None, private_key_file=None, port=22, **kwargs):
-        super(SshParamikoSession, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.host = host
         self.user = user
         self.password = password
@@ -56,7 +60,7 @@ class SshParamikoSession(CommandBaseSession):
 
     def _exec(self, cmd):
         session = self.ssh_client.get_transport().open_session()
-        session.exec_command(shelljoin(cmd))
+        session.exec_command(shell_join(cmd))
         stdout = session.makefile("rb", -1).read().decode()
         stderr = session.makefile_stderr("rb", -1).read().decode()
         return stdout, stderr

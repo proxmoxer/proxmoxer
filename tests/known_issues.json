@@ -1,27 +1,271 @@
 {
   "errors": [],
-  "generated_at": "2022-02-17T05:56:07Z",
+  "generated_at": "2022-08-25T03:08:48Z",
+  "metrics": {
+    "_totals": {
+      "CONFIDENCE.HIGH": 3,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 11,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 3,
+      "SEVERITY.MEDIUM": 11,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 1947,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "proxmoxer/__init__.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 5,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "proxmoxer/backends/__init__.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 3,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "proxmoxer/backends/command_base.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 115,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "proxmoxer/backends/https.py": {
+      "CONFIDENCE.HIGH": 1,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 1,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 286,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "proxmoxer/backends/local.py": {
+      "CONFIDENCE.HIGH": 2,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 2,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 14,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "proxmoxer/backends/openssh.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 53,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "proxmoxer/backends/ssh_paramiko.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 1,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 1,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 58,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "proxmoxer/core.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 155,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "tests/api_mock.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 108,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "tests/test_command_base.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 2,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 2,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 195,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "tests/test_core.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 241,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "tests/test_https.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 362,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "tests/test_https_helpers.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 62,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "tests/test_imports.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 80,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "tests/test_local.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 35,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "tests/test_openssh.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 2,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 2,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 62,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "tests/test_paramiko.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 6,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 6,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 113,
+      "nosec": 0,
+      "skipped_tests": 0
+    }
+  },
   "results": [
     {
-      "code": "341     def get_serializer(self):\n342         assert self.mode == \"json\"\n343         return JsonSerializer()\n",
+      "code": "332     def get_serializer(self):\n333         assert self.mode == \"json\"\n334         return JsonSerializer()\n",
       "col_offset": 8,
       "filename": "proxmoxer/backends/https.py",
       "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 703,
+        "link": "https://cwe.mitre.org/data/definitions/703.html"
+      },
       "issue_severity": "LOW",
       "issue_text": "Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
-      "line_number": 342,
+      "line_number": 333,
       "line_range": [
-        342
+        333
       ],
-      "more_info": "https://bandit.readthedocs.io/en/latest/plugins/b101_assert_used.html",
+      "more_info": "https://bandit.readthedocs.io/en/1.7.4/plugins/b101_assert_used.html",
       "test_id": "B101",
       "test_name": "assert_used"
     },
     {
-      "code": "1 import shutil\n2 from subprocess import PIPE, Popen\n3 \n4 from proxmoxer.backends.base import BaseBackend, BaseSession\n",
+      "code": "1 import shutil\n2 from subprocess import PIPE, Popen\n3 \n4 from proxmoxer.backends.command_base import CommandBaseBackend, CommandBaseSession\n",
       "col_offset": 0,
       "filename": "proxmoxer/backends/local.py",
       "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 78,
+        "link": "https://cwe.mitre.org/data/definitions/78.html"
+      },
       "issue_severity": "LOW",
       "issue_text": "Consider possible security implications associated with the subprocess module.",
       "line_number": 2,
@@ -29,7 +273,7 @@
         2,
         3
       ],
-      "more_info": "https://bandit.readthedocs.io/en/latest/blacklists/blacklist_imports.html#b404-import-subprocess",
+      "more_info": "https://bandit.readthedocs.io/en/1.7.4/blacklists/blacklist_imports.html#b404-import-subprocess",
       "test_id": "B404",
       "test_name": "blacklist"
     },
@@ -38,299 +282,239 @@
       "col_offset": 15,
       "filename": "proxmoxer/backends/local.py",
       "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 78,
+        "link": "https://cwe.mitre.org/data/definitions/78.html"
+      },
       "issue_severity": "LOW",
       "issue_text": "subprocess call - check for execution of untrusted input.",
       "line_number": 9,
       "line_range": [
         9
       ],
-      "more_info": "https://bandit.readthedocs.io/en/latest/plugins/b603_subprocess_without_shell_equals_true.html",
+      "more_info": "https://bandit.readthedocs.io/en/1.7.4/plugins/b603_subprocess_without_shell_equals_true.html",
       "test_id": "B603",
       "test_name": "subprocess_without_shell_equals_true"
     },
     {
-      "code": "55         session = self.ssh_client.get_transport().open_session()\n56         session.exec_command(shelljoin(cmd))\n57         stdout = session.makefile(\"rb\", -1).read().decode()\n",
+      "code": "62         session = self.ssh_client.get_transport().open_session()\n63         session.exec_command(shell_join(cmd))\n64         stdout = session.makefile(\"rb\", -1).read().decode()\n",
       "col_offset": 8,
       "filename": "proxmoxer/backends/ssh_paramiko.py",
       "issue_confidence": "MEDIUM",
+      "issue_cwe": {
+        "id": 78,
+        "link": "https://cwe.mitre.org/data/definitions/78.html"
+      },
       "issue_severity": "MEDIUM",
       "issue_text": "Possible shell injection via Paramiko call, check inputs are properly sanitized.",
-      "line_number": 56,
+      "line_number": 63,
       "line_range": [
-        56
+        63
       ],
-      "more_info": "https://bandit.readthedocs.io/en/latest/plugins/b601_paramiko_calls.html",
+      "more_info": "https://bandit.readthedocs.io/en/1.7.4/plugins/b601_paramiko_calls.html",
       "test_id": "B601",
       "test_name": "paramiko_calls"
     },
     {
-      "code": "100         node = self.proxmox.nodes(\"proxmox\")\n101         node.openvz.create(\n102             vmid=800,\n103             ostemplate=\"local:vztmpl/debian-6-turnkey-core_12.0-1_i386.tar.gz\",\n104             hostname=\"test\",\n105             storage=\"local\",\n106             memory=512,\n107             swap=512,\n108             cpus=1,\n109             disk=4,\n110             password=\"secret\",\n111             ip_address=\"10.0.100.222\",\n112         )\n",
-      "col_offset": 8,
-      "filename": "tests/base/base_suite.py",
+      "code": "39         with pytest.raises(NotImplementedError), tempfile.TemporaryFile(\"w+b\") as f_obj:\n40             self._session.upload_file_obj(f_obj, \"/tmp/file.iso\")\n41 \n",
+      "col_offset": 49,
+      "filename": "tests/test_command_base.py",
       "issue_confidence": "MEDIUM",
-      "issue_severity": "LOW",
-      "issue_text": "Possible hardcoded password: 'secret'",
-      "line_number": 101,
+      "issue_cwe": {
+        "id": 377,
+        "link": "https://cwe.mitre.org/data/definitions/377.html"
+      },
+      "issue_severity": "MEDIUM",
+      "issue_text": "Probable insecure usage of temp file/directory.",
+      "line_number": 40,
       "line_range": [
-        101,
-        102,
-        103,
-        104,
-        105,
-        106,
-        107,
-        108,
-        109,
-        110,
-        111
+        40
       ],
-      "more_info": "https://bandit.readthedocs.io/en/latest/plugins/b106_hardcoded_password_funcarg.html",
-      "test_id": "B106",
-      "test_name": "hardcoded_password_funcarg"
+      "more_info": "https://bandit.readthedocs.io/en/1.7.4/plugins/b108_hardcoded_tmp_directory.html",
+      "test_id": "B108",
+      "test_name": "hardcoded_tmp_directory"
     },
     {
-      "code": "127         node = self.proxmox.nodes(\"proxmox1\")\n128         node.openvz.post(\n129             vmid=900,\n130             ostemplate=\"local:vztmpl/debian-7-turnkey-core_12.0-1_i386.tar.gz\",\n131             hostname=\"test1\",\n132             storage=\"local1\",\n133             memory=1024,\n134             swap=1024,\n135             cpus=2,\n136             disk=8,\n137             password=\"secret1\",\n138             ip_address=\"10.0.100.111\",\n139         )\n",
-      "col_offset": 8,
-      "filename": "tests/base/base_suite.py",
+      "code": "160                 \"-tmpfilename\",\n161                 \"/tmp/tmpasdfasdf\",\n162                 \"--output-format\",\n163                 \"json\",\n164             ]\n165 \n166 \n167 class TestJsonSimpleSerializer:\n168     _serializer = command_base.JsonSimpleSerializer()\n169 \n170     def test_loads_pass(self):\n171         input_str = '{\"key1\": \"value1\", \"key2\": \"value2\"}'\n172         exp_output = {\"key1\": \"value1\", \"key2\": \"value2\"}\n173 \n",
+      "col_offset": 16,
+      "filename": "tests/test_command_base.py",
       "issue_confidence": "MEDIUM",
-      "issue_severity": "LOW",
-      "issue_text": "Possible hardcoded password: 'secret1'",
-      "line_number": 128,
+      "issue_cwe": {
+        "id": 377,
+        "link": "https://cwe.mitre.org/data/definitions/377.html"
+      },
+      "issue_severity": "MEDIUM",
+      "issue_text": "Probable insecure usage of temp file/directory.",
+      "line_number": 161,
       "line_range": [
-        128,
-        129,
-        130,
-        131,
-        132,
-        133,
-        134,
-        135,
-        136,
-        137,
-        138
+        152,
+        153,
+        154,
+        155,
+        156,
+        157,
+        158,
+        159,
+        160,
+        161,
+        162,
+        163
       ],
-      "more_info": "https://bandit.readthedocs.io/en/latest/plugins/b106_hardcoded_password_funcarg.html",
-      "test_id": "B106",
-      "test_name": "hardcoded_password_funcarg"
+      "more_info": "https://bandit.readthedocs.io/en/1.7.4/plugins/b108_hardcoded_tmp_directory.html",
+      "test_id": "B108",
+      "test_name": "hardcoded_tmp_directory"
     },
     {
-      "code": "14     req_session.request.return_value = response\n15     ProxmoxAPI(\"proxmox\", user=\"root@pam\", password=\"secret\", port=123, verify_ssl=False)\n16     call = req_session.return_value.request.call_args[1]\n",
-      "col_offset": 4,
-      "filename": "tests/https_tests.py",
+      "code": "61         with tempfile.NamedTemporaryFile(\"r\") as f_obj:\n62             mock_session.upload_file_obj(f_obj, \"/tmp/file\")\n63 \n",
+      "col_offset": 48,
+      "filename": "tests/test_openssh.py",
       "issue_confidence": "MEDIUM",
-      "issue_severity": "LOW",
-      "issue_text": "Possible hardcoded password: 'secret'",
-      "line_number": 15,
+      "issue_cwe": {
+        "id": 377,
+        "link": "https://cwe.mitre.org/data/definitions/377.html"
+      },
+      "issue_severity": "MEDIUM",
+      "issue_text": "Probable insecure usage of temp file/directory.",
+      "line_number": 62,
       "line_range": [
-        15
+        62
       ],
-      "more_info": "https://bandit.readthedocs.io/en/latest/plugins/b106_hardcoded_password_funcarg.html",
-      "test_id": "B106",
-      "test_name": "hardcoded_password_funcarg"
+      "more_info": "https://bandit.readthedocs.io/en/1.7.4/plugins/b108_hardcoded_tmp_directory.html",
+      "test_id": "B108",
+      "test_name": "hardcoded_tmp_directory"
     },
     {
-      "code": "26     req_session.request.return_value = response\n27     ProxmoxAPI(\"proxmox:123\", user=\"root@pam\", password=\"secret\", port=124, verify_ssl=False)\n28     call = req_session.return_value.request.call_args[1]\n",
-      "col_offset": 4,
-      "filename": "tests/https_tests.py",
+      "code": "65                 (f_obj,),\n66                 target=\"/tmp/file\",\n67             )\n",
+      "col_offset": 23,
+      "filename": "tests/test_openssh.py",
       "issue_confidence": "MEDIUM",
-      "issue_severity": "LOW",
-      "issue_text": "Possible hardcoded password: 'secret'",
-      "line_number": 27,
+      "issue_cwe": {
+        "id": 377,
+        "link": "https://cwe.mitre.org/data/definitions/377.html"
+      },
+      "issue_severity": "MEDIUM",
+      "issue_text": "Probable insecure usage of temp file/directory.",
+      "line_number": 66,
       "line_range": [
-        27
+        66
       ],
-      "more_info": "https://bandit.readthedocs.io/en/latest/plugins/b106_hardcoded_password_funcarg.html",
-      "test_id": "B106",
-      "test_name": "hardcoded_password_funcarg"
+      "more_info": "https://bandit.readthedocs.io/en/1.7.4/plugins/b108_hardcoded_tmp_directory.html",
+      "test_id": "B108",
+      "test_name": "hardcoded_tmp_directory"
     },
     {
-      "code": "38     req_session.request.return_value = response\n39     ProxmoxAPI(\"proxmox:notaport\", user=\"root@pam\", password=\"secret\", port=124, verify_ssl=False)\n40     call = req_session.return_value.request.call_args[1]\n",
-      "col_offset": 4,
-      "filename": "tests/https_tests.py",
+      "code": "23         sess = ssh_paramiko.SshParamikoSession(\n24             \"host\", \"user\", password=\"password\", private_key_file=\"/tmp/key_file\", port=1234\n25         )\n",
+      "col_offset": 66,
+      "filename": "tests/test_paramiko.py",
       "issue_confidence": "MEDIUM",
-      "issue_severity": "LOW",
-      "issue_text": "Possible hardcoded password: 'secret'",
-      "line_number": 39,
+      "issue_cwe": {
+        "id": 377,
+        "link": "https://cwe.mitre.org/data/definitions/377.html"
+      },
+      "issue_severity": "MEDIUM",
+      "issue_text": "Probable insecure usage of temp file/directory.",
+      "line_number": 24,
       "line_range": [
-        39
+        24
       ],
-      "more_info": "https://bandit.readthedocs.io/en/latest/plugins/b106_hardcoded_password_funcarg.html",
-      "test_id": "B106",
-      "test_name": "hardcoded_password_funcarg"
+      "more_info": "https://bandit.readthedocs.io/en/1.7.4/plugins/b108_hardcoded_tmp_directory.html",
+      "test_id": "B108",
+      "test_name": "hardcoded_tmp_directory"
     },
     {
-      "code": "50     req_session.request.return_value = response\n51     ProxmoxAPI(\"fe80:1:2:3::123\", user=\"root@pam\", password=\"secret\", port=124, verify_ssl=False)\n52     call = req_session.return_value.request.call_args[1]\n",
-      "col_offset": 4,
-      "filename": "tests/https_tests.py",
+      "code": "29         assert sess.password == \"password\"\n30         assert sess.private_key_file == \"/tmp/key_file\"\n31         assert sess.port == 1234\n",
+      "col_offset": 40,
+      "filename": "tests/test_paramiko.py",
       "issue_confidence": "MEDIUM",
-      "issue_severity": "LOW",
-      "issue_text": "Possible hardcoded password: 'secret'",
-      "line_number": 51,
+      "issue_cwe": {
+        "id": 377,
+        "link": "https://cwe.mitre.org/data/definitions/377.html"
+      },
+      "issue_severity": "MEDIUM",
+      "issue_text": "Probable insecure usage of temp file/directory.",
+      "line_number": 30,
       "line_range": [
-        51
+        30
       ],
-      "more_info": "https://bandit.readthedocs.io/en/latest/plugins/b106_hardcoded_password_funcarg.html",
-      "test_id": "B106",
-      "test_name": "hardcoded_password_funcarg"
+      "more_info": "https://bandit.readthedocs.io/en/1.7.4/plugins/b108_hardcoded_tmp_directory.html",
+      "test_id": "B108",
+      "test_name": "hardcoded_tmp_directory"
     },
     {
-      "code": "62     req_session.request.return_value = response\n63     ProxmoxAPI(\n64         \"[fe80:1:2:3::123]:123\", user=\"root@pam\", password=\"secret\", port=124, verify_ssl=False\n65     )\n",
-      "col_offset": 4,
-      "filename": "tests/https_tests.py",
+      "code": "55         sess = ssh_paramiko.SshParamikoSession(\n56             \"host\", \"user\", password=\"password\", private_key_file=\"/tmp/key_file\", port=1234\n57         )\n",
+      "col_offset": 66,
+      "filename": "tests/test_paramiko.py",
       "issue_confidence": "MEDIUM",
-      "issue_severity": "LOW",
-      "issue_text": "Possible hardcoded password: 'secret'",
-      "line_number": 63,
+      "issue_cwe": {
+        "id": 377,
+        "link": "https://cwe.mitre.org/data/definitions/377.html"
+      },
+      "issue_severity": "MEDIUM",
+      "issue_text": "Probable insecure usage of temp file/directory.",
+      "line_number": 56,
       "line_range": [
-        63,
+        56
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.7.4/plugins/b108_hardcoded_tmp_directory.html",
+      "test_id": "B108",
+      "test_name": "hardcoded_tmp_directory"
+    },
+    {
+      "code": "63             look_for_keys=True,\n64             key_filename=\"/tmp/key_file\",\n65             password=\"password\",\n",
+      "col_offset": 25,
+      "filename": "tests/test_paramiko.py",
+      "issue_confidence": "MEDIUM",
+      "issue_cwe": {
+        "id": 377,
+        "link": "https://cwe.mitre.org/data/definitions/377.html"
+      },
+      "issue_severity": "MEDIUM",
+      "issue_text": "Probable insecure usage of temp file/directory.",
+      "line_number": 64,
+      "line_range": [
         64
       ],
-      "more_info": "https://bandit.readthedocs.io/en/latest/plugins/b106_hardcoded_password_funcarg.html",
-      "test_id": "B106",
-      "test_name": "hardcoded_password_funcarg"
+      "more_info": "https://bandit.readthedocs.io/en/1.7.4/plugins/b108_hardcoded_tmp_directory.html",
+      "test_id": "B108",
+      "test_name": "hardcoded_tmp_directory"
     },
     {
-      "code": "73 def test_https_api_token():\n74     p = ProxmoxAPI(\n75         \"proxmox\",\n76         user=\"root@pam\",\n77         token_name=\"test\",\n78         token_value=\"ab27beeb-9ac4-4df1-aa19-62639f27031e\",\n79         verify_ssl=False,\n80     )\n",
-      "col_offset": 8,
-      "filename": "tests/https_tests.py",
+      "code": "110         with tempfile.NamedTemporaryFile(\"r\") as f_obj:\n111             sess.upload_file_obj(f_obj, \"/tmp/file\")\n112 \n",
+      "col_offset": 40,
+      "filename": "tests/test_paramiko.py",
       "issue_confidence": "MEDIUM",
-      "issue_severity": "LOW",
-      "issue_text": "Possible hardcoded password: 'test'",
-      "line_number": 74,
+      "issue_cwe": {
+        "id": 377,
+        "link": "https://cwe.mitre.org/data/definitions/377.html"
+      },
+      "issue_severity": "MEDIUM",
+      "issue_text": "Probable insecure usage of temp file/directory.",
+      "line_number": 111,
       "line_range": [
-        74,
-        75,
-        76,
-        77,
-        78,
-        79
+        111
       ],
-      "more_info": "https://bandit.readthedocs.io/en/latest/plugins/b106_hardcoded_password_funcarg.html",
-      "test_id": "B106",
-      "test_name": "hardcoded_password_funcarg"
+      "more_info": "https://bandit.readthedocs.io/en/1.7.4/plugins/b108_hardcoded_tmp_directory.html",
+      "test_id": "B108",
+      "test_name": "hardcoded_tmp_directory"
     },
     {
-      "code": "86     with assert_raises(NotImplementedError):\n87         ProxmoxAPI(\n88             \"proxmox\",\n89             user=\"root@pam\",\n90             token_name=\"test\",\n91             token_value=\"ab27beeb-9ac4-4df1-aa19-62639f27031e\",\n92             verify_ssl=False,\n93             service=\"PMG\",\n94         )\n",
-      "col_offset": 8,
-      "filename": "tests/https_tests.py",
+      "code": "112 \n113             mock_sftp.putfo.assert_called_once_with(f_obj, \"/tmp/file\")\n114 \n",
+      "col_offset": 59,
+      "filename": "tests/test_paramiko.py",
       "issue_confidence": "MEDIUM",
-      "issue_severity": "LOW",
-      "issue_text": "Possible hardcoded password: 'test'",
-      "line_number": 87,
-      "line_range": [
-        87,
-        88,
-        89,
-        90,
-        91,
-        92,
-        93
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/latest/plugins/b106_hardcoded_password_funcarg.html",
-      "test_id": "B106",
-      "test_name": "hardcoded_password_funcarg"
-    },
-    {
-      "code": "98     with assert_raises(NotImplementedError):\n99         ProxmoxAPI(\n100             \"nothing\",\n101             user=\"root@pam\",\n102             token_name=\"test\",\n103             token_value=\"ab27beeb-9ac4-4df1-aa19-62639f27031e\",\n104             verify_ssl=False,\n105             service=\"asdf\",\n106         )\n",
-      "col_offset": 8,
-      "filename": "tests/https_tests.py",
-      "issue_confidence": "MEDIUM",
-      "issue_severity": "LOW",
-      "issue_text": "Possible hardcoded password: 'test'",
-      "line_number": 99,
-      "line_range": [
-        99,
-        100,
-        101,
-        102,
-        103,
-        104,
-        105
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/latest/plugins/b106_hardcoded_password_funcarg.html",
-      "test_id": "B106",
-      "test_name": "hardcoded_password_funcarg"
-    },
-    {
-      "code": "112     req_session.request.return_value = response\n113     ProxmoxAPI(\"proxmox\", user=\"root@pam\", password=\"secret\", verify_ssl=False, service=\"pbs\")\n114     call = req_session.return_value.request.call_args[1]\n",
-      "col_offset": 4,
-      "filename": "tests/https_tests.py",
-      "issue_confidence": "MEDIUM",
-      "issue_severity": "LOW",
-      "issue_text": "Possible hardcoded password: 'secret'",
+      "issue_cwe": {
+        "id": 377,
+        "link": "https://cwe.mitre.org/data/definitions/377.html"
+      },
+      "issue_severity": "MEDIUM",
+      "issue_text": "Probable insecure usage of temp file/directory.",
       "line_number": 113,
       "line_range": [
         113
       ],
-      "more_info": "https://bandit.readthedocs.io/en/latest/plugins/b106_hardcoded_password_funcarg.html",
-      "test_id": "B106",
-      "test_name": "hardcoded_password_funcarg"
-    },
-    {
-      "code": "130         session.request.return_value = response\n131         self.proxmox = ProxmoxAPI(\n132             \"proxmox\", user=\"root@pam\", password=\"secret\", port=123, verify_ssl=False\n133         )\n",
-      "col_offset": 23,
-      "filename": "tests/https_tests.py",
-      "issue_confidence": "MEDIUM",
-      "issue_severity": "LOW",
-      "issue_text": "Possible hardcoded password: 'secret'",
-      "line_number": 131,
-      "line_range": [
-        131,
-        132
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/latest/plugins/b106_hardcoded_password_funcarg.html",
-      "test_id": "B106",
-      "test_name": "hardcoded_password_funcarg"
-    },
-    {
-      "code": "160         node = self.proxmox.nodes(\"proxmox\")\n161         node.openvz.create(\n162             vmid=800,\n163             ostemplate=\"local:vztmpl/debian-6-turnkey-core_12.0-1_i386.tar.gz\",\n164             hostname=\"test\",\n165             storage=\"local\",\n166             memory=512,\n167             swap=512,\n168             cpus=1,\n169             disk=4,\n170             password=\"secret\",\n171             ip_address=\"10.0.100.222\",\n172         )\n",
-      "col_offset": 8,
-      "filename": "tests/https_tests.py",
-      "issue_confidence": "MEDIUM",
-      "issue_severity": "LOW",
-      "issue_text": "Possible hardcoded password: 'secret'",
-      "line_number": 161,
-      "line_range": [
-        161,
-        162,
-        163,
-        164,
-        165,
-        166,
-        167,
-        168,
-        169,
-        170,
-        171
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/latest/plugins/b106_hardcoded_password_funcarg.html",
-      "test_id": "B106",
-      "test_name": "hardcoded_password_funcarg"
-    },
-    {
-      "code": "190         node = self.proxmox.nodes(\"proxmox1\")\n191         node.openvz.post(\n192             vmid=900,\n193             ostemplate=\"local:vztmpl/debian-7-turnkey-core_12.0-1_i386.tar.gz\",\n194             hostname=\"test1\",\n195             storage=\"local1\",\n196             memory=1024,\n197             swap=1024,\n198             cpus=2,\n199             disk=8,\n200             password=\"secret1\",\n201             ip_address=\"10.0.100.111\",\n202         )\n",
-      "col_offset": 8,
-      "filename": "tests/https_tests.py",
-      "issue_confidence": "MEDIUM",
-      "issue_severity": "LOW",
-      "issue_text": "Possible hardcoded password: 'secret1'",
-      "line_number": 191,
-      "line_range": [
-        191,
-        192,
-        193,
-        194,
-        195,
-        196,
-        197,
-        198,
-        199,
-        200,
-        201
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/latest/plugins/b106_hardcoded_password_funcarg.html",
-      "test_id": "B106",
-      "test_name": "hardcoded_password_funcarg"
+      "more_info": "https://bandit.readthedocs.io/en/1.7.4/plugins/b108_hardcoded_tmp_directory.html",
+      "test_id": "B108",
+      "test_name": "hardcoded_tmp_directory"
     }
   ]
 }

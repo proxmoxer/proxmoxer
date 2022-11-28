@@ -5,6 +5,7 @@ __license__ = "MIT"
 
 import json
 import logging
+import platform
 import re
 from itertools import chain
 from shlex import split as shell_split
@@ -18,28 +19,28 @@ logger.setLevel(level=logging.WARNING)
 try:
     from shlex import join
 
-    def shelljoin(args):
+    def shell_join(args):
         return join(args)
 
 except ImportError:
-    try:
-        from shlex import quote
-    except ImportError:
-        from shellescape import quote
+    from shlex import quote
 
-    def shelljoin(args):
+    def shell_join(args):
         return " ".join([quote(arg) for arg in args])
 
 
-class Response(object):
+class Response:
     def __init__(self, content, status_code):
         self.status_code = status_code
         self.content = content
         self.text = str(content)
         self.headers = {"content-type": "application/json"}
 
+    def __str__(self):
+        return f"Response ({self.status_code}) {self.content}"
 
-class CommandBaseSession(object):
+
+class CommandBaseSession:
     def __init__(
         self,
         service="PVE",
@@ -69,38 +70,40 @@ class CommandBaseSession(object):
             if data_command is not None:
                 del data["command"]
 
-        command = ["{0}sh".format(self.service), cmd, url]
-        # convert the options dict into a 2-tuple with the key formatted as a flag
-        option_pairs = [("-{0}".format(k), str(v)) for k, v in chain(data.items(), params.items())]
-        # add back in all the command arguments as their own pairs
-        if data_command is not None:
-            command_arr = (
-                data_command if isinstance(data_command, list) else shell_split(data_command)
-            )
-            for arg in command_arr:
-                option_pairs.append(("-command", arg))
-        # expand the list of 2-tuples into a flat list
-        options = [val for pair in option_pairs for val in pair]
-        additional_options = SERVICES[self.service.upper()].get("ssh_additional_options", [])
-        full_cmd = command + options + additional_options
-
-        if self.sudo:
-            full_cmd = ["sudo"] + full_cmd
-
         # for 'upload' call some workaround
         tmp_filename = ""
         if url.endswith("upload"):
             # copy file to temporary location on proxmox host
             tmp_filename, _ = self._exec(
                 [
-                    "python",
+                    "python3",
                     "-c",
                     "import tempfile; import sys; tf = tempfile.NamedTemporaryFile(); sys.stdout.write(tf.name)",
                 ]
             )
+            tmp_filename = str(tmp_filename, "utf-8")
             self.upload_file_obj(data["filename"], tmp_filename)
             data["filename"] = data["filename"].name
             data["tmpfilename"] = tmp_filename
+
+        command = [f"{self.service}sh", cmd, url]
+        # convert the options dict into a 2-tuple with the key formatted as a flag
+        option_pairs = [(f"-{k}", str(v)) for k, v in chain(data.items(), params.items())]
+        # add back in all the command arguments as their own pairs
+        if data_command is not None:
+            if isinstance(data_command, list):
+                command_arr = data_command
+            elif "Windows" not in platform.platform():
+                command_arr = shell_split(data_command)
+            for arg in command_arr:
+                option_pairs.append(("-command", arg))
+        # expand the list of 2-tuples into a flat list
+        options = [val for pair in option_pairs for val in pair]
+        additional_options = SERVICES[self.service.upper()].get("cli_additional_options", [])
+        full_cmd = command + options + additional_options
+
+        if self.sudo:
+            full_cmd = ["sudo"] + full_cmd
 
         stdout, stderr = self._exec(full_cmd)
 
@@ -127,15 +130,21 @@ class CommandBaseSession(object):
         raise NotImplementedError()
 
 
-class JsonSimpleSerializer(object):
+class JsonSimpleSerializer:
     def loads(self, response):
         try:
             return json.loads(response.content)
         except (UnicodeDecodeError, ValueError):
             return {"errors": response.content}
 
+    def loads_errors(self, response):
+        try:
+            return json.loads(response.text).get("errors")
+        except (UnicodeDecodeError, ValueError):
+            return {"errors": response.content}
 
-class CommandBaseBackend(object):
+
+class CommandBaseBackend:
     def get_session(self):
         return self.session
 

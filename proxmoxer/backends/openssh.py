@@ -2,39 +2,41 @@ __author__ = "Oleg Butovich"
 __copyright__ = "(c) Oleg Butovich 2013-2017"
 __license__ = "MIT"
 
+import logging
+
 from proxmoxer.backends.command_base import (
     CommandBaseBackend,
     CommandBaseSession,
-    shelljoin,
+    shell_join,
 )
+
+logger = logging.getLogger(__name__)
+logger.setLevel(level=logging.WARNING)
 
 try:
     import openssh_wrapper
 except ImportError:
     import sys
 
-    sys.stderr.write("Chosen backend requires 'openssh_wrapper' module\n")
+    logger.error("Chosen backend requires 'openssh_wrapper' module\n")
     sys.exit(1)
 
 
 class OpenSSHSession(CommandBaseSession):
-    # formatting disabled due to python <= 3.5 syntax error with comma after **kwargs
     def __init__(
         self,
         host,
         user,
-        configfile=None,
+        config_file=None,
         port=22,
-        forward_ssh_agent=False,
         identity_file=None,
-        # fmt: off
-        **kwargs
-        # fmt: on
+        forward_ssh_agent=False,
+        **kwargs,
     ):
-        super(OpenSSHSession, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.host = host
         self.user = user
-        self.configfile = configfile
+        self.config_file = config_file
         self.port = port
         self.forward_ssh_agent = forward_ssh_agent
         self.identity_file = identity_file
@@ -45,13 +47,14 @@ class OpenSSHSession(CommandBaseSession):
         return openssh_wrapper.SSHConnection(
             self.host,
             login=self.user,
-            port=self.port,
-            timeout=self.timeout,
+            port=str(self.port),  # openssh_wrapper complains if this is an int
+            configfile=self.config_file,
             identity_file=self.identity_file,
+            timeout=self.timeout,
         )
 
     def _exec(self, cmd):
-        ret = self.ssh_client.run(shelljoin(cmd), forward_ssh_agent=self.forward_ssh_agent)
+        ret = self.ssh_client.run(shell_join(cmd), forward_ssh_agent=self.forward_ssh_agent)
         return ret.stdout, ret.stderr
 
     def upload_file_obj(self, file_obj, remote_path):

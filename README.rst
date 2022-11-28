@@ -1,6 +1,6 @@
-=========================================
+================================================
 Proxmoxer: A Python wrapper for Proxmox REST API
-=========================================
+================================================
 
 master branch:  |master_build_status| |master_coverage_status| |pypi_version| |pypi_downloads|
 

@@ -108,6 +108,22 @@ class TestHttpsBackend:
 
         assert ("ticket", "CSRFPreventionToken") == backend.get_tokens()
 
+    def test_verify_ssl_token(self):
+        backend = https.Backend("1.2.3.4:1234", token_name="name")
+        assert backend.auth.verify_ssl is True
+
+    def test_verify_ssl_false_token(self):
+        backend = https.Backend("1.2.3.4:1234", token_name="name", verify_ssl=False)
+        assert backend.auth.verify_ssl is False
+
+    def test_verify_ssl_password(self, mock_pve):
+        backend = https.Backend("1.2.3.4:1234", password="name")
+        assert backend.auth.verify_ssl is True
+
+    def test_verify_ssl_false_password(self, mock_pve):
+        backend = https.Backend("1.2.3.4:1234", password="name", verify_ssl=False)
+        assert backend.auth.verify_ssl is False
+
 
 class TestProxmoxHTTPAuthBase:
     """

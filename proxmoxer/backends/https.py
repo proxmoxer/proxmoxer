@@ -293,7 +293,7 @@ class Backend:
                 token_value,
                 verify_ssl=verify_ssl,
                 timeout=timeout,
-                service=service
+                service=service,
             )
         elif password is not None:
             if "password" not in SERVICES[service]["supported_https_auths"]:

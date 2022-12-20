@@ -287,7 +287,14 @@ class Backend:
             if "token" not in SERVICES[service]["supported_https_auths"]:
                 config_failure("{} does not support API Token authentication", service)
 
-            self.auth = ProxmoxHTTPApiTokenAuth(user, token_name, token_value, service=service)
+            self.auth = ProxmoxHTTPApiTokenAuth(
+                user,
+                token_name,
+                token_value,
+                verify_ssl=verify_ssl,
+                timeout=timeout,
+                service=service,
+            )
         elif password is not None:
             if "password" not in SERVICES[service]["supported_https_auths"]:
                 config_failure("{} does not support password authentication", service)

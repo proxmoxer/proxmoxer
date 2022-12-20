@@ -1,3 +1,7 @@
+## 2.0.1 (2022-12-19)
+
+* Bugfix (https): properly pass verify_ssl all the way to the backend auth ([Dominik Rimpf](https://github.com/domrim))
+
 ## 2.0.0 (2022-11-27)
 
 * Improvement (all): Convert testing framework to use pytest ([John Hollowell](https://github.com/jhollowe))

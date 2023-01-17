@@ -142,7 +142,7 @@ class ProxmoxResource:
                 del data[key]
 
         resp = self._store["session"].request(method, url, data=data, params=params)
-        logger.debug(f"Status code: {resp.status_code}, output: {resp.content}")
+        logger.debug(f"Status code: {resp.status_code}, output: {resp.content!r}")
 
         if resp.status_code >= 400:
             if hasattr(resp, "reason"):

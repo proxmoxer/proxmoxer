@@ -76,8 +76,8 @@ API calls using the access methods above.
 .. code-block:: pycon
 
     >>> for node in proxmox.nodes.get():
-    ...     for vm in proxmox.nodes(node["node"]).openvz.get():
-    ...         print "{0}. {1} => {2}".format(vm["vmid"], vm["name"], vm["status"])
+    ...     for vm in proxmox.nodes(node["node"]).qemu.get():
+    ...         print(f"{vm['vmid']}. {vm['name']} => {vm['status']}")
     ...
 
     141. puppet-2.london.example.com => running

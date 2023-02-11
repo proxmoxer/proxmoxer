@@ -115,8 +115,8 @@ class TestBlockingStatus:
         status = Tasks.blocking_status(
             mocked_prox,
             "UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:keep-running",
-            0.021,
-            0.01,
+            timeout=0.021,
+            polling_interval=0.01,
         )
 
         assert status is None

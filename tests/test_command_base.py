@@ -233,7 +233,6 @@ def _exec_echo(_, cmd):
 
 @classmethod
 def _exec_err(_, cmd):
-    print("\n".join(cmd))
     return None, "\n".join(cmd)
 
 

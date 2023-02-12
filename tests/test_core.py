@@ -76,7 +76,6 @@ class TestProxmoxResource:
         with pytest.raises(AttributeError) as exc_info:
             self.obj._thing
 
-        print(exc_info)
         assert str(exc_info.value) == "_thing"
 
     def test_getattr_single(self):

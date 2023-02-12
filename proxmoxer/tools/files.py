@@ -9,6 +9,9 @@ from enum import Enum
 from typing import Optional
 from urllib.parse import urljoin, urlparse
 
+from proxmoxer import ProxmoxResource, ResourceException
+from proxmoxer.tools.tasks import Tasks
+
 logger = logging.getLogger(__name__)
 logger.setLevel(level=logging.WARNING)
 
@@ -50,8 +53,63 @@ class Files:
     in Proxmox VE
     """
 
+    def __init__(self, prox: ProxmoxResource, node: str, storage: str):
+        self._prox = prox
+        self._node = node
+        self._storage = storage
+
+    def download_file_to_storage(
+        self,
+        url: str,
+        checksum: Optional[str] = None,
+        checksum_type: Optional[str] = None,
+        blocking_status: bool = True,
+    ):
+
+        file_info = self.get_file_info(url)
+        filename = None
+
+        if file_info is not None:
+            filename = file_info.get("filename")
+
+        if checksum is None and checksum_type is None:
+            checksum, checksum_info = self.get_checksums_from_file_url(url, filename)
+            checksum_type = checksum_info.name if checksum_info else None
+        elif checksum is None or checksum_type is None:
+            logger.error(
+                "Must pass both checksum and checksum_type or leave both None for auto-discovery"
+            )
+            return None
+
+        if checksum is None or checksum_type is None:
+            logger.warning("Unable to discover checksum. Will not do checksum validation")
+
+        params = {
+            "checksum-algorithm": checksum_type,
+            "url": url,
+            "checksum": checksum,
+            "content": "iso" if url.endswith("iso") else "vztmpl",
+            "filename": filename,
+        }
+        upid = self._prox.nodes(self._node).storage(self._storage)("download-url").post(**params)
+
+        if blocking_status:
+            return Tasks.blocking_status(self._prox, upid)
+        else:
+            return self._prox.nodes(self._node).tasks(upid).status.get()
+
+    def get_file_info(self, url: str):
+        try:
+            return self._prox.nodes(self._node)("query-url-metadata").get(url=url)
+
+        except ResourceException as e:
+            logger.warning(f"Unable to get information for {url}: {e}")
+            return None
+
     @staticmethod
-    def get_checksums_from_file_url(url: str, preferred_type=SupportedChecksums.SHA512):
+    def get_checksums_from_file_url(
+        url: str, filename: str = None, preferred_type=SupportedChecksums.SHA512.value
+    ):
         getters_by_quality = [
             Files._get_checksum_from_sibling_file,
             Files._get_checksum_from_extension,
@@ -59,11 +117,12 @@ class Files:
         ]
 
         # hacky way to try the preferred_type first while still trying all types with no duplicates
-        all_types_with_priority = list(dict.fromkeys([preferred_type, *SupportedChecksums]))
-        for c_type in all_types_with_priority:
-            c_info = c_type.value  # get the ChecksumInfo out of the Enum
+        all_types_with_priority = list(
+            dict.fromkeys([preferred_type, *(map(lambda t: t.value, SupportedChecksums))])
+        )
+        for c_info in all_types_with_priority:
             for getter in getters_by_quality:
-                checksum = getter(url, c_info)
+                checksum: str = getter(url, c_info, filename)
                 if checksum is not None:
                     logger.info(f"{getter} found {str(c_info)} checksum {checksum}")
                     return (checksum, c_info)
@@ -73,7 +132,9 @@ class Files:
         return (None, None)
 
     @staticmethod
-    def _get_checksum_from_sibling_file(url: str, checksum_info: ChecksumInfo) -> Optional[str]:
+    def _get_checksum_from_sibling_file(
+        url: str, checksum_info: ChecksumInfo, filename: Optional[str] = None
+    ) -> Optional[str]:
         """
         Uses a checksum file in the same path as the target file to discover the checksum
 
@@ -81,16 +142,20 @@ class Files:
         :type url: str
         :param checksum_info: the type of checksum to search for
         :type checksum_info: ChecksumInfo
+        :param filename: the filename to use for finding the checksum. If None, it will be discovered from the url
+        :type filename: str | None
         :return: a string of the checksum if found, else None
         :rtype: str | None
         """
         sumfile_url = urljoin(url, (checksum_info.name + "SUMS").upper())
-        filename = os.path.basename(urlparse(url).path)
+        filename = filename or os.path.basename(urlparse(url).path)
 
         return Files._get_checksum_helper(sumfile_url, filename, checksum_info)
 
     @staticmethod
-    def _get_checksum_from_extension(url: str, checksum_info: ChecksumInfo) -> Optional[str]:
+    def _get_checksum_from_extension(
+        url: str, checksum_info: ChecksumInfo, filename: Optional[str] = None
+    ) -> Optional[str]:
         """
         Uses a checksum file with a checksum extension added to the target file to discover the checksum
 
@@ -98,16 +163,20 @@ class Files:
         :type url: str
         :param checksum_info: the type of checksum to search for
         :type checksum_info: ChecksumInfo
+        :param filename: the filename to use for finding the checksum. If None, it will be discovered from the url
+        :type filename: str | None
         :return: a string of the checksum if found, else None
         :rtype: str | None
         """
         sumfile_url = url + "." + checksum_info.name
-        filename = os.path.basename(urlparse(url).path)
+        filename = filename or os.path.basename(urlparse(url).path)
 
         return Files._get_checksum_helper(sumfile_url, filename, checksum_info)
 
     @staticmethod
-    def _get_checksum_from_extension_upper(url: str, checksum_info: ChecksumInfo) -> Optional[str]:
+    def _get_checksum_from_extension_upper(
+        url: str, checksum_info: ChecksumInfo, filename: Optional[str] = None
+    ) -> Optional[str]:
         """
         Uses a checksum file with a checksum extension added to the target file to discover the checksum
 
@@ -115,11 +184,13 @@ class Files:
         :type url: str
         :param checksum_info: the type of checksum to search for
         :type checksum_info: ChecksumInfo
+        :param filename: the filename to use for finding the checksum. If None, it will be discovered from the url
+        :type filename: str | None
         :return: a string of the checksum if found, else None
         :rtype: str | None
         """
         sumfile_url = url + "." + checksum_info.name.upper()
-        filename = os.path.basename(urlparse(url).path)
+        filename = filename or os.path.basename(urlparse(url).path)
 
         return Files._get_checksum_helper(sumfile_url, filename, checksum_info)
 
@@ -128,9 +199,9 @@ class Files:
         logger.debug(f"getting {sumfile_url}")
         try:
             resp = requests.get(sumfile_url, timeout=10)
-        except requests.exceptions.ReadTimeout as e:
-            logger.warn(f"Failed when trying to get {sumfile_url}")
-            raise e
+        except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
+            logger.info(f"Failed when trying to get {sumfile_url}")
+            return None
 
         if resp.status_code == 200:
             for line in resp.iter_lines():

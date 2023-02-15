@@ -2,15 +2,19 @@ __author__ = "John Hollowell"
 __copyright__ = "(c) John Hollowell 2023"
 __license__ = "MIT"
 
+import hashlib
 import logging
 import os
 import sys
 from enum import Enum
+from pathlib import Path
 from typing import Optional
 from urllib.parse import urljoin, urlparse
 
 from proxmoxer import ProxmoxResource, ResourceException
 from proxmoxer.tools.tasks import Tasks
+
+CHECKSUM_CHUNK_SIZE = 16384  # read 16k at a time while calculating the checksum for upload
 
 logger = logging.getLogger(__name__)
 logger.setLevel(level=logging.WARNING)
@@ -39,12 +43,13 @@ class SupportedChecksums(Enum):
     An Enum of the checksum types supported by Proxmox
     """
 
-    SHA256 = ChecksumInfo("sha256", 64)
-    MD5 = ChecksumInfo("md5", 32)
-    SHA1 = ChecksumInfo("sha1", 40)
+    # ordered by preference for longer/stronger checksums first
     SHA512 = ChecksumInfo("sha512", 128)
+    SHA256 = ChecksumInfo("sha256", 64)
     SHA224 = ChecksumInfo("sha224", 56)
     SHA384 = ChecksumInfo("sha384", 96)
+    MD5 = ChecksumInfo("md5", 32)
+    SHA1 = ChecksumInfo("sha1", 40)
 
 
 class Files:
@@ -57,6 +62,73 @@ class Files:
         self._prox = prox
         self._node = node
         self._storage = storage
+
+    def upload_local_file_to_storage(
+        self,
+        filename: str,
+        do_checksum_check: bool = True,
+        blocking_status: bool = True,
+    ):
+        file_path = Path(filename)
+
+        try:
+            if not file_path.is_file():
+                logger.error(f'"{file_path.absolute()}" does not exist or is not a file')
+                return None
+        except IOError as e:
+            # TODO handle this better anduse  more precise exception
+            logger.error(e)
+            return None
+
+        # init to None in case errors cause no values to be set
+        upid: str = ""
+        checksum: str = None
+        checksum_type: str = None
+
+        try:
+            with open(file_path.absolute(), "rb") as f_obj:
+                if do_checksum_check:
+                    # iterate through SupportedChecksums and find the first one in hashlib.algorithms_available
+                    for checksum_info in (v.value for v in SupportedChecksums):
+                        if checksum_info.name in hashlib.algorithms_available:
+                            checksum_type = checksum_info.name
+                            break
+
+                    if checksum_type is None:
+                        logger.warning(
+                            "There are no Proxmox supported checksums which are supported by hashlib. Skipping checksum validation"
+                        )
+
+                    h = hashlib.new(checksum_type)
+
+                    # Iterate through the file in CHECKSUM_CHUNK_SIZE size
+                    for byte_block in iter(lambda: f_obj.read(CHECKSUM_CHUNK_SIZE), b""):
+                        h.update(byte_block)
+                    checksum = h.hexdigest()
+                    logger.debug(
+                        f"The {checksum_type} checksum of {file_path.absolute()} is {checksum}"
+                    )
+
+                    # reset to the start of the file so the upload can use the same file handle
+                    f_obj.seek(0)
+
+                params = {
+                    "content": "iso" if file_path.absolute().name.endswith("iso") else "vztmpl",
+                    "checksum-algorithm": checksum_type,
+                    "checksum": checksum,
+                    "filename": f_obj,
+                }
+                upid = self._prox.nodes(self._node).storage(self._storage).upload.post(**params)
+        except ResourceException as e:
+            raise e
+        except IOError as e:
+            logger.error(e)
+            return None
+
+        if blocking_status:
+            return Tasks.blocking_status(self._prox, upid)
+        else:
+            return self._prox.nodes(self._node).tasks(upid).status.get()
 
     def download_file_to_storage(
         self,

@@ -3,8 +3,12 @@ __copyright__ = "(c) John Hollowell 2023"
 __license__ = "MIT"
 
 import logging
+import tempfile
+from unittest import mock
 
-from proxmoxer import ProxmoxAPI
+import pytest
+
+from proxmoxer import ProxmoxAPI, core
 from proxmoxer.tools import ChecksumInfo, Files, SupportedChecksums
 
 from ..api_mock import mock_pve  # pylint: disable=unused-import # noqa: F401
@@ -157,15 +161,15 @@ class TestFilesDownload:
     def test_download_discover_checksum(self, mock_files_and_pve, caplog):
         status = self.f.download_file_to_storage("https://sub.domain.tld/checksums/file.iso")
 
-        # this is the default "stopped" task mock information
+        # this is the default "done" task mock information
         assert status == {
-            "upid": "UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:stopped",
+            "upid": "UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:done",
             "starttime": 1661825068,
             "user": "root@pam",
             "type": "vzdump",
             "pstart": 284768076,
             "status": "stopped",
-            "exitstatus": "interrupted by signal",
+            "exitstatus": "OK",
             "pid": 1044989,
             "id": "110",
             "node": "node1",
@@ -177,15 +181,15 @@ class TestFilesDownload:
             "https://sub.domain.tld/checksums/file.iso", blocking_status=False
         )
 
-        # this is the default "stopped" task mock information
+        # this is the default "done" task mock information
         assert status == {
-            "upid": "UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:stopped",
+            "upid": "UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:done",
             "starttime": 1661825068,
             "user": "root@pam",
             "type": "vzdump",
             "pstart": 284768076,
             "status": "stopped",
-            "exitstatus": "interrupted by signal",
+            "exitstatus": "OK",
             "pid": 1044989,
             "id": "110",
             "node": "node1",
@@ -199,13 +203,13 @@ class TestFilesDownload:
 
         # this is the default "stopped" task mock information
         assert status == {
-            "upid": "UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:stopped",
+            "upid": "UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:done",
             "starttime": 1661825068,
             "user": "root@pam",
             "type": "vzdump",
             "pstart": 284768076,
             "status": "stopped",
-            "exitstatus": "interrupted by signal",
+            "exitstatus": "OK",
             "pid": 1044989,
             "id": "110",
             "node": "node1",
@@ -260,3 +264,105 @@ class TestFilesDownload:
 
         assert info["filename"] == "index.html"
         assert info["mimetype"] == "text/html"
+
+
+class TestFilesUpload:
+    prox = ProxmoxAPI("1.2.3.4:1234", token_name="name", token_value="value")
+    f = Files(prox, "node1", "storage1")
+
+    def test_upload_no_file(self, mock_files_and_pve, caplog):
+        status = self.f.upload_local_file_to_storage("/does-not-exist.iso")
+
+        assert status is None
+        assert caplog.record_tuples == [
+            (
+                MODULE_LOGGER_NAME,
+                logging.ERROR,
+                '"/does-not-exist.iso" does not exist or is not a file',
+            ),
+        ]
+
+    def test_upload_dir(self, mock_files_and_pve, caplog):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            status = self.f.upload_local_file_to_storage(tmp_dir)
+
+            assert status is None
+            assert caplog.record_tuples == [
+                (
+                    MODULE_LOGGER_NAME,
+                    logging.ERROR,
+                    f'"{tmp_dir}" does not exist or is not a file',
+                ),
+            ]
+
+    def test_upload_empty_file(self, mock_files_and_pve, caplog):
+        with tempfile.NamedTemporaryFile("rb") as f_obj:
+            status = self.f.upload_local_file_to_storage(filename=f_obj.name)
+
+            assert status is not None
+            assert caplog.record_tuples == []
+
+    def test_upload_non_empty_file(self, mock_files_and_pve, caplog):
+        with tempfile.NamedTemporaryFile("w+b") as f_obj:
+            f_obj.write(b"a" * 100)
+            f_obj.seek(0)
+            status = self.f.upload_local_file_to_storage(filename=f_obj.name)
+
+            assert status is not None
+            assert caplog.record_tuples == []
+
+    def test_upload_no_checksum(self, mock_files_and_pve, caplog):
+        with tempfile.NamedTemporaryFile("rb") as f_obj:
+            status = self.f.upload_local_file_to_storage(
+                filename=f_obj.name, do_checksum_check=False
+            )
+
+            assert status is not None
+            assert caplog.record_tuples == []
+
+    def test_upload_checksum_unavailable(self, mock_files_and_pve, caplog, apply_no_checksums):
+        with tempfile.NamedTemporaryFile("rb") as f_obj:
+            status = self.f.upload_local_file_to_storage(filename=f_obj.name)
+
+            assert status is not None
+            assert caplog.record_tuples == [
+                (
+                    MODULE_LOGGER_NAME,
+                    logging.WARNING,
+                    "There are no Proxmox supported checksums which are supported by hashlib. Skipping checksum validation",
+                )
+            ]
+
+    def test_upload_non_blocking(self, mock_files_and_pve, caplog):
+        with tempfile.NamedTemporaryFile("rb") as f_obj:
+            status = self.f.upload_local_file_to_storage(filename=f_obj.name, blocking_status=False)
+
+            assert status is not None
+            assert caplog.record_tuples == []
+
+    def test_upload_proxmox_error(self, mock_files_and_pve, caplog):
+        with tempfile.NamedTemporaryFile("rb") as f_obj:
+            f_copy = Files(self.f._prox, self.f._node, "missing")
+
+            with pytest.raises(core.ResourceException) as exc_info:
+                f_copy.upload_local_file_to_storage(filename=f_obj.name)
+
+            assert exc_info.value.status_code == 500
+            assert exc_info.value.status_message == "Internal Server Error"
+            # assert exc_info.value.content == "storage 'missing' does not exist"
+
+    def test_upload_io_error(self, mock_files_and_pve, caplog):
+        with tempfile.NamedTemporaryFile("rb") as f_obj:
+            mo = mock.mock_open()
+            mo.side_effect = IOError("ERROR MESSAGE")
+            with mock.patch("builtins.open", mo):
+                status = self.f.upload_local_file_to_storage(filename=f_obj.name)
+
+            assert status is None
+            assert caplog.record_tuples == [(MODULE_LOGGER_NAME, logging.ERROR, "ERROR MESSAGE")]
+
+
+@pytest.fixture
+def apply_no_checksums():
+    with mock.patch("hashlib.algorithms_available", set()):
+        yield

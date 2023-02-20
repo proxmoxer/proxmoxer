@@ -35,9 +35,6 @@ class FilesRegistry(responses.registries.FirstMatchRegistry):
         for resp in self._generate_static_responses():
             self.add(resp)
 
-        for resp in self._generate_dynamic_responses():
-            self.add(resp)
-
     def _generate_static_responses(self):
         resps = []
 
@@ -112,37 +109,6 @@ class FilesRegistry(responses.registries.FirstMatchRegistry):
         )
 
         return resps
-
-    def _generate_dynamic_responses(self):
-        resps = []
-
-        resps.append(
-            responses.CallbackResponse(
-                method="POST",
-                url=re.compile(self.base_url + r"/checksums/\w+/file.iso.\w+"),
-                callback=self._cb_multi_checksum,
-            )
-        )
-
-        return resps
-
-    ###################################
-    # Callbacks for Dynamic Responses #
-    ###################################
-
-    def _cb_multi_checksum(self, request):
-        m = re.match(self.base_url + r"/checksums/(\w+)/file.iso.(\w+)", request.url)
-        checksum_name = m.group(1)
-        checksum_ext = m.group(2)
-
-        if checksum_ext == checksum_name:
-            return (
-                200,
-                self.common_headers,
-                "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890 file.iso",
-            )
-
-        return (404, self.common_headers, "")
 
 
 @pytest.fixture()

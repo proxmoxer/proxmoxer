@@ -71,13 +71,8 @@ class Files:
     ):
         file_path = Path(filename)
 
-        try:
-            if not file_path.is_file():
-                logger.error(f'"{file_path.absolute()}" does not exist or is not a file')
-                return None
-        except IOError as e:
-            # TODO handle this better anduse  more precise exception
-            logger.error(e)
+        if not file_path.is_file():
+            logger.error(f'"{file_path.absolute()}" does not exist or is not a file')
             return None
 
         # init to None in case errors cause no values to be set
@@ -98,19 +93,19 @@ class Files:
                         logger.warning(
                             "There are no Proxmox supported checksums which are supported by hashlib. Skipping checksum validation"
                         )
+                    else:
+                        h = hashlib.new(checksum_type)
 
-                    h = hashlib.new(checksum_type)
+                        # Iterate through the file in CHECKSUM_CHUNK_SIZE size
+                        for byte_block in iter(lambda: f_obj.read(CHECKSUM_CHUNK_SIZE), b""):
+                            h.update(byte_block)
+                        checksum = h.hexdigest()
+                        logger.debug(
+                            f"The {checksum_type} checksum of {file_path.absolute()} is {checksum}"
+                        )
 
-                    # Iterate through the file in CHECKSUM_CHUNK_SIZE size
-                    for byte_block in iter(lambda: f_obj.read(CHECKSUM_CHUNK_SIZE), b""):
-                        h.update(byte_block)
-                    checksum = h.hexdigest()
-                    logger.debug(
-                        f"The {checksum_type} checksum of {file_path.absolute()} is {checksum}"
-                    )
-
-                    # reset to the start of the file so the upload can use the same file handle
-                    f_obj.seek(0)
+                        # reset to the start of the file so the upload can use the same file handle
+                        f_obj.seek(0)
 
                 params = {
                     "content": "iso" if file_path.absolute().name.endswith("iso") else "vztmpl",
@@ -119,9 +114,7 @@ class Files:
                     "filename": f_obj,
                 }
                 upid = self._prox.nodes(self._node).storage(self._storage).upload.post(**params)
-        except ResourceException as e:
-            raise e
-        except IOError as e:
+        except OSError as e:
             logger.error(e)
             return None
 
@@ -137,7 +130,6 @@ class Files:
         checksum_type: Optional[str] = None,
         blocking_status: bool = True,
     ):
-
         file_info = self.get_file_info(url)
         filename = None
 

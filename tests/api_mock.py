@@ -26,7 +26,6 @@ class PVERegistry(responses.registries.FirstMatchRegistry):
         "Pragma": "no-cache",
         "Server": "pve-api-daemon/3.0",
         "Content-Type": "application/json;charset=UTF-8",
-        # "Content-Encoding": "gzip",
     }
 
     def __init__(self):
@@ -52,12 +51,29 @@ class PVERegistry(responses.registries.FirstMatchRegistry):
         resps.append(
             responses.Response(
                 method="POST",
-                url=re.compile(self.base_url + r"/nodes/\w+/storage/[^/]+/download-url"),
-                # "stopped" added to UPID so polling will terminate (status checking is tested elsewhere)
+                url=re.compile(self.base_url + r"/nodes/[^/]+/storage/[^/]+/download-url"),
+                # "done" added to UPID so polling will terminate (status checking is tested elsewhere)
                 json={
-                    "data": "UPID:node:003094EA:095F1EFE:63E88772:download:file.iso:root@pam:stopped",
+                    "data": "UPID:node:003094EA:095F1EFE:63E88772:download:file.iso:root@pam:done",
                     "success": 1,
                 },
+            )
+        )
+
+        resps.append(
+            responses.Response(
+                method="POST",
+                url=re.compile(self.base_url + r"/nodes/[^/]+/storage/storage1/upload"),
+                # "done" added to UPID so polling will terminate (status checking is tested elsewhere)
+                json={"data": "UPID:node:0017C594:0ADB2769:63EC5455:imgcopy::root@pam:done"},
+            )
+        )
+        resps.append(
+            responses.Response(
+                method="POST",
+                url=re.compile(self.base_url + r"/nodes/[^/]+/storage/missing/upload"),
+                status=500,
+                body="storage 'missing' does not exist",
             )
         )
 
@@ -87,7 +103,7 @@ class PVERegistry(responses.registries.FirstMatchRegistry):
         resps.append(
             responses.CallbackResponse(
                 method="GET",
-                url=re.compile(self.base_url + r"/nodes/\w+/tasks/[^/]+/status"),
+                url=re.compile(self.base_url + r"/nodes/[^/]+/tasks/[^/]+/status"),
                 callback=self._cb_task_status,
             )
         )
@@ -95,7 +111,7 @@ class PVERegistry(responses.registries.FirstMatchRegistry):
         resps.append(
             responses.CallbackResponse(
                 method="GET",
-                url=re.compile(self.base_url + r"/nodes/\w+/query-url-metadata.*"),
+                url=re.compile(self.base_url + r"/nodes/[^/]+/query-url-metadata.*"),
                 callback=self._cb_url_metadata,
             )
         )
@@ -297,5 +313,3 @@ class PVERegistry(responses.registries.FirstMatchRegistry):
                     }
                 ),
             )
-        else:
-            return (400, self.common_headers, "URL not mocked")

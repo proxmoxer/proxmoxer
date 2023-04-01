@@ -26,6 +26,23 @@ def test_missing_requests(requests_off, caplog):
     ]
 
 
+def test_missing_requests_tools_files(requests_off, caplog):
+    with pytest.raises(SystemExit) as exit_exp:
+        import proxmoxer.tools.files as test_files
+
+        # force re-importing of the module with `requests` gone so the validation is triggered
+        reload(test_files)
+
+    assert exit_exp.value.code == 1
+    assert caplog.record_tuples == [
+        (
+            "proxmoxer.tools.files",
+            logging.ERROR,
+            "Files tools requires 'requests' module\n",
+        )
+    ]
+
+
 def test_missing_openssh_wrapper(openssh_off, caplog):
     with pytest.raises(SystemExit) as exit_exp:
         import proxmoxer.backends.openssh as test_openssh

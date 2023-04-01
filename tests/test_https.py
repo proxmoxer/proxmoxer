@@ -103,7 +103,6 @@ class TestHttpsBackend:
         assert backend.get_tokens() == (None, None)
 
     def test_get_tokens_password(self, mock_pve):
-
         backend = https.Backend("1.2.3.4:1234", password="name")
 
         assert ("ticket", "CSRFPreventionToken") == backend.get_tokens()
@@ -316,7 +315,7 @@ class TestProxmoxHttpSession:
             content = resp.json()
 
         # decode multipart file
-        body_regex = f'--([0-9a-f]*)\r\nContent-Disposition: form-data; name="iso"\r\n\r\na{{{size}}}\r\n--\\1--\r\n'
+        body_regex = f'--([0-9a-f]*)\r\nContent-Disposition: form-data; name="iso"\r\nContent-Type: application/octet-stream\r\n\r\na{{{size}}}\r\n--\\1--\r\n'
         m = re.match(body_regex, content["body"])
 
         assert content["method"] == "GET"
@@ -336,7 +335,7 @@ class TestProxmoxHttpSession:
             content = resp.json()
 
         # decode multipart file
-        body_regex = f'--([0-9a-f]*)\r\nContent-Disposition: form-data; name="iso"\r\n\r\na{{{size}}}\r\n--\\1--\r\n'
+        body_regex = f'--([0-9a-f]*)\r\nContent-Disposition: form-data; name="iso"\r\nContent-Type: application/octet-stream\r\n\r\na{{{size}}}\r\n--\\1--\r\n'
         m = re.match(body_regex, content["body"])
 
         assert content["method"] == "GET"
@@ -354,7 +353,6 @@ class TestProxmoxHttpSession:
             ]
 
     def test_request_large_file(self, shrink_thresholds, toolbelt_on_off, caplog, mock_pve):
-
         size = https.SSL_OVERFLOW_THRESHOLD + 1
         content = {}
         with tempfile.TemporaryFile("w+b") as f_obj:
@@ -368,7 +366,7 @@ class TestProxmoxHttpSession:
                 content = resp.json()
 
                 # decode multipart file
-                body_regex = f'--([0-9a-f]*)\r\nContent-Disposition: form-data; name="iso"\r\n\r\na{{{size}}}\r\n--\\1--\r\n'
+                body_regex = f'--([0-9a-f]*)\r\nContent-Disposition: form-data; name="iso"\r\nContent-Type: application/octet-stream\r\n\r\na{{{size}}}\r\n--\\1--\r\n'
                 m = re.match(body_regex, content["body"])
 
                 assert content["method"] == "GET"

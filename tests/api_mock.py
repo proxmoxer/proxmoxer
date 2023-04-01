@@ -4,7 +4,7 @@ __license__ = "MIT"
 
 import json
 import re
-from urllib.parse import parse_qsl
+from urllib.parse import parse_qsl, urlparse
 
 import pytest
 import responses
@@ -26,7 +26,6 @@ class PVERegistry(responses.registries.FirstMatchRegistry):
         "Pragma": "no-cache",
         "Server": "pve-api-daemon/3.0",
         "Content-Type": "application/json;charset=UTF-8",
-        # "Content-Encoding": "gzip",
     }
 
     def __init__(self):
@@ -46,6 +45,35 @@ class PVERegistry(responses.registries.FirstMatchRegistry):
                 method="GET",
                 url=self.base_url + "/version",
                 json={"data": {"version": "7.2-3", "release": "7.2", "repoid": "c743d6c1"}},
+            )
+        )
+
+        resps.append(
+            responses.Response(
+                method="POST",
+                url=re.compile(self.base_url + r"/nodes/[^/]+/storage/[^/]+/download-url"),
+                # "done" added to UPID so polling will terminate (status checking is tested elsewhere)
+                json={
+                    "data": "UPID:node:003094EA:095F1EFE:63E88772:download:file.iso:root@pam:done",
+                    "success": 1,
+                },
+            )
+        )
+
+        resps.append(
+            responses.Response(
+                method="POST",
+                url=re.compile(self.base_url + r"/nodes/[^/]+/storage/storage1/upload"),
+                # "done" added to UPID so polling will terminate (status checking is tested elsewhere)
+                json={"data": "UPID:node:0017C594:0ADB2769:63EC5455:imgcopy::root@pam:done"},
+            )
+        )
+        resps.append(
+            responses.Response(
+                method="POST",
+                url=re.compile(self.base_url + r"/nodes/[^/]+/storage/missing/upload"),
+                status=500,
+                body="storage 'missing' does not exist",
             )
         )
 
@@ -75,8 +103,16 @@ class PVERegistry(responses.registries.FirstMatchRegistry):
         resps.append(
             responses.CallbackResponse(
                 method="GET",
-                url=re.compile(self.base_url + r"/nodes/\w+/tasks/[^/]+/status"),
+                url=re.compile(self.base_url + r"/nodes/[^/]+/tasks/[^/]+/status"),
                 callback=self._cb_task_status,
+            )
+        )
+
+        resps.append(
+            responses.CallbackResponse(
+                method="GET",
+                url=re.compile(self.base_url + r"/nodes/[^/]+/query-url-metadata.*"),
+                callback=self._cb_url_metadata,
             )
         )
 
@@ -219,3 +255,61 @@ class PVERegistry(responses.registries.FirstMatchRegistry):
             }
 
         return (200, self.common_headers, json.dumps(resp))
+
+    def _cb_url_metadata(self, request):
+        form_data_dict = dict(parse_qsl((urlparse(request.url)).query))
+
+        if "file.iso" in form_data_dict.get("url", ""):
+            return (
+                200,
+                self.common_headers,
+                json.dumps(
+                    {
+                        "data": {
+                            "size": 123456,
+                            "filename": "file.iso",
+                            "mimetype": "application/x-iso9660-image",
+                            # "mimetype": "application/octet-stream",
+                        },
+                        "success": 1,
+                    }
+                ),
+            )
+        elif "invalid.iso" in form_data_dict.get("url", ""):
+            return (
+                500,
+                self.common_headers,
+                json.dumps(
+                    {
+                        "status": 500,
+                        "message": "invalid server response: '500 Can't connect to sub.domain.tld:443 (certificate verify failed)'\n",
+                        "success": 0,
+                        "data": None,
+                    }
+                ),
+            )
+        elif "missing.iso" in form_data_dict.get("url", ""):
+            return (
+                500,
+                self.common_headers,
+                json.dumps(
+                    {
+                        "status": 500,
+                        "success": 0,
+                        "message": "invalid server response: '404 Not Found'\n",
+                        "data": None,
+                    }
+                ),
+            )
+
+        elif "index.html" in form_data_dict.get("url", ""):
+            return (
+                200,
+                self.common_headers,
+                json.dumps(
+                    {
+                        "success": 1,
+                        "data": {"filename": "index.html", "mimetype": "text/html", "size": 17664},
+                    }
+                ),
+            )

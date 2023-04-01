@@ -24,6 +24,9 @@ try:
     import requests
     from requests.auth import AuthBase
     from requests.cookies import cookiejar_from_dict
+
+    # Disable warnings about using untrusted TLS
+    requests.packages.urllib3.disable_warnings()
 except ImportError:
     logger.error("Chosen backend requires 'requests' module\n")
     sys.exit(1)
@@ -201,7 +204,8 @@ class ProxmoxHttpSession(requests.Session):
                 total_file_size += get_file_size(v)
 
                 # add in filename from file pointer (patch for https://github.com/requests/toolbelt/pull/316)
-                files[k] = (requests.utils.guess_filename(v), v)
+                # add Content-Type since Proxmox requires it (https://bugzilla.proxmox.com/show_bug.cgi?id=4344)
+                files[k] = (requests.utils.guess_filename(v), v, "application/octet-stream")
                 del data[k]
 
         # if there are any large files, send all data and files using streaming multipart encoding

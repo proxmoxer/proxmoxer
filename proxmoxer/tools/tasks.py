@@ -12,7 +12,7 @@ class Tasks:
     """
 
     @staticmethod
-    def blocking_status(prox, task_id, timeout=300, polling_interval=0.01):
+    def blocking_status(prox, task_id, timeout=300, polling_interval=1):
         """
         Turns getting the status of a Proxmox task into a blocking call
         by polling the API until the task completes
@@ -23,7 +23,7 @@ class Tasks:
         :type task_id: str
         :param timeout: If the task does not complete in this time (in seconds) return None, defaults to 300
         :type timeout: int, optional
-        :param polling_interval: the time to wait between checking for status updates, defaults to 0.01
+        :param polling_interval: the time to wait between checking for status updates, defaults to 1
         :type polling_interval: float, optional
         :return: the status of the task
         :rtype: dict

@@ -64,3 +64,4 @@ class OpenSSHSession(CommandBaseSession):
 class Backend(CommandBaseBackend):
     def __init__(self, *args, **kwargs):
         self.session = OpenSSHSession(*args, **kwargs)
+        self.target = self.session.host

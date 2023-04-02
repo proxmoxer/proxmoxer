@@ -209,6 +209,12 @@ class TestCommandBaseBackend:
 
     backend.session = sess
 
+    def test_init(self):
+        b = command_base.CommandBaseBackend()
+
+        assert b.session is None
+        assert b.target == ""
+
     def test_get_session(self):
         assert self.backend.get_session() == self.sess
 

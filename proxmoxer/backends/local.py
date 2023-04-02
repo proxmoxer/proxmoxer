@@ -22,3 +22,4 @@ class LocalSession(CommandBaseSession):
 class Backend(CommandBaseBackend):
     def __init__(self, *args, **kwargs):
         self.session = LocalSession(*args, **kwargs)
+        self.target = "localhost"

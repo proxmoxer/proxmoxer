@@ -20,6 +20,7 @@ class TestOpenSSHBackend:
         assert isinstance(back.session, openssh.OpenSSHSession)
         assert back.session.host == "host"
         assert back.session.user == "user"
+        assert back.target == "host"
 
 
 class TestOpenSSHSession:

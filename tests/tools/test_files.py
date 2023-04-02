@@ -139,6 +139,13 @@ class TestFiles:
         assert f._node == "node1"
         assert f._storage == "storage1"
 
+    def test_repr(self):
+        f = Files(self.prox, "node1", "storage1")
+        assert (
+            repr(f)
+            == "Files (node1/storage1 at ProxmoxAPI (https backend for https://1.2.3.4:1234/api2/json))"
+        )
+
     def test_get_file_info_pass(self, mock_pve):
         f = Files(self.prox, "node1", "storage1")
         info = f.get_file_info("https://sub.domain.tld/file.iso")

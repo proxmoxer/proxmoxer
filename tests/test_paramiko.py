@@ -20,6 +20,7 @@ class TestParamikoBackend:
         assert isinstance(back.session, ssh_paramiko.SshParamikoSession)
         assert back.session.host == "host"
         assert back.session.user == "user"
+        assert back.target == "host"
 
 
 class TestSshParamikoSession:

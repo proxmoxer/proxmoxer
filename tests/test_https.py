@@ -241,6 +241,10 @@ class TestProxmoxHTTPAuth:
             str(exc_info.value)
             == f"Couldn't authenticate user: bad_auth to {self.base_url}/access/ticket"
         )
+        assert (
+            repr(exc_info.value)
+            == f'AuthenticationError("Couldn\'t authenticate user: bad_auth to {self.base_url}/access/ticket")'
+        )
 
     def test_auth_otp(self, mock_pve):
         https.ProxmoxHTTPAuth(
@@ -254,6 +258,10 @@ class TestProxmoxHTTPAuth:
         assert (
             str(exc_info.value)
             == "Couldn't authenticate user: missing Two Factor Authentication (TFA)"
+        )
+        assert (
+            repr(exc_info.value)
+            == 'AuthenticationError("Couldn\'t authenticate user: missing Two Factor Authentication (TFA)")'
         )
 
 

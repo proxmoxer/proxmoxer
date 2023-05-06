@@ -78,17 +78,15 @@ class ResourceException(Exception):
 
 
 class AuthenticationError(Exception):
-    def __init__(self, msg):
-        super().__init__(msg)
-        self.msg = msg
-
-    def __str__(self):
-        return self.msg
+    pass
 
 
 class ProxmoxResource:
     def __init__(self, **kwargs):
         self._store = kwargs
+
+    def __repr__(self):
+        return f"ProxmoxResource ({self._store.get('base_url')})"
 
     def __getattr__(self, item):
         if item.startswith("_"):
@@ -217,6 +215,9 @@ class ProxmoxAPI(ProxmoxResource):
             "session": self._backend.get_session(),
             "serializer": self._backend.get_serializer(),
         }
+
+    def __repr__(self):
+        return f"ProxmoxAPI ({self._backend_name} backend for {self._store['base_url']})"
 
     def get_tokens(self):
         """Return the auth and csrf tokens.

@@ -63,6 +63,9 @@ class Files:
         self._node = node
         self._storage = storage
 
+    def __repr__(self):
+        return f"Files ({self._node}/{self._storage} at {self._prox})"
+
     def upload_local_file_to_storage(
         self,
         filename: str,

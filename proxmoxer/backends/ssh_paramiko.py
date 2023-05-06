@@ -74,3 +74,4 @@ class SshParamikoSession(CommandBaseSession):
 class Backend(CommandBaseBackend):
     def __init__(self, *args, **kwargs):
         self.session = SshParamikoSession(*args, **kwargs)
+        self.target = self.session.host

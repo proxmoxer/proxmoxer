@@ -145,11 +145,15 @@ class JsonSimpleSerializer:
 
 
 class CommandBaseBackend:
+    def __init__(self):
+        self.session = None
+        self.target = ""
+
     def get_session(self):
         return self.session
 
     def get_base_url(self):
-        return ""
+        return self.target
 
     def get_serializer(self):
         return JsonSimpleSerializer()

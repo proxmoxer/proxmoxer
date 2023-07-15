@@ -4,7 +4,7 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Run Tests (with coverage)",
+      "label": "Run Tests (with coverage file)",
       "type": "shell",
       "command": "pytest -v --cov --cov-report xml:coverage.xml tests/",
       "problemMatcher": [],
@@ -25,6 +25,31 @@
         "focus": false,
         "panel": "dedicated",
         "showReuseMessage": false,
+        "clear": true
+      },
+    },
+    {
+      "label": "Run Tests (with coverage)",
+      "type": "shell",
+      "command": "pytest --cov tests/",
+      "problemMatcher": [],
+      "icon": {
+        "id": "beaker",
+        "color": "terminal.ansiGreen"
+      },
+      "runOptions": {
+        "instanceLimit": 1
+      },
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "showReuseMessage": true,
         "clear": true
       },
     },
@@ -74,7 +99,7 @@
     {
       "label": "Clean Cache/tmp files",
       "type": "shell",
-      "command": "rm -rf ./.mypy_cache/ ./.pytest_cache/ ./.coverage.xml ./.coverage",
+      "command": "rm -rf ./.mypy_cache/ ./.pytest_cache/ ./coverage.xml ./.coverage",
       "problemMatcher": [],
       "group": {
         "kind": "none"

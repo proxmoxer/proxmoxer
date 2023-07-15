@@ -60,7 +60,6 @@ jobs:
           COVERALLS_FLAG_NAME: Unit Test (${{ matrix.python-version }})
           COVERALLS_PARALLEL: true
 
-
   complete:
     name: Finalize Coveralls Report
     if: github.repository == 'proxmoxer/proxmoxer'

@@ -174,7 +174,6 @@ class ProxmoxHttpSession(requests.Session):
         cert=None,
         serializer=None,
     ):
-
         a = auth or self.auth
         c = cookies or self.cookies
 
@@ -265,7 +264,6 @@ class Backend:
         path_prefix=None,
         service="PVE",
     ):
-
         host_port = ""
         if len(host.split(":")) > 2:  # IPv6
             if host.startswith("["):

@@ -1,13 +1,13 @@
 repos:
   ###### FORMATTING ######
-  - repo: https://github.com/psf/black
-    rev: 22.6.0
+  - repo: https://github.com/psf/black-pre-commit-mirror
+    rev: 23.11.0
     hooks:
       - id: black
         language_version: python3 # Should be a command that runs python3.6+
 
   - repo: https://github.com/PyCQA/isort
-    rev: 5.11.5
+    rev: 5.12.0
     hooks:
       - id: isort
         name: isort (python)
@@ -17,13 +17,13 @@ repos:
 
   ###### LINTING ######
   - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.4
+    rev: 1.7.5
     hooks:
       - id: bandit
         args: ["--configfile", ".bandit", "--baseline", "tests/known_issues.json"]
 
   - repo: https://github.com/PyCQA/flake8
-    rev: 4.0.1
+    rev: 6.1.0
     hooks:
       - id: flake8
       # any flake8 plugins must be included in the hook venv
@@ -35,7 +35,7 @@ repos:
   #     - id: pylint
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.3.0
+    rev: v4.5.0
     hooks:
       - id: check-case-conflict
       - id: check-symlinks
@@ -46,13 +46,13 @@ repos:
         args: [--fix=no]
 
   - repo: https://github.com/asottile/blacken-docs
-    rev: v1.12.1
+    rev: 1.16.0
     hooks:
     -   id: blacken-docs
-        additional_dependencies: [black==21.5b1]
+        additional_dependencies: [black==23.11.0]
 
   - repo: https://github.com/pre-commit/pygrep-hooks
-    rev: v1.9.0
+    rev: v1.10.0
     hooks:
       - id: python-no-eval
       - id: rst-backticks

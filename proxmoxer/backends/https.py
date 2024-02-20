@@ -53,7 +53,7 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
     # if calls are made less frequently than 2 hrs, using the API token auth is recommended
     renew_age = 3600
 
-    def __init__(self, username, password, otp=None, base_url="", otptype='totp', **kwargs):
+    def __init__(self, username, password, otp=None, base_url="", otptype="totp", **kwargs):
         super().__init__(**kwargs)
         self.base_url = base_url
         self.username = username
@@ -86,9 +86,9 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
 
         if response_data.get("NeedTFA") is not None:
             otpdata = {
-                'username': self.username,
-                'tfa-challenge': self.pve_auth_ticket,
-                'password': f"{otptype}:{otp}"
+                "username": self.username,
+                "tfa-challenge": self.pve_auth_ticket,
+                "password": f"{otptype}:{otp}"
             }
             otpresp = response_data = requests.post(
                 self.base_url + "/access/ticket",

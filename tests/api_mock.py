@@ -333,8 +333,6 @@ class PVERegistry(responses.registries.FirstMatchRegistry):
     def _cb_qemu_monitor(self, request):
         body = request.body
         if body is not None:
-            if isinstance(body, MultipartEncoder):
-                body = body.to_string()  # really, to byte string
             body = body if isinstance(body, str) else str(body, "utf-8")
 
         # if the command is an array, throw the type error PVE would throw

@@ -291,25 +291,51 @@ class TestProxmoxHttpSession:
         assert content["body"] == "key=value"
         assert content["headers"]["Content-Type"] == "application/x-www-form-urlencoded"
 
-    def test_request_command_list(self, mock_pve):
+    def test_request_monitor_command_list(self, mock_pve):
         resp = self._session.request(
-            "GET", self.base_url + "/fake/echo", data={"command": ["echo", "hello", "world"]}
+            "GET",
+            self.base_url + "/nodes/node_name/qemu/100/monitor",
+            data={"command": ["info", "block"]},
+        )
+
+        assert resp.status_code == 400
+
+    def test_request_exec_command_list(self, mock_pve):
+        resp = self._session.request(
+            "GET",
+            self.base_url + "/nodes/node_name/qemu/100/agent/exec",
+            data={"command": ["echo", "hello", "world"]},
         )
         content = resp.json()
 
         assert content["method"] == "GET"
-        assert content["url"] == self.base_url + "/fake/echo"
+        assert content["url"] == self.base_url + "/nodes/node_name/qemu/100/agent/exec"
         assert content["body"] == "command=echo&command=hello&command=world"
         assert content["headers"]["Content-Type"] == "application/x-www-form-urlencoded"
 
-    def test_request_command_string(self, mock_pve):
+    def test_request_monitor_command_string(self, mock_pve):
         resp = self._session.request(
-            "GET", self.base_url + "/fake/echo", data={"command": "echo hello world"}
+            "GET",
+            self.base_url + "/nodes/node_name/qemu/100/monitor",
+            data={"command": "echo hello world"},
         )
         content = resp.json()
 
         assert content["method"] == "GET"
-        assert content["url"] == self.base_url + "/fake/echo"
+        assert content["url"] == self.base_url + "/nodes/node_name/qemu/100/monitor"
+        assert content["body"] == "command=echo+hello+world"
+        assert content["headers"]["Content-Type"] == "application/x-www-form-urlencoded"
+
+    def test_request_exec_command_string(self, mock_pve):
+        resp = self._session.request(
+            "GET",
+            self.base_url + "/nodes/node_name/qemu/100/agent/exec",
+            data={"command": "echo hello world"},
+        )
+        content = resp.json()
+
+        assert content["method"] == "GET"
+        assert content["url"] == self.base_url + "/nodes/node_name/qemu/100/agent/exec"
         assert content["body"] == "command=echo&command=hello&command=world"
         assert content["headers"]["Content-Type"] == "application/x-www-form-urlencoded"
 

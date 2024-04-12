@@ -194,7 +194,7 @@ class ProxmoxHttpSession(requests.Session):
         total_file_size = 0
         for k, v in data.copy().items():
             # split qemu exec commands for proper parsing by PVE (issue#89)
-            if k == "command":
+            if k == "command" and url.endswith("agent/exec"):
                 if isinstance(v, list):
                     data[k] = v
                 elif "Windows" not in platform.platform():

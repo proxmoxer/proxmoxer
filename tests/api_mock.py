@@ -103,6 +103,22 @@ class PVERegistry(responses.registries.FirstMatchRegistry):
         resps.append(
             responses.CallbackResponse(
                 method="GET",
+                url=re.compile(self.base_url + r"/nodes/[^/]+/qemu/[^/]+/agent/exec"),
+                callback=self._cb_echo,
+            )
+        )
+
+        resps.append(
+            responses.CallbackResponse(
+                method="GET",
+                url=re.compile(self.base_url + r"/nodes/[^/]+/qemu/[^/]+/monitor"),
+                callback=self._cb_qemu_monitor,
+            )
+        )
+
+        resps.append(
+            responses.CallbackResponse(
+                method="GET",
                 url=re.compile(self.base_url + r"/nodes/[^/]+/tasks/[^/]+/status"),
                 callback=self._cb_task_status,
             )
@@ -313,3 +329,32 @@ class PVERegistry(responses.registries.FirstMatchRegistry):
                     }
                 ),
             )
+
+    def _cb_qemu_monitor(self, request):
+        body = request.body
+        if body is not None:
+            body = body if isinstance(body, str) else str(body, "utf-8")
+
+        # if the command is an array, throw the type error PVE would throw
+        if "&" in body:
+            return (
+                400,
+                self.common_headers,
+                json.dumps(
+                    {
+                        "data": None,
+                        "errors": {"command": "type check ('string') failed - got ARRAY"},
+                    }
+                ),
+            )
+        else:
+            resp = {
+                "method": request.method,
+                "url": request.url,
+                "headers": dict(request.headers),
+                "cookies": request._cookies.get_dict(),
+                "body": body,
+                # "body_json": dict(parse_qsl(request.body)),
+            }
+            print(resp)
+            return (200, self.common_headers, json.dumps(resp))

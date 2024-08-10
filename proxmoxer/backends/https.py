@@ -24,6 +24,9 @@ try:
     import requests
     from requests.auth import AuthBase
     from requests.cookies import cookiejar_from_dict
+
+    # Disable warnings about using untrusted TLS
+    requests.packages.urllib3.disable_warnings()
 except ImportError:
     logger.error("Chosen backend requires 'requests' module\n")
     sys.exit(1)
@@ -171,7 +174,6 @@ class ProxmoxHttpSession(requests.Session):
         cert=None,
         serializer=None,
     ):
-
         a = auth or self.auth
         c = cookies or self.cookies
 
@@ -192,7 +194,7 @@ class ProxmoxHttpSession(requests.Session):
         total_file_size = 0
         for k, v in data.copy().items():
             # split qemu exec commands for proper parsing by PVE (issue#89)
-            if k == "command":
+            if k == "command" and url.endswith("agent/exec"):
                 if isinstance(v, list):
                     data[k] = v
                 elif "Windows" not in platform.platform():
@@ -201,7 +203,8 @@ class ProxmoxHttpSession(requests.Session):
                 total_file_size += get_file_size(v)
 
                 # add in filename from file pointer (patch for https://github.com/requests/toolbelt/pull/316)
-                files[k] = (requests.utils.guess_filename(v), v)
+                # add Content-Type since Proxmox requires it (https://bugzilla.proxmox.com/show_bug.cgi?id=4344)
+                files[k] = (requests.utils.guess_filename(v), v, "application/octet-stream")
                 del data[k]
 
         # if there are any large files, send all data and files using streaming multipart encoding
@@ -261,7 +264,6 @@ class Backend:
         path_prefix=None,
         service="PVE",
     ):
-
         host_port = ""
         if len(host.split(":")) > 2:  # IPv6
             if host.startswith("["):

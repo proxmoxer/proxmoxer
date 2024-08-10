@@ -14,10 +14,10 @@ class TestLocalBackend:
         back = local.Backend()
 
         assert isinstance(back.session, local.LocalSession)
+        assert back.target == "localhost"
 
 
 class TestLocalSession:
-
     _session = local.LocalSession()
 
     def test_upload_file_obj(self):

@@ -1,3 +1,14 @@
+## 2.1.0 (2024-08-10)
+
+* Improvement (docs): Update Readme with updated example ([Rob Wolinski](https://github.com/trekie86))
+* Addition (tools): Added Files tools ([John Hollowell](https://github.com/jhollowe))
+* Improvement (all): Add repr to some classes and add to tests ([John Hollowell](https://github.com/jhollowe))
+* Bugfix (all): Correct metadata to match supported Python versions (3.6+) ([Alexei Znamensky](https://github.com/russoz))
+* Bugfix (https): Fix BytesWarning when logging response status/content ([Walter Doekes](https://github.com/wdoekes))
+* Improvement (meta): Update devcontainer to modern unified schema ([John Hollowell](https://github.com/jhollowe))
+* Improvement (meta): Add 3.12 to CI matrix, remove 3.7 testing ([John Hollowell](https://github.com/jhollowe))
+* Improvement (all): Fix improper spliting of non-exec QEMU commands ([John Hollowell](https://github.com/jhollowe))
+
 ## 2.0.1 (2022-12-19)
 
 * Bugfix (https): properly pass verify_ssl all the way to the backend auth ([Dominik Rimpf](https://github.com/domrim))

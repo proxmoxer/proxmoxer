@@ -15,6 +15,7 @@ from .api_mock import (  # pylint: disable=unused-import # noqa: F401
     PVERegistry,
     mock_pve,
 )
+from .test_paramiko import mock_ssh_client  # pylint: disable=unused-import # noqa: F401
 
 # pylint: disable=no-self-use,protected-access
 
@@ -30,6 +31,7 @@ class TestResourceException:
         assert e.content is None
         assert e.errors is None
         assert str(e) == "None None: None"
+        assert repr(e) == "ResourceException('None None: None')"
 
     def test_init_basic(self):
         e = core.ResourceException(500, "Internal Error", "Unable to do the thing")
@@ -39,6 +41,7 @@ class TestResourceException:
         assert e.content == "Unable to do the thing"
         assert e.errors is None
         assert str(e) == "500 Internal Error: Unable to do the thing"
+        assert repr(e) == "ResourceException('500 Internal Error: Unable to do the thing')"
 
     def test_init_error(self):
         e = core.ResourceException(
@@ -50,6 +53,10 @@ class TestResourceException:
         assert e.content == "Unable to do the thing"
         assert e.errors == "functionality not found"
         assert str(e) == "500 Internal Error: Unable to do the thing - functionality not found"
+        assert (
+            repr(e)
+            == "ResourceException('500 Internal Error: Unable to do the thing - functionality not found')"
+        )
 
 
 class TestProxmoxResource:
@@ -72,11 +79,14 @@ class TestProxmoxResource:
             "https://www.example.com/base#div1?search=query", "path"
         )
 
+    def test_repr(self):
+        obj = core.ProxmoxResource(base_url="root")
+        assert repr(obj.first.second("third")) == "ProxmoxResource (root/first/second/third)"
+
     def test_getattr_private(self):
         with pytest.raises(AttributeError) as exc_info:
             self.obj._thing
 
-        print(exc_info)
         assert str(exc_info.value) == "_thing"
 
     def test_getattr_single(self):
@@ -291,6 +301,26 @@ class TestProxmoxAPI:
             core.ProxmoxAPI("host", service="pve", backend="LocaL")
 
         assert str(exc_info.value) == "local backend does not support host keyword"
+
+    def test_repr_https(self):
+        prox = core.ProxmoxAPI("host", token_name="name", token_value="value", backend="hTtPs")
+
+        assert repr(prox) == "ProxmoxAPI (https backend for https://host:8006/api2/json)"
+
+    def test_repr_local(self):
+        prox = core.ProxmoxAPI(backend="local")
+
+        assert repr(prox) == "ProxmoxAPI (local backend for localhost)"
+
+    def test_repr_openssh(self):
+        prox = core.ProxmoxAPI("host", user="user", backend="openssh")
+
+        assert repr(prox) == "ProxmoxAPI (openssh backend for host)"
+
+    def test_repr_paramiko(self, mock_ssh_client):
+        prox = core.ProxmoxAPI("host", user="user", backend="ssh_paramiko")
+
+        assert repr(prox) == "ProxmoxAPI (ssh_paramiko backend for host)"
 
     def test_get_tokens_https(self, mock_pve):
         prox = core.ProxmoxAPI("1.2.3.4:1234", user="user", password="password", backend="https")

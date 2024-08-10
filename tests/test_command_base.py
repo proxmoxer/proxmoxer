@@ -209,6 +209,12 @@ class TestCommandBaseBackend:
 
     backend.session = sess
 
+    def test_init(self):
+        b = command_base.CommandBaseBackend()
+
+        assert b.session is None
+        assert b.target == ""
+
     def test_get_session(self):
         assert self.backend.get_session() == self.sess
 
@@ -233,7 +239,6 @@ def _exec_echo(_, cmd):
 
 @classmethod
 def _exec_err(_, cmd):
-    print("\n".join(cmd))
     return None, "\n".join(cmd)
 
 

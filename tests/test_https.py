@@ -103,7 +103,6 @@ class TestHttpsBackend:
         assert backend.get_tokens() == (None, None)
 
     def test_get_tokens_password(self, mock_pve):
-
         backend = https.Backend("1.2.3.4:1234", password="name")
 
         assert ("ticket", "CSRFPreventionToken") == backend.get_tokens()
@@ -242,6 +241,10 @@ class TestProxmoxHTTPAuth:
             str(exc_info.value)
             == f"Couldn't authenticate user: bad_auth to {self.base_url}/access/ticket"
         )
+        assert (
+            repr(exc_info.value)
+            == f'AuthenticationError("Couldn\'t authenticate user: bad_auth to {self.base_url}/access/ticket")'
+        )
 
     def test_auth_otp(self, mock_pve):
         https.ProxmoxHTTPAuth(
@@ -255,6 +258,10 @@ class TestProxmoxHTTPAuth:
         assert (
             str(exc_info.value)
             == "Couldn't authenticate user: missing Two Factor Authentication (TFA)"
+        )
+        assert (
+            repr(exc_info.value)
+            == 'AuthenticationError("Couldn\'t authenticate user: missing Two Factor Authentication (TFA)")'
         )
 
 
@@ -284,25 +291,51 @@ class TestProxmoxHttpSession:
         assert content["body"] == "key=value"
         assert content["headers"]["Content-Type"] == "application/x-www-form-urlencoded"
 
-    def test_request_command_list(self, mock_pve):
+    def test_request_monitor_command_list(self, mock_pve):
         resp = self._session.request(
-            "GET", self.base_url + "/fake/echo", data={"command": ["echo", "hello", "world"]}
+            "GET",
+            self.base_url + "/nodes/node_name/qemu/100/monitor",
+            data={"command": ["info", "block"]},
+        )
+
+        assert resp.status_code == 400
+
+    def test_request_exec_command_list(self, mock_pve):
+        resp = self._session.request(
+            "GET",
+            self.base_url + "/nodes/node_name/qemu/100/agent/exec",
+            data={"command": ["echo", "hello", "world"]},
         )
         content = resp.json()
 
         assert content["method"] == "GET"
-        assert content["url"] == self.base_url + "/fake/echo"
+        assert content["url"] == self.base_url + "/nodes/node_name/qemu/100/agent/exec"
         assert content["body"] == "command=echo&command=hello&command=world"
         assert content["headers"]["Content-Type"] == "application/x-www-form-urlencoded"
 
-    def test_request_command_string(self, mock_pve):
+    def test_request_monitor_command_string(self, mock_pve):
         resp = self._session.request(
-            "GET", self.base_url + "/fake/echo", data={"command": "echo hello world"}
+            "GET",
+            self.base_url + "/nodes/node_name/qemu/100/monitor",
+            data={"command": "echo hello world"},
         )
         content = resp.json()
 
         assert content["method"] == "GET"
-        assert content["url"] == self.base_url + "/fake/echo"
+        assert content["url"] == self.base_url + "/nodes/node_name/qemu/100/monitor"
+        assert content["body"] == "command=echo+hello+world"
+        assert content["headers"]["Content-Type"] == "application/x-www-form-urlencoded"
+
+    def test_request_exec_command_string(self, mock_pve):
+        resp = self._session.request(
+            "GET",
+            self.base_url + "/nodes/node_name/qemu/100/agent/exec",
+            data={"command": "echo hello world"},
+        )
+        content = resp.json()
+
+        assert content["method"] == "GET"
+        assert content["url"] == self.base_url + "/nodes/node_name/qemu/100/agent/exec"
         assert content["body"] == "command=echo&command=hello&command=world"
         assert content["headers"]["Content-Type"] == "application/x-www-form-urlencoded"
 
@@ -316,7 +349,7 @@ class TestProxmoxHttpSession:
             content = resp.json()
 
         # decode multipart file
-        body_regex = f'--([0-9a-f]*)\r\nContent-Disposition: form-data; name="iso"\r\n\r\na{{{size}}}\r\n--\\1--\r\n'
+        body_regex = f'--([0-9a-f]*)\r\nContent-Disposition: form-data; name="iso"\r\nContent-Type: application/octet-stream\r\n\r\na{{{size}}}\r\n--\\1--\r\n'
         m = re.match(body_regex, content["body"])
 
         assert content["method"] == "GET"
@@ -336,7 +369,7 @@ class TestProxmoxHttpSession:
             content = resp.json()
 
         # decode multipart file
-        body_regex = f'--([0-9a-f]*)\r\nContent-Disposition: form-data; name="iso"\r\n\r\na{{{size}}}\r\n--\\1--\r\n'
+        body_regex = f'--([0-9a-f]*)\r\nContent-Disposition: form-data; name="iso"\r\nContent-Type: application/octet-stream\r\n\r\na{{{size}}}\r\n--\\1--\r\n'
         m = re.match(body_regex, content["body"])
 
         assert content["method"] == "GET"
@@ -354,7 +387,6 @@ class TestProxmoxHttpSession:
             ]
 
     def test_request_large_file(self, shrink_thresholds, toolbelt_on_off, caplog, mock_pve):
-
         size = https.SSL_OVERFLOW_THRESHOLD + 1
         content = {}
         with tempfile.TemporaryFile("w+b") as f_obj:
@@ -368,7 +400,7 @@ class TestProxmoxHttpSession:
                 content = resp.json()
 
                 # decode multipart file
-                body_regex = f'--([0-9a-f]*)\r\nContent-Disposition: form-data; name="iso"\r\n\r\na{{{size}}}\r\n--\\1--\r\n'
+                body_regex = f'--([0-9a-f]*)\r\nContent-Disposition: form-data; name="iso"\r\nContent-Type: application/octet-stream\r\n\r\na{{{size}}}\r\n--\\1--\r\n'
                 m = re.match(body_regex, content["body"])
 
                 assert content["method"] == "GET"

@@ -14,7 +14,7 @@ class TestLocalBackend:
         back = local.Backend()
 
         assert isinstance(back.session, local.LocalSession)
-        assert back.target == "localhost"
+        assert back.target == "/"
 
 
 class TestLocalSession:

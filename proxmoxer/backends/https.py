@@ -42,10 +42,11 @@ class ProxmoxHTTPAuthBase(AuthBase):
     def get_tokens(self):
         return None, None
 
-    def __init__(self, timeout=5, service="PVE", verify_ssl=False):
+    def __init__(self, timeout=5, service="PVE", verify_ssl=False, cert=None):
         self.timeout = timeout
         self.service = service
         self.verify_ssl = verify_ssl
+        self.cert = cert
 
 
 class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
@@ -75,6 +76,7 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
             verify=self.verify_ssl,
             timeout=self.timeout,
             data=data,
+            cert=self.cert,
         ).json()["data"]
         if response_data is None:
             raise AuthenticationError(
@@ -125,6 +127,7 @@ class ProxmoxHTTPApiTokenAuth(ProxmoxHTTPAuthBase):
             SERVICES[self.service]["token_separator"],
             self.token_value,
         )
+        req.cert = self.cert
         return req
 
 
@@ -263,7 +266,9 @@ class Backend:
         token_value=None,
         path_prefix=None,
         service="PVE",
+        cert=None,
     ):
+        self.cert = cert
         host_port = ""
         if len(host.split(":")) > 2:  # IPv6
             if host.startswith("["):
@@ -296,6 +301,7 @@ class Backend:
                 verify_ssl=verify_ssl,
                 timeout=timeout,
                 service=service,
+                cert=self.cert,
             )
         elif password is not None:
             if "password" not in SERVICES[service]["supported_https_auths"]:
@@ -309,12 +315,14 @@ class Backend:
                 verify_ssl=verify_ssl,
                 timeout=timeout,
                 service=service,
+                cert=self.cert,
             )
         else:
             config_failure("No valid authentication credentials were supplied")
 
     def get_session(self):
         session = ProxmoxHttpSession()
+        session.cert = self.cert
         session.auth = self.auth
         # cookies are taken from the auth
         session.headers["Connection"] = "keep-alive"

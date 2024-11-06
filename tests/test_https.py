@@ -276,6 +276,7 @@ class TestProxmoxHttpSession:
     def test_request_basic(self, mock_pve):
         resp = self._session.request("GET", self.base_url + "/fake/echo")
         content = resp.json()
+        assert self._session.cert is None
 
         assert content["method"] == "GET"
         assert content["url"] == self.base_url + "/fake/echo"

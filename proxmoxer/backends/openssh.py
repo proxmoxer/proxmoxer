@@ -65,3 +65,6 @@ class Backend(CommandBaseBackend):
     def __init__(self, *args, **kwargs):
         self.session = OpenSSHSession(*args, **kwargs)
         self.target = self.session.host
+
+    def get_base_url(self):
+        return '/'

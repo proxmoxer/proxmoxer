@@ -111,15 +111,19 @@ class CommandBaseSession:
             return re.match(r"\d\d\d [a-zA-Z]", str(s))
 
         if stderr:
-            # sometimes contains extra text like 'trying to acquire lock...OK'
-            status_code = next(
-                (
-                    int(line.split()[0])
-                    for line in stderr.splitlines()
-                    if is_http_status_string(line)
-                ),
-                500,
-            )
+            # assume if we got a task ID that the request was successful
+            if 'UPID:proxmox' in stdout:
+                status_code = 200
+            else:
+                # sometimes contains extra text like 'trying to acquire lock...OK'
+                status_code = next(
+                    (
+                        int(line.split()[0])
+                        for line in stderr.splitlines()
+                        if is_http_status_string(line)
+                    ),
+                    500,
+                )
         else:
             status_code = 200
         if stdout:

@@ -112,7 +112,8 @@ class CommandBaseSession:
 
         if stderr:
             # assume if we got a task ID that the request was successful
-            if 'UPID:proxmox' in stdout:
+            task_id_pattern = re.compile(r'UPID:[\w-]+:[0-9a-fA-F]{8}:[0-9a-fA-F]{8}:[0-9a-fA-F]{8}:\w+:[\w._-]+:[\w@._-]+:\w*')
+            if task_id_pattern.search(stdout):
                 status_code = 200
             else:
                 # sometimes contains extra text like 'trying to acquire lock...OK'

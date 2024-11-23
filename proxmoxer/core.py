@@ -217,7 +217,8 @@ class ProxmoxAPI(ProxmoxResource):
         }
 
     def __repr__(self):
-        return f"ProxmoxAPI ({self._backend_name} backend for {self._store['base_url']})"
+        dest = getattr(self._backend, "target", self._store.get("base_url"))
+        return f"ProxmoxAPI ({self._backend_name} backend for {dest})"
 
     def get_tokens(self):
         """Return the auth and csrf tokens.

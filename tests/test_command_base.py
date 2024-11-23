@@ -213,7 +213,7 @@ class TestCommandBaseBackend:
         b = command_base.CommandBaseBackend()
 
         assert b.session is None
-        assert b.target == ""
+        assert b.target is None
 
     def test_get_session(self):
         assert self.backend.get_session() == self.sess

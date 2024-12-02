@@ -113,7 +113,7 @@ class CommandBaseSession:
         if stderr:
             # assume if we got a task ID that the request was successful
             task_id_pattern = re.compile(r'UPID:[\w-]+:[0-9a-fA-F]{8}:[0-9a-fA-F]{8}:[0-9a-fA-F]{8}:\w+:[\w._-]+:[\w@._-]+:\w*')
-            if task_id_pattern.search(stdout):
+            if task_id_pattern.search(str(stdout)) or task_id_pattern.search(str(stderr)):
                 status_code = 200
             else:
                 # sometimes contains extra text like 'trying to acquire lock...OK'

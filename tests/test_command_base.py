@@ -106,7 +106,9 @@ class TestCommandBaseSession:
         ]
 
     def test_request_bytes_data(self, mock_exec):
-        resp = self._session.request("GET", self.base_url + "/fake/echo", data={"key": b"bytes-value"})
+        resp = self._session.request(
+            "GET", self.base_url + "/fake/echo", data={"key": b"bytes-value"}
+        )
 
         assert resp.status_code == 200
         assert resp.content == [

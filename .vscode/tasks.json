@@ -99,7 +99,7 @@
     {
       "label": "Clean Cache/tmp files",
       "type": "shell",
-      "command": "rm -rf ./.mypy_cache/ ./.pytest_cache/ ./coverage.xml ./.coverage",
+      "command": "rm -rf ./.mypy_cache/ ./.pytest_cache/ ./dist/ ./coverage.xml ./.coverage README.txt",
       "problemMatcher": [],
       "group": {
         "kind": "none"

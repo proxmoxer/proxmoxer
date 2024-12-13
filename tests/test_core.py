@@ -310,7 +310,7 @@ class TestProxmoxAPI:
     def test_repr_local(self):
         prox = core.ProxmoxAPI(backend="local")
 
-        assert repr(prox) == "ProxmoxAPI (local backend for /)"
+        assert repr(prox) == "ProxmoxAPI (local backend for localhost)"
 
     def test_repr_openssh(self):
         prox = core.ProxmoxAPI("host", user="user", backend="openssh")

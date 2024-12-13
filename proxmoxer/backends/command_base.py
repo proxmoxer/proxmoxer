@@ -88,7 +88,12 @@ class CommandBaseSession:
 
         command = [f"{self.service}sh", cmd, url]
         # convert the options dict into a 2-tuple with the key formatted as a flag
-        option_pairs = [(f"-{k}", str(v)) for k, v in chain(data.items(), params.items())]
+        option_pairs = []
+        for k, v in chain(data.items(), params.items()):
+            try:
+                option_pairs.append((f"-{k}", str(v, "utf-8")))
+            except TypeError:
+                option_pairs.append((f"-{k}", str(v)))
         # add back in all the command arguments as their own pairs
         if data_command is not None:
             if isinstance(data_command, list):

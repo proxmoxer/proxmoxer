@@ -122,6 +122,22 @@ class TestCommandBaseSession:
             "json",
         ]
 
+    def test_request_bytes_data(self, mock_exec):
+        resp = self._session.request(
+            "GET", self.base_url + "/fake/echo", data={"key": b"bytes-value"}
+        )
+
+        assert resp.status_code == 200
+        assert resp.content == [
+            "pvesh",
+            "get",
+            self.base_url + "/fake/echo",
+            "-key",
+            "bytes-value",
+            "--output-format",
+            "json",
+        ]
+
     def test_request_qemu_exec(self, mock_exec):
         resp = self._session.request(
             "POST",

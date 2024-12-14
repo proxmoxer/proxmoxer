@@ -1,3 +1,10 @@
+## 2.2.0 (2024-12-13)
+
+* Bugfix (local,openssh,paramiko): Remove IP/hostname from command path ([Andrea Dainese](https://github.com/dainok), [John Hollowell](https://github.com/jhollowe))
+* Addition (https): Allow passing certificate for TLS verification ([gdelaneync](https://github.com/gdelaneync))
+* Bugfix (local,openssh,paramiko): Prevent a returned task ID (UPID) from throwing an error ([Adam Dorsey](https://github.com/asdorsey), [John Hollowell](https://github.com/jhollowe))
+* Improvement (local,openssh,paramiko): Attempt to encode binary payloads as UTF-8 before sending/JSON-ing ([Adam Dorsey](https://github.com/asdorsey))
+
 ## 2.1.0 (2024-08-10)
 
 * Improvement (docs): Update Readme with updated example ([Rob Wolinski](https://github.com/trekie86))
@@ -7,7 +14,7 @@
 * Bugfix (https): Fix BytesWarning when logging response status/content ([Walter Doekes](https://github.com/wdoekes))
 * Improvement (meta): Update devcontainer to modern unified schema ([John Hollowell](https://github.com/jhollowe))
 * Improvement (meta): Add 3.12 to CI matrix, remove 3.7 testing ([John Hollowell](https://github.com/jhollowe))
-* Improvement (all): Fix improper spliting of non-exec QEMU commands ([John Hollowell](https://github.com/jhollowe))
+* Improvement (all): Fix improper splitting of non-exec QEMU commands ([John Hollowell](https://github.com/jhollowe))
 
 ## 2.0.1 (2022-12-19)
 
@@ -42,7 +49,7 @@
 * Improvement (command_base): Refactor code to have a unified CLI backend base for `openssh`, `ssh_paramiko`, and `local` backends ([Markus Reiter](https://github.com/reitermarkus))
 * Improvement (https): Support IPv6 addresses ([Daviddcc](https://github.com/dcasier))
 * Improvement: Move CI to GitHub actions from Travis.ci ([John Hollowell](https://github.com/jhollowe))
-* Improvement: Cleanup documentaiton and move to dedicated site ([John Hollowell](https://github.com/jhollowe))
+* Improvement: Cleanup documentation and move to dedicated site ([John Hollowell](https://github.com/jhollowe))
 * Improvement: Add `pre-commit` hooks for formatting and linting and format all code ([John Hollowell](https://github.com/jhollowe))
 
 ## 1.2.0 (2021-10-07)
@@ -77,7 +84,7 @@
 * Improvement (https): Added option to specify port in hostname parameter ([pvanagtmaal](https://github.com/pvanagtmaal))
 * Improvement: Added stderr to the Response content ([Jérôme Schneider](https://github.com/merinos))
 * Bugfix (ssh_paramiko): Paramiko python3: stdout and stderr must be a str not bytes ([Jérôme Schneider](https://github.com/merinos))
-* New lxc example in docu ([Geert Stappers](https://github.com/stappersg))
+* New lxc example in documentation ([Geert Stappers](https://github.com/stappersg))
 
 ## 1.0.2 (2017-12-02)
 * Tarball repackaged with tests

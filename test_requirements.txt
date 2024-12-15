@@ -1,5 +1,6 @@
 # required libraries for full functionality
-openssh_wrapper
+# openssh_wrapper # library has not been updated in over a decade, so using a fork with needed patches
+git+https://github.com/proxmoxer/openssh-wrapper.git@master
 paramiko
 requests
 requests_toolbelt

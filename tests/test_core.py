@@ -336,6 +336,40 @@ class TestProxmoxAPI:
         assert ticket is None
         assert csrf is None
 
+    def test_init_with_cert(self):
+        prox = core.ProxmoxAPI(
+            "host",
+            token_name="name",
+            token_value="value",
+            service="pVe",
+            backend="hTtPs",
+            cert="somepem",
+        )
+
+        assert isinstance(prox, core.ProxmoxAPI)
+        assert isinstance(prox, core.ProxmoxResource)
+        assert isinstance(prox._backend, https.Backend)
+        assert prox._backend.auth.service == "PVE"
+        assert prox._backend.cert == "somepem"
+        assert prox._store["session"].cert == "somepem"
+
+    def test_init_with_cert_key(self):
+        prox = core.ProxmoxAPI(
+            "host",
+            token_name="name",
+            token_value="value",
+            service="pVe",
+            backend="hTtPs",
+            cert=("somepem", "somekey"),
+        )
+
+        assert isinstance(prox, core.ProxmoxAPI)
+        assert isinstance(prox, core.ProxmoxResource)
+        assert isinstance(prox._backend, https.Backend)
+        assert prox._backend.auth.service == "PVE"
+        assert prox._backend.cert == ("somepem", "somekey")
+        assert prox._store["session"].cert == ("somepem", "somekey")
+
 
 class MockSession:
     def request(self, method, url, data=None, params=None):

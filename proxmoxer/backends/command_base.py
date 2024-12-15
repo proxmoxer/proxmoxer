@@ -88,7 +88,12 @@ class CommandBaseSession:
 
         command = [f"{self.service}sh", cmd, url]
         # convert the options dict into a 2-tuple with the key formatted as a flag
-        option_pairs = [(f"-{k}", str(v)) for k, v in chain(data.items(), params.items())]
+        option_pairs = []
+        for k, v in chain(data.items(), params.items()):
+            try:
+                option_pairs.append((f"-{k}", str(v, "utf-8")))
+            except TypeError:
+                option_pairs.append((f"-{k}", str(v)))
         # add back in all the command arguments as their own pairs
         if data_command is not None:
             if isinstance(data_command, list):
@@ -111,15 +116,22 @@ class CommandBaseSession:
             return re.match(r"\d\d\d [a-zA-Z]", str(s))
 
         if stderr:
-            # sometimes contains extra text like 'trying to acquire lock...OK'
-            status_code = next(
-                (
-                    int(line.split()[0])
-                    for line in stderr.splitlines()
-                    if is_http_status_string(line)
-                ),
-                500,
+            # assume if we got a task ID that the request was successful
+            task_id_pattern = re.compile(
+                r"UPID:[\w-]+:[0-9a-fA-F]{8}:[0-9a-fA-F]{8}:[0-9a-fA-F]{8}:\w+:[\w\._-]+:[\w\.@_-]+:\w*"
             )
+            if task_id_pattern.search(str(stdout)) or task_id_pattern.search(str(stderr)):
+                status_code = 200
+            else:
+                # sometimes contains extra text like 'trying to acquire lock...OK'
+                status_code = next(
+                    (
+                        int(line.split()[0])
+                        for line in stderr.splitlines()
+                        if is_http_status_string(line)
+                    ),
+                    500,
+                )
         else:
             status_code = 200
         if stdout:
@@ -147,13 +159,13 @@ class JsonSimpleSerializer:
 class CommandBaseBackend:
     def __init__(self):
         self.session = None
-        self.target = ""
+        self.target = None
 
     def get_session(self):
         return self.session
 
     def get_base_url(self):
-        return self.target
+        return ""
 
     def get_serializer(self):
         return JsonSimpleSerializer()

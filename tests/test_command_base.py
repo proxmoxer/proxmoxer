@@ -56,6 +56,23 @@ class TestCommandBaseSession:
             "json",
         ]
 
+    def test_request_task(self, mock_exec_task):
+        resp = self._session.request("GET", self.base_url + "/stdout")
+
+        assert resp.status_code == 200
+        assert (
+            resp.content == "UPID:node:003094EA:095F1EFE:63E88772:download:file.iso:root@pam:done"
+        )
+
+        resp_stderr = self._session.request("GET", self.base_url + "/stderr")
+
+        assert resp_stderr.status_code == 200
+        assert (
+            resp_stderr.content
+            == "UPID:node:003094EA:095F1EFE:63E88772:download:file.iso:root@pam:done"
+        )
+        # assert False  # DEBUG
+
     def test_request_error(self, mock_exec_err):
         resp = self._session.request(
             "GET", self.base_url + "/fake/echo", data={"thing": "403 Unauthorized"}
@@ -101,6 +118,22 @@ class TestCommandBaseSession:
             self.base_url + "/fake/echo",
             "-key",
             "value",
+            "--output-format",
+            "json",
+        ]
+
+    def test_request_bytes_data(self, mock_exec):
+        resp = self._session.request(
+            "GET", self.base_url + "/fake/echo", data={"key": b"bytes-value"}
+        )
+
+        assert resp.status_code == 200
+        assert resp.content == [
+            "pvesh",
+            "get",
+            self.base_url + "/fake/echo",
+            "-key",
+            "bytes-value",
             "--output-format",
             "json",
         ]
@@ -213,7 +246,7 @@ class TestCommandBaseBackend:
         b = command_base.CommandBaseBackend()
 
         assert b.session is None
-        assert b.target == ""
+        assert b.target is None
 
     def test_get_session(self):
         assert self.backend.get_session() == self.sess
@@ -243,6 +276,15 @@ def _exec_err(_, cmd):
 
 
 @classmethod
+def _exec_task(_, cmd):
+    upid = "UPID:node:003094EA:095F1EFE:63E88772:download:file.iso:root@pam:done"
+    if "stderr" in cmd[2]:
+        return None, upid
+    else:
+        return upid, None
+
+
+@classmethod
 def upload_file_obj_echo(_, file_obj, remote_path):
     return file_obj, remote_path
 
@@ -258,6 +300,12 @@ def mock_upload_file_obj():
 @pytest.fixture
 def mock_exec():
     with mock.patch.object(command_base.CommandBaseSession, "_exec", _exec_echo):
+        yield
+
+
+@pytest.fixture
+def mock_exec_task():
+    with mock.patch.object(command_base.CommandBaseSession, "_exec", _exec_task):
         yield
 
 

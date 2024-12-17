@@ -54,22 +54,20 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
     # if calls are made less frequently than 2 hrs, using the API token auth is recommended
     renew_age = 3600
 
-    def __init__(self, username, password, otp=None, base_url="", **kwargs):
+    def __init__(self, username, password, otp=None, base_url="", otptype="totp", **kwargs):
         super().__init__(**kwargs)
         self.base_url = base_url
         self.username = username
         self.pve_auth_ticket = ""
 
-        self._get_new_tokens(password=password, otp=otp)
+        self._get_new_tokens(password=password, otp=otp, otptype=otptype)
 
-    def _get_new_tokens(self, password=None, otp=None):
+    def _get_new_tokens(self, password=None, otp=None, otptype=None):
         if password is None:
             # refresh from existing (unexpired) ticket
             password = self.pve_auth_ticket
 
         data = {"username": self.username, "password": password}
-        if otp:
-            data["otp"] = otp
 
         response_data = requests.post(
             self.base_url + "/access/ticket",
@@ -84,14 +82,29 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
                     self.username, self.base_url + "/access/ticket"
                 )
             )
-        if response_data.get("NeedTFA") is not None:
-            raise AuthenticationError(
-                "Couldn't authenticate user: missing Two Factor Authentication (TFA)"
-            )
-
         self.birth_time = time.monotonic()
         self.pve_auth_ticket = response_data["ticket"]
         self.csrf_prevention_token = response_data["CSRFPreventionToken"]
+
+        if response_data.get("NeedTFA") is not None:
+            otpdata = {
+                "username": self.username,
+                "tfa-challenge": self.pve_auth_ticket,
+                "password": f"{otptype}:{otp}"
+            }
+            otpresp = response_data = requests.post(
+                self.base_url + "/access/ticket",
+                verify=self.verify_ssl,
+                timeout=self.timeout,
+                data=otpdata,
+            ).json()["data"]
+            if not otpresp:
+                raise AuthenticationError(
+                    "Couldn't authenticate user: missing Two Factor Authentication (TFA)"
+                )
+            self.birth_time = time.monotonic()
+            self.pve_auth_ticket = otpresp["ticket"]
+            self.csrf_prevention_token = otpresp["CSRFPreventionToken"]
 
     def get_cookies(self):
         return cookiejar_from_dict({self.service + "AuthCookie": self.pve_auth_ticket})

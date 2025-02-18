@@ -8,7 +8,6 @@ from urllib.parse import parse_qsl, urlparse
 
 import pytest
 import responses
-from requests_toolbelt import MultipartEncoder
 
 
 @pytest.fixture()
@@ -141,8 +140,6 @@ class PVERegistry(responses.registries.FirstMatchRegistry):
     def _cb_echo(self, request):
         body = request.body
         if body is not None:
-            if isinstance(body, MultipartEncoder):
-                body = body.to_string()  # really, to byte string
             body = body if isinstance(body, str) else str(body, "utf-8")
 
         resp = {

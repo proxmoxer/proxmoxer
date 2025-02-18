@@ -53,10 +53,11 @@ class TestOpenSSHSession:
             "world",
         ]
 
-        stdout, stderr = mock_session._exec(cmd)
+        stdout, stderr, exit_code = mock_session._exec(cmd)
 
         assert stdout == "stdout content"
         assert stderr == "stderr content"
+        assert exit_code == 0
         mock_session.ssh_client.run.assert_called_once_with(
             "echo hello world",
             forward_ssh_agent=True,
@@ -83,7 +84,7 @@ def _get_mock_ssh_conn(_):
 
     ssh_conn.run = mock.Mock(
         # spec=openssh_wrapper.SSHConnection.run,
-        return_value=mock.Mock(stdout="stdout content", stderr="stderr content"),
+        return_value=mock.Mock(stdout="stdout content", stderr="stderr content", returncode=0),
     )
 
     ssh_conn.scp = mock.Mock()

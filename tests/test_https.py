@@ -358,7 +358,7 @@ class TestProxmoxHttpSession:
         assert m is not None  # content matches multipart for the created file
         assert content["headers"]["Content-Type"] == "multipart/form-data; boundary=" + m[1]
 
-    def test_request_streaming(self, toolbelt_on_off, caplog, mock_pve):
+    def test_request_streaming(self, shrink_thresholds, toolbelt_on_off, caplog, mock_pve):
         caplog.set_level(logging.INFO, logger=MODULE_LOGGER_NAME)
 
         size = https.STREAMING_SIZE_THRESHOLD + 1

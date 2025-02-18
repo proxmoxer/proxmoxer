@@ -58,6 +58,16 @@ class TestResourceException:
             == "ResourceException('500 Internal Error: Unable to do the thing - functionality not found')"
         )
 
+    def test_init_exit_code(self):
+        e = core.ResourceException(500, "Internal Error", "Unable to do the thing", exit_code=255)
+
+        assert e.status_code == 500
+        assert e.status_message == "Internal Error"
+        assert e.content == "Unable to do the thing"
+        assert e.exit_code == 255
+        assert str(e) == "500 Internal Error: Unable to do the thing"
+        assert repr(e) == "ResourceException('500 Internal Error: Unable to do the thing')"
+
 
 class TestProxmoxResource:
     obj = core.ProxmoxResource()
@@ -183,6 +193,7 @@ class TestProxmoxResource:
             ),
         ]
         assert exc_info.value.status_code == 500
+        assert exc_info.value.exit_code == 501
         assert exc_info.value.status_message == "Internal Server Error"
         assert exc_info.value.content == str(b"this is the error")
         assert exc_info.value.errors is None
@@ -206,6 +217,7 @@ class TestProxmoxResource:
             ),
         ]
         assert exc_info.value.status_code == 500
+        assert exc_info.value.exit_code == 501
         assert exc_info.value.status_message == "Internal Server Error"
         assert exc_info.value.content == "this is the reason"
         assert exc_info.value.errors == {"errors": b"this is the error"}
@@ -380,12 +392,12 @@ class MockSession:
         self.url = url
 
         if "fail" in url:
-            r = Response(b"this is the error", 500)
+            r = Response(b"this is the error", 500, 501)
             if "reason" in url:
                 r.reason = "this is the reason"
             return r
         else:
-            return Response(b'{"data": {"key": "value"}}', 200)
+            return Response(b'{"data": {"key": "value"}}', 200, 201)
 
 
 @pytest.fixture

@@ -54,7 +54,8 @@ class TestLocalSession:
             'import sys; sys.stdout.write("stdout content"); sys.stderr.write("stderr content")',
         ]
 
-        stdout, stderr = self._session._exec(cmd)
+        stdout, stderr, exit_code = self._session._exec(cmd)
 
         assert stdout == "stdout content"
         assert stderr == "stderr content"
+        assert exit_code == 0

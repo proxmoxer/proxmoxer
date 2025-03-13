@@ -42,7 +42,9 @@ class ProxmoxHTTPAuthBase(AuthBase):
     def get_tokens(self):
         return None, None
 
-    def __init__(self, timeout=5, service="PVE", verify_ssl=False, cert=None, proxies=None):
+    def __init__(
+        self, timeout=5, service="PVE", verify_ssl=False, cert=None, proxies=None
+    ):
         self.timeout = timeout
         self.service = service
         self.verify_ssl = verify_ssl
@@ -55,7 +57,9 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
     # if calls are made less frequently than 2 hrs, using the API token auth is recommended
     renew_age = 3600
 
-    def __init__(self, username, password, otp=None, base_url="", otptype="totp", **kwargs):
+    def __init__(
+        self, username, password, otp=None, base_url="", otptype="totp", **kwargs
+    ):
         super().__init__(**kwargs)
         self.base_url = base_url
         self.username = username
@@ -70,20 +74,28 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
 
         data = {"username": self.username, "password": password}
 
-        response_data = requests.post(
+        response = requests.post(
             self.base_url + "/access/ticket",
             verify=self.verify_ssl,
             timeout=self.timeout,
             data=data,
             cert=self.cert,
             proxies=self.proxies,
-        ).json()["data"]
-        if response_data is None:
+        )
+        if response.status_code != 200:
             raise AuthenticationError(
-                "Couldn't authenticate user: {0} to {1}".format(
-                    self.username, self.base_url + "/access/ticket"
+                "Couldn't authenticate user: {0} to {1} code: {2}".format(
+                    self.username,
+                    self.base_url + "/access/ticket",
+                    response.status_code,
                 )
             )
+        response_data = response.json()["data"]
+        if response_data.get("NeedTFA") is not None:
+            raise AuthenticationError(
+                "Couldn't authenticate user: missing Two Factor Authentication (TFA)"
+            )
+
         self.birth_time = time.monotonic()
         self.pve_auth_ticket = response_data["ticket"]
         self.csrf_prevention_token = response_data["CSRFPreventionToken"]
@@ -222,7 +234,11 @@ class ProxmoxHttpSession(requests.Session):
 
                 # add in filename from file pointer (patch for https://github.com/requests/toolbelt/pull/316)
                 # add Content-Type since Proxmox requires it (https://bugzilla.proxmox.com/show_bug.cgi?id=4344)
-                files[k] = (requests.utils.guess_filename(v), v, "application/octet-stream")
+                files[k] = (
+                    requests.utils.guess_filename(v),
+                    v,
+                    "application/octet-stream",
+                )
                 del data[k]
 
         # if there are any large files, send all data and files using streaming multipart encoding

@@ -145,10 +145,24 @@ class CommandBaseSession:
 
 class JsonSimpleSerializer:
     def loads(self, response):
+        # FIXME: Workaround for https://bugzilla.proxmox.com/show_bug.cgi?id=4333.
+        #
+        # With each iteration, try parsing one fewer line, until
+        # we reach the beginning of the actual JSON message.
         try:
-            return json.loads(response.content)
-        except (UnicodeDecodeError, ValueError):
-            return {"errors": response.content}
+            content = response.content
+            if isinstance(content, bytes):
+                content = content.decode("utf-8")
+            content_lines = content.splitlines()
+            while content_lines:
+                try:
+                    return json.loads("\n".join(content_lines))
+                except ValueError:
+                    content_lines = content_lines[1:]
+        except UnicodeDecodeError:
+            pass
+
+        return {"errors": response.content}
 
     def loads_errors(self, response):
         try:

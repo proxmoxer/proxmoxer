@@ -267,7 +267,9 @@ class Backend:
         path_prefix=None,
         service="PVE",
         cert=None,
+        proxies=None,
     ):
+        self.proxies = proxies
         self.cert = cert
         host_port = ""
         if len(host.split(":")) > 2:  # IPv6
@@ -327,6 +329,8 @@ class Backend:
         # cookies are taken from the auth
         session.headers["Connection"] = "keep-alive"
         session.headers["accept"] = self.get_serializer().get_accept_types()
+        if self.proxies:
+            session.proxies.update(self.proxies)
         return session
 
     def get_base_url(self):

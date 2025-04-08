@@ -36,10 +36,7 @@ class TestHttpsBackend:
         with pytest.raises(NotImplementedError) as exc_info:
             https.Backend("1.2.3.4:1234")
 
-        assert (
-            str(exc_info.value)
-            == "No valid authentication credentials were supplied"
-        )
+        assert str(exc_info.value) == "No valid authentication credentials were supplied"
 
     def test_init_with_proxy(self):
         proxy_url = "http://proxy.example.com:8080"
@@ -67,9 +64,7 @@ class TestHttpsBackend:
         assert backend.get_base_url() == exp_base_url
 
     def test_init_ip6_brackets_separate_port(self):
-        backend = https.Backend(
-            "[2001:0db8::1:2:3:4]", port=1234, token_name=""
-        )
+        backend = https.Backend("[2001:0db8::1:2:3:4]", port=1234, token_name="")
         exp_base_url = "https://[2001:0db8::1:2:3:4]:1234/api2/json"
 
         assert backend.get_base_url() == exp_base_url
@@ -87,9 +82,7 @@ class TestHttpsBackend:
         assert backend.get_base_url() == exp_base_url
 
     def test_init_path_prefix(self):
-        backend = https.Backend(
-            "1.2.3.4:1234", path_prefix="path", token_name=""
-        )
+        backend = https.Backend("1.2.3.4:1234", path_prefix="path", token_name="")
         exp_base_url = "https://1.2.3.4:1234/path/api2/json"
 
         assert backend.get_base_url() == exp_base_url
@@ -103,19 +96,13 @@ class TestHttpsBackend:
         with pytest.raises(NotImplementedError) as exc_info:
             https.Backend("1.2.3.4:1234", token_name="name", service="NONE")
 
-        assert (
-            str(exc_info.value)
-            == "NONE does not support API Token authentication"
-        )
+        assert str(exc_info.value) == "NONE does not support API Token authentication"
 
     def test_init_password_not_supported(self, apply_none_service):
         with pytest.raises(NotImplementedError) as exc_info:
             https.Backend("1.2.3.4:1234", password="pass", service="NONE")
 
-        assert (
-            str(exc_info.value)
-            == "NONE does not support password authentication"
-        )
+        assert str(exc_info.value) == "NONE does not support password authentication"
 
     def test_get_tokens_api_token(self):
         backend = https.Backend("1.2.3.4:1234", token_name="name")
@@ -132,9 +119,7 @@ class TestHttpsBackend:
         assert backend.auth.verify_ssl is True
 
     def test_verify_ssl_false_token(self):
-        backend = https.Backend(
-            "1.2.3.4:1234", token_name="name", verify_ssl=False
-        )
+        backend = https.Backend("1.2.3.4:1234", token_name="name", verify_ssl=False)
         assert backend.auth.verify_ssl is False
 
     def test_verify_ssl_password(self, mock_pve):
@@ -142,9 +127,7 @@ class TestHttpsBackend:
         assert backend.auth.verify_ssl is True
 
     def test_verify_ssl_false_password(self, mock_pve):
-        backend = https.Backend(
-            "1.2.3.4:1234", password="name", verify_ssl=False
-        )
+        backend = https.Backend("1.2.3.4:1234", password="name", verify_ssl=False)
         assert backend.auth.verify_ssl is False
 
 
@@ -156,9 +139,7 @@ class TestProxmoxHTTPAuthBase:
     base_url = PVERegistry.base_url
 
     def test_init_all_args(self):
-        auth = https.ProxmoxHTTPAuthBase(
-            timeout=1234, service="PMG", verify_ssl=True
-        )
+        auth = https.ProxmoxHTTPAuthBase(timeout=1234, service="PMG", verify_ssl=True)
 
         assert auth.timeout == 1234
         assert auth.service == "PMG"
@@ -186,12 +167,7 @@ class TestProxmoxHTTPApiTokenAuth:
 
     def test_init_all_args(self):
         auth = https.ProxmoxHTTPApiTokenAuth(
-            "user",
-            "name",
-            "value",
-            service="PMG",
-            timeout=1234,
-            verify_ssl=True,
+            "user", "name", "value", service="PMG", timeout=1234, verify_ssl=True
         )
 
         assert auth.username == "user"
@@ -202,18 +178,14 @@ class TestProxmoxHTTPApiTokenAuth:
         assert auth.verify_ssl is True
 
     def test_call_pve(self):
-        auth = https.ProxmoxHTTPApiTokenAuth(
-            "user", "name", "value", service="PVE"
-        )
+        auth = https.ProxmoxHTTPApiTokenAuth("user", "name", "value", service="PVE")
         req = Request("HEAD", self.base_url + "/version").prepare()
         resp = auth(req)
 
         assert resp.headers["Authorization"] == "PVEAPIToken=user!name=value"
 
     def test_call_pbs(self):
-        auth = https.ProxmoxHTTPApiTokenAuth(
-            "user", "name", "value", service="PBS"
-        )
+        auth = https.ProxmoxHTTPApiTokenAuth("user", "name", "value", service="PBS")
         req = Request("HEAD", self.base_url + "/version").prepare()
         resp = auth(req)
 
@@ -264,9 +236,7 @@ class TestProxmoxHTTPAuth:
         assert auth.csrf_prevention_token == "CSRFPreventionToken_2"
 
     def test_get_cookies(self, mock_pve):
-        auth = https.ProxmoxHTTPAuth(
-            "user", "password", base_url=self.base_url, service="PVE"
-        )
+        auth = https.ProxmoxHTTPAuth("user", "password", base_url=self.base_url, service="PVE")
 
         assert auth.get_cookies().get_dict() == {"PVEAuthCookie": "ticket"}
 
@@ -285,18 +255,12 @@ class TestProxmoxHTTPAuth:
 
     def test_auth_otp(self, mock_pve):
         https.ProxmoxHTTPAuth(
-            "otp",
-            "password",
-            base_url=self.base_url,
-            otp="123456",
-            service="PVE",
+            "otp", "password", base_url=self.base_url, otp="123456", service="PVE"
         )
 
     def test_auth_otp_missing(self, mock_pve):
         with pytest.raises(core.AuthenticationError) as exc_info:
-            https.ProxmoxHTTPAuth(
-                "otp", "password", base_url=self.base_url, service="PVE"
-            )
+            https.ProxmoxHTTPAuth("otp", "password", base_url=self.base_url, service="PVE")
 
         assert (
             str(exc_info.value)
@@ -324,24 +288,16 @@ class TestProxmoxHttpSession:
         assert content["method"] == "GET"
         assert content["url"] == self.base_url + "/fake/echo"
         assert content["body"] is None
-        assert (
-            content["headers"]["accept"]
-            == https.JsonSerializer().get_accept_types()
-        )
+        assert content["headers"]["accept"] == https.JsonSerializer().get_accept_types()
 
     def test_request_data(self, mock_pve):
-        resp = self._session.request(
-            "GET", self.base_url + "/fake/echo", data={"key": "value"}
-        )
+        resp = self._session.request("GET", self.base_url + "/fake/echo", data={"key": "value"})
         content = resp.json()
 
         assert content["method"] == "GET"
         assert content["url"] == self.base_url + "/fake/echo"
         assert content["body"] == "key=value"
-        assert (
-            content["headers"]["Content-Type"]
-            == "application/x-www-form-urlencoded"
-        )
+        assert content["headers"]["Content-Type"] == "application/x-www-form-urlencoded"
 
     def test_request_monitor_command_list(self, mock_pve):
         resp = self._session.request(
@@ -361,15 +317,9 @@ class TestProxmoxHttpSession:
         content = resp.json()
 
         assert content["method"] == "GET"
-        assert (
-            content["url"]
-            == self.base_url + "/nodes/node_name/qemu/100/agent/exec"
-        )
+        assert content["url"] == self.base_url + "/nodes/node_name/qemu/100/agent/exec"
         assert content["body"] == "command=echo&command=hello&command=world"
-        assert (
-            content["headers"]["Content-Type"]
-            == "application/x-www-form-urlencoded"
-        )
+        assert content["headers"]["Content-Type"] == "application/x-www-form-urlencoded"
 
     def test_request_monitor_command_string(self, mock_pve):
         resp = self._session.request(
@@ -380,15 +330,9 @@ class TestProxmoxHttpSession:
         content = resp.json()
 
         assert content["method"] == "GET"
-        assert (
-            content["url"]
-            == self.base_url + "/nodes/node_name/qemu/100/monitor"
-        )
+        assert content["url"] == self.base_url + "/nodes/node_name/qemu/100/monitor"
         assert content["body"] == "command=echo+hello+world"
-        assert (
-            content["headers"]["Content-Type"]
-            == "application/x-www-form-urlencoded"
-        )
+        assert content["headers"]["Content-Type"] == "application/x-www-form-urlencoded"
 
     def test_request_exec_command_string(self, mock_pve):
         resp = self._session.request(
@@ -399,15 +343,9 @@ class TestProxmoxHttpSession:
         content = resp.json()
 
         assert content["method"] == "GET"
-        assert (
-            content["url"]
-            == self.base_url + "/nodes/node_name/qemu/100/agent/exec"
-        )
+        assert content["url"] == self.base_url + "/nodes/node_name/qemu/100/agent/exec"
         assert content["body"] == "command=echo&command=hello&command=world"
-        assert (
-            content["headers"]["Content-Type"]
-            == "application/x-www-form-urlencoded"
-        )
+        assert content["headers"]["Content-Type"] == "application/x-www-form-urlencoded"
 
     def test_request_file(self, mock_pve):
         size = 10
@@ -415,9 +353,7 @@ class TestProxmoxHttpSession:
         with tempfile.TemporaryFile("w+b") as f_obj:
             f_obj.write(b"a" * size)
             f_obj.seek(0)
-            resp = self._session.request(
-                "GET", self.base_url + "/fake/echo", data={"iso": f_obj}
-            )
+            resp = self._session.request("GET", self.base_url + "/fake/echo", data={"iso": f_obj})
             content = resp.json()
 
         # decode multipart file
@@ -427,14 +363,9 @@ class TestProxmoxHttpSession:
         assert content["method"] == "GET"
         assert content["url"] == self.base_url + "/fake/echo"
         assert m is not None  # content matches multipart for the created file
-        assert (
-            content["headers"]["Content-Type"]
-            == "multipart/form-data; boundary=" + m[1]
-        )
+        assert content["headers"]["Content-Type"] == "multipart/form-data; boundary=" + m[1]
 
-    def test_request_streaming(
-        self, shrink_thresholds, toolbelt_on_off, caplog, mock_pve
-    ):
+    def test_request_streaming(self, shrink_thresholds, toolbelt_on_off, caplog, mock_pve):
         caplog.set_level(logging.INFO, logger=MODULE_LOGGER_NAME)
 
         size = https.STREAMING_SIZE_THRESHOLD + 1
@@ -442,9 +373,7 @@ class TestProxmoxHttpSession:
         with tempfile.TemporaryFile("w+b") as f_obj:
             f_obj.write(b"a" * size)
             f_obj.seek(0)
-            resp = self._session.request(
-                "GET", self.base_url + "/fake/echo", data={"iso": f_obj}
-            )
+            resp = self._session.request("GET", self.base_url + "/fake/echo", data={"iso": f_obj})
             content = resp.json()
 
         # decode multipart file
@@ -454,10 +383,7 @@ class TestProxmoxHttpSession:
         assert content["method"] == "GET"
         assert content["url"] == self.base_url + "/fake/echo"
         assert m is not None  # content matches multipart for the created file
-        assert (
-            content["headers"]["Content-Type"]
-            == "multipart/form-data; boundary=" + m[1]
-        )
+        assert content["headers"]["Content-Type"] == "multipart/form-data; boundary=" + m[1]
 
         if not toolbelt_on_off:
             assert caplog.record_tuples == [
@@ -468,9 +394,7 @@ class TestProxmoxHttpSession:
                 )
             ]
 
-    def test_request_large_file(
-        self, shrink_thresholds, toolbelt_on_off, caplog, mock_pve
-    ):
+    def test_request_large_file(self, shrink_thresholds, toolbelt_on_off, caplog, mock_pve):
         size = https.SSL_OVERFLOW_THRESHOLD + 1
         content = {}
         with tempfile.TemporaryFile("w+b") as f_obj:
@@ -489,13 +413,8 @@ class TestProxmoxHttpSession:
 
                 assert content["method"] == "GET"
                 assert content["url"] == self.base_url + "/fake/echo"
-                assert (
-                    m is not None
-                )  # content matches multipart for the created file
-                assert (
-                    content["headers"]["Content-Type"]
-                    == "multipart/form-data; boundary=" + m[1]
-                )
+                assert m is not None  # content matches multipart for the created file
+                assert content["headers"]["Content-Type"] == "multipart/form-data; boundary=" + m[1]
 
             else:
                 # forcing an ImportError
@@ -504,10 +423,7 @@ class TestProxmoxHttpSession:
                         "GET", self.base_url + "/fake/echo", data={"iso": f_obj}
                     )
 
-                assert (
-                    str(exc_info.value)
-                    == "Unable to upload a payload larger than 2 GiB"
-                )
+                assert str(exc_info.value) == "Unable to upload a payload larger than 2 GiB"
                 assert caplog.record_tuples == [
                     (
                         MODULE_LOGGER_NAME,
@@ -532,10 +448,7 @@ class TestProxmoxHttpSession:
         assert content["method"] == "GET"
         assert content["url"] == self.base_url + "/fake/echo"
         assert m is not None  # content matches multipart for the created file
-        assert (
-            content["headers"]["Content-Type"]
-            == "multipart/form-data; boundary=" + m[1]
-        )
+        assert content["headers"]["Content-Type"] == "multipart/form-data; boundary=" + m[1]
 
 
 # pylint: disable=protected-access
@@ -547,9 +460,7 @@ class TestJsonSerializer:
         assert ctypes == self._serializer.get_accept_types()
 
     def test_loads_pass(self):
-        input_str = (
-            '{"data": {"key1": "value1", "key2": "value2"}, "errors": {}}'
-        )
+        input_str = '{"data": {"key1": "value1", "key2": "value2"}, "errors": {}}'
         exp_output = {"key1": "value1", "key2": "value2"}
 
         response = Response()
@@ -571,9 +482,7 @@ class TestJsonSerializer:
         assert act_output == exp_output
 
     def test_loads_not_unicode(self):
-        input_str = (
-            '{"data": {"key1": "value1", "key2": "value2"}, "errors": {}}\x80'
-        )
+        input_str = '{"data": {"key1": "value1", "key2": "value2"}, "errors": {}}\x80'
         exp_output = {"errors": input_str.encode("utf-8")}
 
         response = Response()
@@ -584,7 +493,9 @@ class TestJsonSerializer:
         assert act_output == exp_output
 
     def test_loads_errors_pass(self):
-        input_str = '{"data": {}, "errors": ["missing required param 1", "missing required param 2"]}'
+        input_str = (
+            '{"data": {}, "errors": ["missing required param 1", "missing required param 2"]}'
+        )
         exp_output = ["missing required param 1", "missing required param 2"]
 
         response = Response()
@@ -595,7 +506,9 @@ class TestJsonSerializer:
         assert act_output == exp_output
 
     def test_loads_errors_not_json(self):
-        input_str = '{"data": {} "errors": ["missing required param 1", "missing required param 2"]}'
+        input_str = (
+            '{"data": {} "errors": ["missing required param 1", "missing required param 2"]}'
+        )
         exp_output = {
             "errors": b'{"data": {} "errors": ["missing required param 1", "missing required param 2"]}'
         }
@@ -608,7 +521,9 @@ class TestJsonSerializer:
         assert act_output == exp_output
 
     def test_loads_errors_not_unicode(self):
-        input_str = '{"data": {}, "errors": ["missing required param 1", "missing required param 2"]}\x80'
+        input_str = (
+            '{"data": {}, "errors": ["missing required param 1", "missing required param 2"]}\x80'
+        )
         exp_output = {"errors": input_str.encode("utf-8")}
 
         response = Response()
@@ -633,9 +548,8 @@ def toolbelt_on_off(request, monkeypatch):
 
 @pytest.fixture
 def shrink_thresholds():
-    with (
-        mock.patch("proxmoxer.backends.https.STREAMING_SIZE_THRESHOLD", 100),
-        mock.patch("proxmoxer.backends.https.SSL_OVERFLOW_THRESHOLD", 1000),
+    with mock.patch("proxmoxer.backends.https.STREAMING_SIZE_THRESHOLD", 100), mock.patch(
+        "proxmoxer.backends.https.SSL_OVERFLOW_THRESHOLD", 1000
     ):
         yield
 
@@ -650,8 +564,7 @@ def apply_none_service():
         }
     }
 
-    with (
-        mock.patch("proxmoxer.core.SERVICES", serv),
-        mock.patch("proxmoxer.backends.https.SERVICES", serv),
+    with mock.patch("proxmoxer.core.SERVICES", serv), mock.patch(
+        "proxmoxer.backends.https.SERVICES", serv
     ):
         yield

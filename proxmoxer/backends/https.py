@@ -42,11 +42,19 @@ class ProxmoxHTTPAuthBase(AuthBase):
     def get_tokens(self):
         return None, None
 
-    def __init__(self, timeout=5, service="PVE", verify_ssl=False, cert=None):
+    def __init__(
+        self,
+        timeout=5,
+        service="PVE",
+        verify_ssl=False,
+        cert=None,
+        proxies=None,
+    ):
         self.timeout = timeout
         self.service = service
         self.verify_ssl = verify_ssl
         self.cert = cert
+        self.proxies = proxies
 
 
 class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
@@ -77,6 +85,7 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
             timeout=self.timeout,
             data=data,
             cert=self.cert,
+            proxies=self.proxies,
         ).json()["data"]
         if response_data is None:
             raise AuthenticationError(
@@ -94,7 +103,9 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
         self.csrf_prevention_token = response_data["CSRFPreventionToken"]
 
     def get_cookies(self):
-        return cookiejar_from_dict({self.service + "AuthCookie": self.pve_auth_ticket})
+        return cookiejar_from_dict(
+            {self.service + "AuthCookie": self.pve_auth_ticket}
+        )
 
     def get_tokens(self):
         return self.pve_auth_ticket, self.csrf_prevention_token
@@ -207,7 +218,11 @@ class ProxmoxHttpSession(requests.Session):
 
                 # add in filename from file pointer (patch for https://github.com/requests/toolbelt/pull/316)
                 # add Content-Type since Proxmox requires it (https://bugzilla.proxmox.com/show_bug.cgi?id=4344)
-                files[k] = (requests.utils.guess_filename(v), v, "application/octet-stream")
+                files[k] = (
+                    requests.utils.guess_filename(v),
+                    v,
+                    "application/octet-stream",
+                )
                 del data[k]
 
         # if there are any large files, send all data and files using streaming multipart encoding
@@ -226,7 +241,9 @@ class ProxmoxHttpSession(requests.Session):
                     logger.warning(
                         "Install 'requests_toolbelt' to add support for files larger than 2GiB"
                     )
-                    raise OverflowError("Unable to upload a payload larger than 2 GiB")
+                    raise OverflowError(
+                        "Unable to upload a payload larger than 2 GiB"
+                    )
                 else:
                     logger.info(
                         "Installing 'requests_toolbelt' will decrease memory used during upload"
@@ -294,7 +311,9 @@ class Backend:
 
         if token_name is not None:
             if "token" not in SERVICES[service]["supported_https_auths"]:
-                config_failure("{} does not support API Token authentication", service)
+                config_failure(
+                    "{} does not support API Token authentication", service
+                )
 
             self.auth = ProxmoxHTTPApiTokenAuth(
                 user,
@@ -304,10 +323,13 @@ class Backend:
                 timeout=timeout,
                 service=service,
                 cert=self.cert,
+                proxies=proxies,
             )
         elif password is not None:
             if "password" not in SERVICES[service]["supported_https_auths"]:
-                config_failure("{} does not support password authentication", service)
+                config_failure(
+                    "{} does not support password authentication", service
+                )
 
             self.auth = ProxmoxHTTPAuth(
                 user,
@@ -318,6 +340,7 @@ class Backend:
                 timeout=timeout,
                 service=service,
                 cert=self.cert,
+                proxies=proxies,
             )
         else:
             config_failure("No valid authentication credentials were supplied")

@@ -247,6 +247,19 @@ class TestJsonSimpleSerializer:
 
         assert act_output == exp_output
 
+    def test_loads_json_preceded_by_non_json(self):
+        input_str = """
+        virtio0: successfully created disk 'local-zfs:vm-7777-disk-0,discard=on,iothread=1,size=4G'
+        "UPID:net2-pve:002605B4:00FB48C2:62B9E7EB:qmcreate:7777:root@pam:"
+        """
+        exp_output = "UPID:net2-pve:002605B4:00FB48C2:62B9E7EB:qmcreate:7777:root@pam:"
+
+        response = command_base.Response(input_str.encode("utf-8"), 200, 201)
+
+        act_output = self._serializer.loads(response)
+
+        assert act_output == exp_output
+
 
 class TestCommandBaseBackend:
     backend = command_base.CommandBaseBackend()

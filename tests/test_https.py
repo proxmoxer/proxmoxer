@@ -198,7 +198,7 @@ class TestProxmoxHTTPAuth:
         auth = https.ProxmoxHTTPAuth(
             "otp",
             "password",
-            otp="otp",
+            otp="123456",
             base_url=self.base_url,
             service="PMG",
             timeout=1234,
@@ -206,8 +206,8 @@ class TestProxmoxHTTPAuth:
         )
 
         assert auth.username == "otp"
-        assert auth.pve_auth_ticket == "ticket"
-        assert auth.csrf_prevention_token == "CSRFPreventionToken"
+        assert auth.pve_auth_ticket == "new_ticket"
+        assert auth.csrf_prevention_token == "CSRFPreventionToken_2"
         assert auth.service == "PMG"
         assert auth.timeout == 1234
         assert auth.verify_ssl is True

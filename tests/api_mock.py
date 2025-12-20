@@ -163,7 +163,7 @@ class PVERegistry(responses.registries.FirstMatchRegistry):
                 json.dumps({"data": None}),
             )
         # if this user requires OTP and it is not included
-        if form_data_dict.get("username") == "otp" and not "tfa-challenge" in form_data_dict:
+        if form_data_dict.get("username") == "otp" and "tfa-challenge" not in form_data_dict:
             return (
                 200,
                 self.common_headers,
@@ -178,8 +178,11 @@ class PVERegistry(responses.registries.FirstMatchRegistry):
                 ),
             )
         # if OTP key is not valid
-        elif form_data_dict.get("username") == "otp" and form_data_dict.get("tfa-challenge") == "otp_ticket":
-            if form_data_dict.get('password') == "totp:123456":
+        elif (
+            form_data_dict.get("username") == "otp"
+            and form_data_dict.get("tfa-challenge") == "otp_ticket"
+        ):
+            if form_data_dict.get("password") == "totp:123456":
                 return (
                     200,
                     self.common_headers,

@@ -90,7 +90,7 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
             otpdata = {
                 "username": self.username,
                 "tfa-challenge": self.pve_auth_ticket,
-                "password": f"{otptype}:{otp}"
+                "password": f"{otptype}:{otp}",
             }
             otpresp = response_data = requests.post(
                 self.base_url + "/access/ticket",

@@ -70,20 +70,24 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
 
         data = {"username": self.username, "password": password}
 
-        response_data = requests.post(
+        response = requests.post(
             self.base_url + "/access/ticket",
             verify=self.verify_ssl,
             timeout=self.timeout,
             data=data,
             cert=self.cert,
             proxies=self.proxies,
-        ).json()["data"]
-        if response_data is None:
+        )
+        if response.status_code != 200:
             raise AuthenticationError(
-                "Couldn't authenticate user: {0} to {1}".format(
-                    self.username, self.base_url + "/access/ticket"
+                "Couldn't authenticate user: {0} to {1} code: {2}".format(
+                    self.username,
+                    self.base_url + "/access/ticket",
+                    response.status_code,
                 )
             )
+        response_data = response.json()["data"]
+
         self.birth_time = time.monotonic()
         self.pve_auth_ticket = response_data["ticket"]
         self.csrf_prevention_token = response_data["CSRFPreventionToken"]
@@ -222,7 +226,11 @@ class ProxmoxHttpSession(requests.Session):
 
                 # add in filename from file pointer (patch for https://github.com/requests/toolbelt/pull/316)
                 # add Content-Type since Proxmox requires it (https://bugzilla.proxmox.com/show_bug.cgi?id=4344)
-                files[k] = (requests.utils.guess_filename(v), v, "application/octet-stream")
+                files[k] = (
+                    requests.utils.guess_filename(v),
+                    v,
+                    "application/octet-stream",
+                )
                 del data[k]
 
         # if there are any large files, send all data and files using streaming multipart encoding

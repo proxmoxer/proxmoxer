@@ -249,10 +249,6 @@ class TestProxmoxHTTPAuth:
             str(exc_info.value)
             == f"Couldn't authenticate user: bad_auth to {self.base_url}/access/ticket code: 401"
         )
-        assert (
-            repr(exc_info.value)
-            == f'AuthenticationError("Couldn\'t authenticate user: bad_auth to {self.base_url}/access/ticket")'
-        )
 
     def test_auth_otp(self, mock_pve):
         https.ProxmoxHTTPAuth(

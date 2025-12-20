@@ -42,9 +42,7 @@ class ProxmoxHTTPAuthBase(AuthBase):
     def get_tokens(self):
         return None, None
 
-    def __init__(
-        self, timeout=5, service="PVE", verify_ssl=False, cert=None, proxies=None
-    ):
+    def __init__(self, timeout=5, service="PVE", verify_ssl=False, cert=None, proxies=None):
         self.timeout = timeout
         self.service = service
         self.verify_ssl = verify_ssl
@@ -57,9 +55,7 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
     # if calls are made less frequently than 2 hrs, using the API token auth is recommended
     renew_age = 3600
 
-    def __init__(
-        self, username, password, otp=None, base_url="", otptype="totp", **kwargs
-    ):
+    def __init__(self, username, password, otp=None, base_url="", otptype="totp", **kwargs):
         super().__init__(**kwargs)
         self.base_url = base_url
         self.username = username
@@ -91,10 +87,6 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
                 )
             )
         response_data = response.json()["data"]
-        if response_data.get("NeedTFA") is not None:
-            raise AuthenticationError(
-                "Couldn't authenticate user: missing Two Factor Authentication (TFA)"
-            )
 
         self.birth_time = time.monotonic()
         self.pve_auth_ticket = response_data["ticket"]

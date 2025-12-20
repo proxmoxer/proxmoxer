@@ -42,11 +42,12 @@ class ProxmoxHTTPAuthBase(AuthBase):
     def get_tokens(self):
         return None, None
 
-    def __init__(self, timeout=5, service="PVE", verify_ssl=False, cert=None):
+    def __init__(self, timeout=5, service="PVE", verify_ssl=False, cert=None, proxies=None):
         self.timeout = timeout
         self.service = service
         self.verify_ssl = verify_ssl
         self.cert = cert
+        self.proxies = proxies
 
 
 class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
@@ -75,6 +76,7 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
             timeout=self.timeout,
             data=data,
             cert=self.cert,
+            proxies=self.proxies,
         ).json()["data"]
         if response_data is None:
             raise AuthenticationError(
@@ -280,7 +282,9 @@ class Backend:
         path_prefix=None,
         service="PVE",
         cert=None,
+        proxies=None,
     ):
+        self.proxies = proxies
         self.cert = cert
         host_port = ""
         if len(host.split(":")) > 2:  # IPv6
@@ -315,6 +319,7 @@ class Backend:
                 timeout=timeout,
                 service=service,
                 cert=self.cert,
+                proxies=proxies,
             )
         elif password is not None:
             if "password" not in SERVICES[service]["supported_https_auths"]:
@@ -329,6 +334,7 @@ class Backend:
                 timeout=timeout,
                 service=service,
                 cert=self.cert,
+                proxies=proxies,
             )
         else:
             config_failure("No valid authentication credentials were supplied")
@@ -340,6 +346,8 @@ class Backend:
         # cookies are taken from the auth
         session.headers["Connection"] = "keep-alive"
         session.headers["accept"] = self.get_serializer().get_accept_types()
+        if self.proxies:
+            session.proxies.update(self.proxies)
         return session
 
     def get_base_url(self):

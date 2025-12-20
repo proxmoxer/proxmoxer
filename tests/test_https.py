@@ -38,6 +38,14 @@ class TestHttpsBackend:
 
         assert str(exc_info.value) == "No valid authentication credentials were supplied"
 
+    def test_init_with_proxy(self):
+        proxy_url = "http://proxy.example.com:8080"
+        proxies = {"http": proxy_url, "https": proxy_url}
+        backend = https.Backend("1.2.3.4:1234", token_name="", proxies=proxies)
+
+        session = backend.get_session()
+        assert session.proxies == proxies
+
     def test_init_ip4_separate_port(self):
         backend = https.Backend("1.2.3.4", port=1234, token_name="")
         exp_base_url = "https://1.2.3.4:1234/api2/json"

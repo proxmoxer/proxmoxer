@@ -1,3 +1,11 @@
+## 2.3.0 (2026-02-07)
+
+* Improvement (all): Add exit_code to Response from command_base and ResourceException ([John Hollowell](https://github.com/jhollowe))
+* Improvement (local,openssh,paramiko): Add workaround for broken pvesh output ([Markus Reiter](https://github.com/reitermarkus))
+* Bugfix (https): Update 2FA to support modern 2-step flow ([jpattWPC](https://github.com/jpattWPC))
+* Improvement (https): Support direct proxy configuration ([Eric Baudach](https://github.com/sniffer32))
+* Bugfix (all): Only decode response as JSON if call was successful ([Michael Ablassmeier](https://github.com/abbbi))
+
 ## 2.2.0 (2024-12-13)
 
 * Bugfix (local,openssh,paramiko): Remove IP/hostname from command path ([Andrea Dainese](https://github.com/dainok), [John Hollowell](https://github.com/jhollowe))

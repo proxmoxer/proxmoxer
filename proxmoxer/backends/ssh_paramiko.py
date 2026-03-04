@@ -63,7 +63,7 @@ class SshParamikoSession(CommandBaseSession):
         session.exec_command(shell_join(cmd))
         stdout = session.makefile("rb", -1).read().decode()
         stderr = session.makefile_stderr("rb", -1).read().decode()
-        return stdout, stderr
+        return stdout, stderr, session.recv_exit_status()
 
     def upload_file_obj(self, file_obj, remote_path):
         sftp = self.ssh_client.open_sftp()

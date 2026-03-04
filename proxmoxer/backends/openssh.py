@@ -55,7 +55,7 @@ class OpenSSHSession(CommandBaseSession):
 
     def _exec(self, cmd):
         ret = self.ssh_client.run(shell_join(cmd), forward_ssh_agent=self.forward_ssh_agent)
-        return ret.stdout, ret.stderr
+        return ret.stdout, ret.stderr, ret.returncode
 
     def upload_file_obj(self, file_obj, remote_path):
         self.ssh_client.scp((file_obj,), target=remote_path)

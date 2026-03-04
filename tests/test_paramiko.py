@@ -100,10 +100,11 @@ class TestSshParamikoSession:
         sess = ssh_paramiko.SshParamikoSession("host", "user")
         sess.ssh_client = mock_client
 
-        stdout, stderr = sess._exec(["echo", "hello", "world"])
+        stdout, stderr, exit_code = sess._exec(["echo", "hello", "world"])
 
         assert stdout == "stdout contents"
         assert stderr == "stderr contents"
+        assert exit_code == 0
         mock_session.exec_command.assert_called_once_with("echo hello world")
 
     def test_upload_file_obj(self, mock_ssh_client):
@@ -147,6 +148,7 @@ def mock_ssh_client():
     mock_stderr.read.return_value = b"stderr contents"
     mock_channel.makefile.return_value = mock_stdout
     mock_channel.makefile_stderr.return_value = mock_stderr
+    mock_channel.recv_exit_status.return_value = 0
 
     mock_transport.open_session.return_value = mock_channel
     mock_client.get_transport.return_value = mock_transport

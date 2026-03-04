@@ -30,8 +30,9 @@ except ImportError:
 
 
 class Response:
-    def __init__(self, content, status_code):
+    def __init__(self, content, status_code, exit_code):
         self.status_code = status_code
+        self.exit_code = exit_code
         self.content = content
         self.text = str(content)
         self.headers = {"content-type": "application/json"}
@@ -110,7 +111,7 @@ class CommandBaseSession:
         if self.sudo:
             full_cmd = ["sudo"] + full_cmd
 
-        stdout, stderr = self._exec(full_cmd)
+        stdout, stderr, exit_code = self._exec(full_cmd)
 
         def is_http_status_string(s):
             return re.match(r"\d\d\d [a-zA-Z]", str(s))
@@ -135,8 +136,8 @@ class CommandBaseSession:
         else:
             status_code = 200
         if stdout:
-            return Response(stdout, status_code)
-        return Response(stderr, status_code)
+            return Response(stdout, status_code, exit_code)
+        return Response(stderr, status_code, exit_code)
 
     def upload_file_obj(self, file_obj, remote_path):
         raise NotImplementedError()
@@ -144,10 +145,24 @@ class CommandBaseSession:
 
 class JsonSimpleSerializer:
     def loads(self, response):
+        # FIXME: Workaround for https://bugzilla.proxmox.com/show_bug.cgi?id=4333.
+        #
+        # With each iteration, try parsing one fewer line, until
+        # we reach the beginning of the actual JSON message.
         try:
-            return json.loads(response.content)
-        except (UnicodeDecodeError, ValueError):
-            return {"errors": response.content}
+            content = response.content
+            if isinstance(content, bytes):
+                content = content.decode("utf-8")
+            content_lines = content.splitlines()
+            while content_lines:
+                try:
+                    return json.loads("\n".join(content_lines))
+                except ValueError:
+                    content_lines = content_lines[1:]
+        except UnicodeDecodeError:
+            pass
+
+        return {"errors": response.content}
 
     def loads_errors(self, response):
         try:

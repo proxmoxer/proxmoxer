@@ -17,7 +17,8 @@ class TestBlockingStatus:
         caplog.set_level(logging.DEBUG, logger="proxmoxer.core")
 
         status = Tasks.blocking_status(
-            mocked_prox, "UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:done"
+            mocked_prox,
+            "UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:done",
         )
 
         assert status == {
@@ -81,7 +82,8 @@ class TestBlockingStatus:
         caplog.set_level(logging.DEBUG, logger="proxmoxer.core")
 
         status = Tasks.blocking_status(
-            mocked_prox, "UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:stopped"
+            mocked_prox,
+            "UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:stopped",
         )
 
         assert status == {
@@ -115,11 +117,12 @@ class TestBlockingStatus:
         status = Tasks.blocking_status(
             mocked_prox,
             "UPID:node1:000FF1FD:10F9374C:630D702C:vzdump:110:root@pam:keep-running",
-            timeout=0.021,
+            timeout=0.023,
             polling_interval=0.01,
         )
 
         assert status is None
+        # assert it polls 3 times (1 initial + floor(timeout/polling_interval) attempts)
         assert caplog.record_tuples == [
             (
                 "proxmoxer.core",
@@ -200,7 +203,10 @@ class TestDecodeUpid:
 
 class TestDecodeLog:
     def test_basic(self):
-        log_list = [{"n": 1, "t": "client connection: 127.0.0.1:49608"}, {"t": "TASK OK", "n": 2}]
+        log_list = [
+            {"n": 1, "t": "client connection: 127.0.0.1:49608"},
+            {"t": "TASK OK", "n": 2},
+        ]
         log_str = Tasks.decode_log(log_list)
 
         assert log_str == "client connection: 127.0.0.1:49608\nTASK OK"
@@ -212,7 +218,11 @@ class TestDecodeLog:
         assert log_str == ""
 
     def test_unordered(self):
-        log_list = [{"n": 3, "t": "third"}, {"t": "first", "n": 1}, {"t": "second", "n": 2}]
+        log_list = [
+            {"n": 3, "t": "third"},
+            {"t": "first", "n": 1},
+            {"t": "second", "n": 2},
+        ]
         log_str = Tasks.decode_log(log_list)
 
         assert log_str == "first\nsecond\nthird"

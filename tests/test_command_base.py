@@ -16,11 +16,12 @@ from .api_mock import PVERegistry
 
 class TestResponse:
     def test_init_all_args(self):
-        resp = command_base.Response(b"content", 200)
+        resp = command_base.Response(b"content", 200, 201)
 
         assert resp.content == b"content"
         assert resp.text == "b'content'"
         assert resp.status_code == 200
+        assert resp.exit_code == 201
         assert resp.headers == {"content-type": "application/json"}
         assert str(resp) == "Response (200) b'content'"
 
@@ -48,6 +49,7 @@ class TestCommandBaseSession:
         resp = self._session.request("GET", self.base_url + "/fake/echo")
 
         assert resp.status_code == 200
+        assert resp.exit_code == 201
         assert resp.content == [
             "pvesh",
             "get",
@@ -60,6 +62,7 @@ class TestCommandBaseSession:
         resp = self._session.request("GET", self.base_url + "/stdout")
 
         assert resp.status_code == 200
+        assert resp.exit_code == 201
         assert (
             resp.content == "UPID:node:003094EA:095F1EFE:63E88772:download:file.iso:root@pam:done"
         )
@@ -67,6 +70,7 @@ class TestCommandBaseSession:
         resp_stderr = self._session.request("GET", self.base_url + "/stderr")
 
         assert resp_stderr.status_code == 200
+        assert resp.exit_code == 201
         assert (
             resp_stderr.content
             == "UPID:node:003094EA:095F1EFE:63E88772:download:file.iso:root@pam:done"
@@ -79,6 +83,7 @@ class TestCommandBaseSession:
         )
 
         assert resp.status_code == 403
+        assert resp.exit_code == 501
         assert (
             resp.content
             == "pvesh\nget\nhttps://1.2.3.4:1234/api2/json/fake/echo\n-thing\n403 Unauthorized\n--output-format\njson"
@@ -88,6 +93,7 @@ class TestCommandBaseSession:
         resp = self._session.request("GET", self.base_url + "/fake/echo", data={"thing": "failure"})
 
         assert resp.status_code == 500
+        assert resp.exit_code == 501
         assert (
             resp.content
             == "pvesh\nget\nhttps://1.2.3.4:1234/api2/json/fake/echo\n-thing\nfailure\n--output-format\njson"
@@ -99,6 +105,7 @@ class TestCommandBaseSession:
         )
 
         assert resp.status_code == 200
+        assert resp.exit_code == 201
         assert resp.content == [
             "sudo",
             "pvesh",
@@ -112,6 +119,7 @@ class TestCommandBaseSession:
         resp = self._session.request("GET", self.base_url + "/fake/echo", data={"key": "value"})
 
         assert resp.status_code == 200
+        assert resp.exit_code == 201
         assert resp.content == [
             "pvesh",
             "get",
@@ -128,6 +136,7 @@ class TestCommandBaseSession:
         )
 
         assert resp.status_code == 200
+        assert resp.exit_code == 201
         assert resp.content == [
             "pvesh",
             "get",
@@ -146,6 +155,7 @@ class TestCommandBaseSession:
         )
 
         assert resp.status_code == 200
+        assert resp.exit_code == 201
         assert resp.content == [
             "pvesh",
             "create",
@@ -166,6 +176,7 @@ class TestCommandBaseSession:
         )
 
         assert resp.status_code == 200
+        assert resp.exit_code == 201
         assert resp.content == [
             "pvesh",
             "create",
@@ -187,6 +198,7 @@ class TestCommandBaseSession:
             )
 
             assert resp.status_code == 200
+            assert resp.exit_code == 201
             assert resp.content == [
                 "pvesh",
                 "create",
@@ -209,7 +221,7 @@ class TestJsonSimpleSerializer:
         input_str = '{"key1": "value1", "key2": "value2"}'
         exp_output = {"key1": "value1", "key2": "value2"}
 
-        response = command_base.Response(input_str.encode("utf-8"), 200)
+        response = command_base.Response(input_str.encode("utf-8"), 200, 201)
 
         act_output = self._serializer.loads(response)
 
@@ -219,7 +231,7 @@ class TestJsonSimpleSerializer:
         input_str = "There was an error with the request"
         exp_output = {"errors": b"There was an error with the request"}
 
-        response = command_base.Response(input_str.encode("utf-8"), 200)
+        response = command_base.Response(input_str.encode("utf-8"), 200, 201)
 
         act_output = self._serializer.loads(response)
 
@@ -229,7 +241,20 @@ class TestJsonSimpleSerializer:
         input_str = '{"data": {"key1": "value1", "key2": "value2"}, "errors": {}}\x80'
         exp_output = {"errors": input_str.encode("utf-8")}
 
-        response = command_base.Response(input_str.encode("utf-8"), 200)
+        response = command_base.Response(input_str.encode("utf-8"), 200, 201)
+
+        act_output = self._serializer.loads(response)
+
+        assert act_output == exp_output
+
+    def test_loads_json_preceded_by_non_json(self):
+        input_str = """
+        virtio0: successfully created disk 'local-zfs:vm-7777-disk-0,discard=on,iothread=1,size=4G'
+        "UPID:net2-pve:002605B4:00FB48C2:62B9E7EB:qmcreate:7777:root@pam:"
+        """
+        exp_output = "UPID:net2-pve:002605B4:00FB48C2:62B9E7EB:qmcreate:7777:root@pam:"
+
+        response = command_base.Response(input_str.encode("utf-8"), 200, 201)
 
         act_output = self._serializer.loads(response)
 
@@ -267,21 +292,21 @@ def _exec_echo(_, cmd):
         "import tempfile; import sys; tf = tempfile.NamedTemporaryFile(); sys.stdout.write(tf.name)",
     ]:
         return b"/tmp/tmpasdfasdf", None
-    return cmd, None
+    return cmd, None, 201
 
 
 @classmethod
 def _exec_err(_, cmd):
-    return None, "\n".join(cmd)
+    return None, "\n".join(cmd), 501
 
 
 @classmethod
 def _exec_task(_, cmd):
     upid = "UPID:node:003094EA:095F1EFE:63E88772:download:file.iso:root@pam:done"
     if "stderr" in cmd[2]:
-        return None, upid
+        return None, upid, 501
     else:
-        return upid, None
+        return upid, None, 201
 
 
 @classmethod

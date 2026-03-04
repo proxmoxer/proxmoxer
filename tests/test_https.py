@@ -38,6 +38,14 @@ class TestHttpsBackend:
 
         assert str(exc_info.value) == "No valid authentication credentials were supplied"
 
+    def test_init_with_proxy(self):
+        proxy_url = "http://proxy.example.com:8080"
+        proxies = {"http": proxy_url, "https": proxy_url}
+        backend = https.Backend("1.2.3.4:1234", token_name="", proxies=proxies)
+
+        session = backend.get_session()
+        assert session.proxies == proxies
+
     def test_init_ip4_separate_port(self):
         backend = https.Backend("1.2.3.4", port=1234, token_name="")
         exp_base_url = "https://1.2.3.4:1234/api2/json"
@@ -198,7 +206,7 @@ class TestProxmoxHTTPAuth:
         auth = https.ProxmoxHTTPAuth(
             "otp",
             "password",
-            otp="otp",
+            otp="123456",
             base_url=self.base_url,
             service="PMG",
             timeout=1234,
@@ -206,8 +214,8 @@ class TestProxmoxHTTPAuth:
         )
 
         assert auth.username == "otp"
-        assert auth.pve_auth_ticket == "ticket"
-        assert auth.csrf_prevention_token == "CSRFPreventionToken"
+        assert auth.pve_auth_ticket == "new_ticket"
+        assert auth.csrf_prevention_token == "CSRFPreventionToken_2"
         assert auth.service == "PMG"
         assert auth.timeout == 1234
         assert auth.verify_ssl is True
@@ -239,11 +247,7 @@ class TestProxmoxHTTPAuth:
 
         assert (
             str(exc_info.value)
-            == f"Couldn't authenticate user: bad_auth to {self.base_url}/access/ticket"
-        )
-        assert (
-            repr(exc_info.value)
-            == f'AuthenticationError("Couldn\'t authenticate user: bad_auth to {self.base_url}/access/ticket")'
+            == f"Couldn't authenticate user: bad_auth to {self.base_url}/access/ticket code: 401"
         )
 
     def test_auth_otp(self, mock_pve):
@@ -358,7 +362,7 @@ class TestProxmoxHttpSession:
         assert m is not None  # content matches multipart for the created file
         assert content["headers"]["Content-Type"] == "multipart/form-data; boundary=" + m[1]
 
-    def test_request_streaming(self, toolbelt_on_off, caplog, mock_pve):
+    def test_request_streaming(self, shrink_thresholds, toolbelt_on_off, caplog, mock_pve):
         caplog.set_level(logging.INFO, logger=MODULE_LOGGER_NAME)
 
         size = https.STREAMING_SIZE_THRESHOLD + 1

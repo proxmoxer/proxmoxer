@@ -54,7 +54,7 @@ class ResourceException(Exception):
     An Exception thrown when an Proxmox API call failed
     """
 
-    def __init__(self, status_code, status_message, content, errors=None):
+    def __init__(self, status_code, status_message, content, errors=None, exit_code=None):
         """
         Create a new ResourceException
 
@@ -71,6 +71,7 @@ class ResourceException(Exception):
         self.status_message = status_message
         self.content = content
         self.errors = errors
+        self.exit_code = exit_code
         if errors is not None:
             content += f" - {errors}"
         message = f"{status_code} {status_message}: {content}".strip()
@@ -151,6 +152,7 @@ class ProxmoxResource:
                     ),
                     resp.reason,
                     errors=(self._store["serializer"].loads_errors(resp)),
+                    exit_code=resp.exit_code if hasattr(resp, "exit_code") else None,
                 )
             else:
                 raise ResourceException(
@@ -159,6 +161,7 @@ class ProxmoxResource:
                         resp.status_code, ANYEVENT_HTTP_STATUS_CODES.get(resp.status_code)
                     ),
                     resp.text,
+                    exit_code=resp.exit_code if hasattr(resp, "exit_code") else None,
                 )
         elif 200 <= resp.status_code <= 299:
             return self._store["serializer"].loads(resp)

@@ -131,7 +131,7 @@ class CommandBaseSession:
                         for line in stderr.splitlines()
                         if is_http_status_string(line)
                     ),
-                    500,
+                    200 if exit_code == 0 else 500,
                 )
         else:
             status_code = 200

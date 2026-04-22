@@ -42,6 +42,12 @@ SERVICES = {
         "default_port": 8007,
         "token_separator": ":",
     },
+    "PDM": {
+        "supported_backends": ["https"],
+        "supported_https_auths": ["password", "token"],
+        "default_port": 8443,
+        "token_separator": ":",
+    }
 }
 
 

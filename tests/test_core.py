@@ -308,6 +308,27 @@ class TestProxmoxAPI:
 
         assert str(exc_info.value) == "PBS service does not support local backend"
 
+    def test_init_pdm_https(self):
+        prox = core.ProxmoxAPI(
+            "host", token_name="name", token_value="value", service="pdm", backend="https"
+        )
+
+        assert isinstance(prox, core.ProxmoxAPI)
+        assert prox._backend.auth.service == "PDM"
+
+    def test_init_pdm_invalid_backend(self):
+        with pytest.raises(NotImplementedError) as exc_info:
+            core.ProxmoxAPI("host", service="pdm", backend="local")
+
+        assert str(exc_info.value) == "PDM service does not support local backend"
+
+    def test_repr_pdm_https(self):
+        prox = core.ProxmoxAPI(
+            "host", token_name="name", token_value="value", service="pdm", backend="https"
+        )
+
+        assert repr(prox) == "ProxmoxAPI (https backend for https://host:8443/api2/json)"
+
     def test_init_local_with_host(self):
         with pytest.raises(NotImplementedError) as exc_info:
             core.ProxmoxAPI("host", service="pve", backend="LocaL")

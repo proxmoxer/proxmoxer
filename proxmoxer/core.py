@@ -47,7 +47,7 @@ SERVICES = {
         "supported_https_auths": ["password", "token"],
         "default_port": 8443,
         "token_separator": ":",
-    }
+    },
 }
 
 

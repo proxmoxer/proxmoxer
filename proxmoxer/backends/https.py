@@ -89,28 +89,39 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
         response_data = response.json()["data"]
 
         self.birth_time = time.monotonic()
-        self.pve_auth_ticket = response_data["ticket"]
+        self.pve_auth_ticket = response_data.get("ticket")
         self.csrf_prevention_token = response_data["CSRFPreventionToken"]
 
-        if response_data.get("NeedTFA") is not None:
+        # PDM does not return the ticket in the body, instead it is in a cookie
+        if self.pve_auth_ticket is None:
+            cookies = response.cookies
+            self.pve_auth_ticket = cookies.values()[0]
+
+        if response_data.get("NeedTFA") is not None or "!tfa!" in self.pve_auth_ticket:
             otpdata = {
                 "username": self.username,
                 "tfa-challenge": self.pve_auth_ticket,
                 "password": f"{otptype}:{otp}",
             }
-            otpresp = response_data = requests.post(
+            otpresp = requests.post(
                 self.base_url + "/access/ticket",
                 verify=self.verify_ssl,
                 timeout=self.timeout,
                 data=otpdata,
-            ).json()["data"]
+            )
             if not otpresp:
                 raise AuthenticationError(
-                    "Couldn't authenticate user: missing Two Factor Authentication (TFA)"
+                    "Couldn't authenticate user: missing or invalid Two Factor Authentication (TFA)"
                 )
+            otpresp_data = otpresp.json()["data"]
             self.birth_time = time.monotonic()
-            self.pve_auth_ticket = otpresp["ticket"]
-            self.csrf_prevention_token = otpresp["CSRFPreventionToken"]
+            self.pve_auth_ticket = otpresp_data.get("ticket")
+            self.csrf_prevention_token = otpresp_data["CSRFPreventionToken"]
+
+            # PDM does not return the ticket in the body, instead it is in a cookie
+            if self.pve_auth_ticket is None:
+                cookies = otpresp.cookies
+                self.pve_auth_ticket = cookies.values()[0]
 
     def get_cookies(self):
         return cookiejar_from_dict({self.service + "AuthCookie": self.pve_auth_ticket})

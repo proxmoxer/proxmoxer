@@ -162,6 +162,41 @@ class PVERegistry(responses.registries.FirstMatchRegistry):
                 self.common_headers,
                 json.dumps({"data": None}),
             )
+        # OTP for cookie tickets
+        if form_data_dict.get("username") == "otp_cookie" and "tfa-challenge" not in form_data_dict:
+            return (
+                200,
+                self.common_headers,
+                json.dumps(
+                    {
+                        "data": {
+                            "ticket": "otp_cookie_ticket",
+                            "CSRFPreventionToken": "CSRFPreventionToken",
+                            "NeedTFA": 1,
+                        }
+                    }
+                ),
+            )
+        elif (
+            form_data_dict.get("username") == "otp_cookie"
+            and form_data_dict.get("tfa-challenge") == "otp_cookie_ticket"
+        ):
+            if form_data_dict.get("password") == "totp:123456":
+                return (
+                    200,
+                    {
+                        **self.common_headers,
+                        "Set-Cookie": "PVEAuthCookie=new_cookie_ticket; path=/; secure; HttpOnly",
+                    },
+                    json.dumps(
+                        {
+                            "data": {
+                                "CSRFPreventionToken": "CSRFPreventionToken_2",
+                            }
+                        }
+                    ),
+                )
+
         # if this user requires OTP and it is not included
         if form_data_dict.get("username") == "otp" and "tfa-challenge" not in form_data_dict:
             return (
@@ -201,8 +236,9 @@ class PVERegistry(responses.registries.FirstMatchRegistry):
                     self.common_headers,
                     json.dumps({"data": None}),
                 )
+
         # if this is the first ticket
-        if form_data_dict.get("password") != "ticket":
+        if form_data_dict.get("password") == "password":
             return (
                 200,
                 self.common_headers,
@@ -210,8 +246,17 @@ class PVERegistry(responses.registries.FirstMatchRegistry):
                     {"data": {"ticket": "ticket", "CSRFPreventionToken": "CSRFPreventionToken"}}
                 ),
             )
+        elif form_data_dict.get("password") == "password_cookie":
+            return (
+                200,
+                {
+                    **self.common_headers,
+                    "Set-Cookie": "PVEAuthCookie=cookie_ticket; path=/; secure; HttpOnly",
+                },
+                json.dumps({"data": {"CSRFPreventionToken": "CSRFPreventionToken"}}),
+            )
         # if this is refreshing the ticket, return new ticket
-        else:
+        elif form_data_dict.get("password") == "ticket":
             return (
                 200,
                 self.common_headers,

@@ -6,7 +6,7 @@
     {
       "label": "Run Tests (with coverage file)",
       "type": "shell",
-      "command": "pytest -v --cov --cov-report xml:coverage.xml tests/",
+      "command": "pytest -v --cov=proxmoxer/ --cov=tests/ --cov-report xml:coverage.xml tests/",
       "problemMatcher": [],
       "icon": {
         "id": "beaker",

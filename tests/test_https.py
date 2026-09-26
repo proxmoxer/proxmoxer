@@ -111,7 +111,7 @@ class TestHttpsBackend:
         assert backend.get_tokens() == (None, None)
 
     def test_get_tokens_password(self, mock_pve):
-        backend = https.Backend("1.2.3.4:1234", password="name")
+        backend = https.Backend("1.2.3.4:1234", password="password")
 
         assert ("ticket", "CSRFPreventionToken") == backend.get_tokens()
 
@@ -124,11 +124,11 @@ class TestHttpsBackend:
         assert backend.auth.verify_ssl is False
 
     def test_verify_ssl_password(self, mock_pve):
-        backend = https.Backend("1.2.3.4:1234", password="name")
+        backend = https.Backend("1.2.3.4:1234", password="password")
         assert backend.auth.verify_ssl is True
 
     def test_verify_ssl_false_password(self, mock_pve):
-        backend = https.Backend("1.2.3.4:1234", password="name", verify_ssl=False)
+        backend = https.Backend("1.2.3.4:1234", password="password", verify_ssl=False)
         assert backend.auth.verify_ssl is False
 
 
@@ -220,6 +220,18 @@ class TestProxmoxHTTPAuth:
         assert auth.timeout == 1234
         assert auth.verify_ssl is True
 
+    def test_cookie_ticket(self, mock_pve):
+        auth = https.ProxmoxHTTPAuth(
+            "user",
+            "password_cookie",
+            base_url=self.base_url,
+            service="PDM",
+        )
+
+        assert auth.username == "user"
+        assert auth.pve_auth_ticket == "cookie_ticket"
+        assert auth.csrf_prevention_token == "CSRFPreventionToken"
+
     def test_ticket_renewal(self, mock_pve):
         auth = https.ProxmoxHTTPAuth("user", "password", base_url=self.base_url)
 
@@ -251,9 +263,17 @@ class TestProxmoxHTTPAuth:
         )
 
     def test_auth_otp(self, mock_pve):
-        https.ProxmoxHTTPAuth(
+        auth = https.ProxmoxHTTPAuth(
             "otp", "password", base_url=self.base_url, otp="123456", service="PVE"
         )
+        assert auth.pve_auth_ticket == "new_ticket"
+
+    def test_auth_otp_cookie(self, mock_pve):
+        auth = https.ProxmoxHTTPAuth(
+            "otp_cookie", "password", base_url=self.base_url, otp="123456", service="PDM"
+        )
+
+        assert auth.pve_auth_ticket == "new_cookie_ticket"
 
     def test_auth_otp_missing(self, mock_pve):
         with pytest.raises(core.AuthenticationError) as exc_info:
@@ -261,11 +281,11 @@ class TestProxmoxHTTPAuth:
 
         assert (
             str(exc_info.value)
-            == "Couldn't authenticate user: missing Two Factor Authentication (TFA)"
+            == "Couldn't authenticate user: missing or invalid Two Factor Authentication (TFA)"
         )
         assert (
             repr(exc_info.value)
-            == 'AuthenticationError("Couldn\'t authenticate user: missing Two Factor Authentication (TFA)")'
+            == 'AuthenticationError("Couldn\'t authenticate user: missing or invalid Two Factor Authentication (TFA)")'
         )
 
 

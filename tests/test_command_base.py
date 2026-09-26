@@ -99,6 +99,19 @@ class TestCommandBaseSession:
             == "pvesh\nget\nhttps://1.2.3.4:1234/api2/json/fake/echo\n-thing\nfailure\n--output-format\njson"
         )
 
+    def test_request_stderr_non_status_exit0(self, mock_exec_stderr_non_status):
+        resp = self._session.request("GET", self.base_url + "/fake/echo")
+
+        assert resp.status_code == 200
+        assert resp.exit_code == 0
+        assert resp.content == '{"data": "ok"}'
+
+    def test_request_stderr_non_status_exit_nonzero(self, mock_exec_stderr_non_status_fail):
+        resp = self._session.request("GET", self.base_url + "/fake/echo")
+
+        assert resp.status_code == 500
+        assert resp.exit_code == 1
+
     def test_request_sudo(self, mock_exec):
         resp = command_base.CommandBaseSession(sudo=True).request(
             "GET", self.base_url + "/fake/echo"
@@ -334,7 +347,29 @@ def mock_exec_task():
         yield
 
 
+@classmethod
+def _exec_stderr_non_status(_, cmd):
+    return '{"data": "ok"}', "some non-http-status warning", 0
+
+
+@classmethod
+def _exec_stderr_non_status_fail(_, cmd):
+    return None, "some non-http-status warning", 1
+
+
 @pytest.fixture
 def mock_exec_err():
     with mock.patch.object(command_base.CommandBaseSession, "_exec", _exec_err):
+        yield
+
+
+@pytest.fixture
+def mock_exec_stderr_non_status():
+    with mock.patch.object(command_base.CommandBaseSession, "_exec", _exec_stderr_non_status):
+        yield
+
+
+@pytest.fixture
+def mock_exec_stderr_non_status_fail():
+    with mock.patch.object(command_base.CommandBaseSession, "_exec", _exec_stderr_non_status_fail):
         yield

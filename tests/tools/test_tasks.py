@@ -5,6 +5,7 @@ __license__ = "MIT"
 import logging
 
 import pytest
+import responses
 
 from proxmoxer import ProxmoxAPI
 from proxmoxer.tools import Tasks
@@ -13,6 +14,20 @@ from ..api_mock import mock_pve  # pylint: disable=unused-import # noqa: F401
 
 
 class TestBlockingStatus:
+    @responses.activate
+    def test_pbs(self):
+        upid = "UPID:pbs:00000267:0011E1D7:00000009:6A48CA08:acme-register:test1:root@pam:"
+        status = {"upid": upid, "status": "stopped", "exitstatus": "OK"}
+        url = f"https://pbs.example.com:8007/api2/json/nodes/pbs/tasks/{upid}/status"
+        responses.get(url, json={"data": status})
+        prox = ProxmoxAPI(
+            "pbs.example.com", service="PBS", user="root@pam", token_name="test", token_value="test"
+        )
+
+        assert Tasks.blocking_status(prox, upid, polling_interval=0) == status
+        assert len(responses.calls) == 1
+        assert responses.calls[0].request.url == url
+
     def test_basic(self, mocked_prox, caplog):
         caplog.set_level(logging.DEBUG, logger="proxmoxer.core")
 
@@ -171,6 +186,43 @@ class TestDecodeUpid:
         assert decoded["id"] == ""
         assert decoded["user"] == "root@pam"
         assert decoded["comment"] == ""
+        assert "task_id" not in decoded
+
+    @pytest.mark.parametrize(
+        "upid,expected",
+        [
+            (
+                "UPID:pbs:00000267:0011E1D7:00000009:6A48CA08:acme-register:test1:root@pam:",
+                {
+                    "node": "pbs",
+                    "pid": 0x267,
+                    "pstart": 0x11E1D7,
+                    "task_id": 9,
+                    "starttime": 0x6A48CA08,
+                    "type": "acme-register",
+                    "id": "test1",
+                    "user": "root@pam",
+                    "comment": "",
+                },
+            ),
+            (
+                "UPID:elsa:00004F37:100000000:123456789ABCDEF0:5CA78B83:garbage_collection::root@pam!token:",
+                {
+                    "node": "elsa",
+                    "pid": 0x4F37,
+                    "pstart": 0x100000000,
+                    "task_id": 0x123456789ABCDEF0,
+                    "starttime": 0x5CA78B83,
+                    "type": "garbage_collection",
+                    "id": "",
+                    "user": "root@pam",
+                    "comment": "",
+                },
+            ),
+        ],
+    )
+    def test_pbs(self, upid, expected):
+        assert Tasks.decode_upid(upid) == {"upid": upid, **expected}
 
     def test_all_values(self):
         upid = "UPID:node1:000CFFFA:03E8EF53:619480BA:vzdump:103:root@pam:local"
@@ -186,8 +238,14 @@ class TestDecodeUpid:
         assert decoded["user"] == "root@pam"
         assert decoded["comment"] == "local"
 
-    def test_invalid_length(self):
-        upid = "UPID:node1:000CFFFA:03E8EF53:619480BA:vzdump:103:root@pam"
+    @pytest.mark.parametrize(
+        "upid",
+        [
+            "UPID:node1:000CFFFA:03E8EF53:619480BA:vzdump:103:root@pam",
+            "UPID:pbs:00000267:0011E1D7:00000009:6A48CA08:acme-register:test1:root@pam::extra",
+        ],
+    )
+    def test_invalid_length(self, upid):
         with pytest.raises(AssertionError) as exc_info:
             Tasks.decode_upid(upid)
 

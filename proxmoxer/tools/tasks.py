@@ -43,7 +43,8 @@ class Tasks:
     @staticmethod
     def decode_upid(upid):
         """
-        Decodes the sections of a UPID into separate fields
+        Decodes the sections of a UPID into separate fields.
+        PBS UPIDs include an additional integer ``task_id`` field.
 
         :param upid: a UPID string
         :type upid: str
@@ -51,7 +52,7 @@ class Tasks:
         :rtype: dict
         """
         segments = upid.split(":")
-        if segments[0] != "UPID" or len(segments) != 9:
+        if segments[0] != "UPID" or len(segments) not in (9, 10):
             raise AssertionError("UPID is not in the correct format")
 
         data = {
@@ -59,12 +60,14 @@ class Tasks:
             "node": segments[1],
             "pid": int(segments[2], 16),
             "pstart": int(segments[3], 16),
-            "starttime": int(segments[4], 16),
-            "type": segments[5],
-            "id": segments[6],
-            "user": segments[7].split("!")[0],
-            "comment": segments[8],
+            "starttime": int(segments[-5], 16),
+            "type": segments[-4],
+            "id": segments[-3],
+            "user": segments[-2].split("!")[0],
+            "comment": segments[-1],
         }
+        if len(segments) == 10:
+            data["task_id"] = int(segments[4], 16)
         return data
 
     @staticmethod

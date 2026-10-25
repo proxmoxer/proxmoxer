@@ -268,6 +268,32 @@ class TestProxmoxHTTPAuth:
         )
         assert auth.pve_auth_ticket == "new_ticket"
 
+    @pytest.mark.parametrize(
+        "cert,proxies",
+        [
+            (("client.crt", "client.key"), None),
+            (None, {"https": "http://proxy.example.com:8080"}),
+            (("client.crt", "client.key"), {"https": "http://proxy.example.com:8080"}),
+            (None, None),
+        ],
+    )
+    def test_auth_otp_keeps_transport_settings(self, mock_pve, cert, proxies):
+        with mock.patch.object(https.requests, "post", wraps=https.requests.post) as post:
+            auth = https.ProxmoxHTTPAuth(
+                "otp",
+                "password",
+                base_url=self.base_url,
+                otp="123456",
+                cert=cert,
+                proxies=proxies,
+            )
+
+        assert auth.pve_auth_ticket == "new_ticket"
+        assert post.call_count == 2
+        for call in post.call_args_list:
+            assert call.kwargs.get("cert") == cert
+            assert call.kwargs.get("proxies") == proxies
+
     def test_auth_otp_cookie(self, mock_pve):
         auth = https.ProxmoxHTTPAuth(
             "otp_cookie", "password", base_url=self.base_url, otp="123456", service="PDM"

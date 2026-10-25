@@ -108,6 +108,8 @@ class ProxmoxHTTPAuth(ProxmoxHTTPAuthBase):
                 verify=self.verify_ssl,
                 timeout=self.timeout,
                 data=otpdata,
+                cert=self.cert,
+                proxies=self.proxies,
             )
             if not otpresp:
                 raise AuthenticationError(

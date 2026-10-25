@@ -232,13 +232,21 @@ class ProxmoxHttpSession(requests.Session):
                     data[k] = v
                 elif "Windows" not in platform.platform():
                     data[k] = shell_split(v)
+            filename = None
+            if (
+                isinstance(v, tuple)
+                and len(v) == 2
+                and isinstance(v[0], str)
+                and isinstance(v[1], io.IOBase)
+            ):
+                filename, v = v
             if isinstance(v, io.IOBase):
                 total_file_size += get_file_size(v)
 
                 # add in filename from file pointer (patch for https://github.com/requests/toolbelt/pull/316)
                 # add Content-Type since Proxmox requires it (https://bugzilla.proxmox.com/show_bug.cgi?id=4344)
                 files[k] = (
-                    requests.utils.guess_filename(v),
+                    filename if filename is not None else requests.utils.guess_filename(v),
                     v,
                     "application/octet-stream",
                 )

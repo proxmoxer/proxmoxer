@@ -70,6 +70,17 @@ This will connect by default to PVE through the 'https' backend.
 Queries are exposed via the access methods **get**, **post**, **put** and **delete**. For convenience two
 synonyms are available: **create** for **post**, and **set** for **put**.
 
+With the HTTPS backend, pass a ``(filename, file_object)`` tuple to choose the
+uploaded filename without renaming the local file. Passing only a file object
+continues to use its original filename. For example:
+
+.. code-block:: python
+
+    with open("downloaded-image.iso", "rb") as image:
+        proxmox.nodes("pve1").storage("local").upload.post(
+            content="iso", filename=("installer.iso", image)
+        )
+
 Using the paths from the `PVE API v2 <https://pve.proxmox.com/pve-docs/api-viewer/index.html>`_, you can create
 API calls using the access methods above.
 

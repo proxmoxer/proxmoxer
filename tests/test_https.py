@@ -2,6 +2,7 @@ __author__ = "John Hollowell"
 __copyright__ = "(c) John Hollowell 2022"
 __license__ = "MIT"
 
+import json
 import logging
 import re
 import sys
@@ -381,6 +382,34 @@ class TestProxmoxHttpSession:
         assert content["url"] == self.base_url + "/fake/echo"
         assert m is not None  # content matches multipart for the created file
         assert content["headers"]["Content-Type"] == "multipart/form-data; boundary=" + m[1]
+
+    @pytest.mark.parametrize("streaming", [False, True])
+    def test_request_named_file(self, streaming, toolbelt_on_off, monkeypatch, mock_pve, tmp_path):
+        monkeypatch.setattr(https, "STREAMING_SIZE_THRESHOLD", 0 if streaming else 1000)
+
+        def echo(request):
+            status, headers, body = PVERegistry()._cb_echo(request)
+            return status, headers, json.dumps({"data": json.loads(body)})
+
+        mock_pve.add_callback("POST", self.base_url + "/fake/echo", echo)
+        api = core.ProxmoxAPI("1.2.3.4", port=1234, token_name="name", token_value="value")
+        source = tmp_path / "original.iso"
+        source.write_bytes(b"file contents")
+        with source.open("rb") as f_obj:
+            original_name = f_obj.name
+            content = api.fake.echo.post(content="iso", filename=("installer.iso", f_obj))
+            assert f_obj.name == original_name
+
+        assert content["method"] == "POST"
+        assert 'name="filename"; filename="installer.iso"' in content["body"]
+        assert "Content-Type: application/octet-stream\r\n\r\nfile contents" in content["body"]
+
+    def test_request_tuple_form_values(self, mock_pve):
+        mock_pve.add_callback("POST", self.base_url + "/fake/echo", PVERegistry()._cb_echo)
+        content = self._session.request(
+            "POST", self.base_url + "/fake/echo", data={"values": ("first", "second")}
+        ).json()
+        assert content["body"] == "values=first&values=second"
 
     def test_request_streaming(self, shrink_thresholds, toolbelt_on_off, caplog, mock_pve):
         caplog.set_level(logging.INFO, logger=MODULE_LOGGER_NAME)

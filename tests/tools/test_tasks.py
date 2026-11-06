@@ -227,6 +227,17 @@ class TestDecodeLog:
 
         assert log_str == "first\nsecond\nthird"
 
+    def test_paged(self):
+        # a page fetched with start=50 is numbered from the 51st line of the log
+        log_list = [
+            {"n": 52, "t": "second"},
+            {"n": 51, "t": "first"},
+            {"n": 53, "t": "TASK OK"},
+        ]
+        log_str = Tasks.decode_log(log_list)
+
+        assert log_str == "first\nsecond\nTASK OK"
+
 
 @pytest.fixture
 def mocked_prox(mock_pve):

@@ -77,8 +77,14 @@ class Tasks:
         :return: a multiline string of the log
         :rtype: str
         """
+        if not log_list:
+            return ""
+
+        # "n" is the line number in the whole log, so a page fetched with
+        # `start` begins at start + 1 instead of 1
+        first = min(line["n"] for line in log_list)
         str_list = [""] * len(log_list)
         for line in log_list:
-            str_list[line["n"] - 1] = line.get("t", "")
+            str_list[line["n"] - first] = line.get("t", "")
 
         return "\n".join(str_list)

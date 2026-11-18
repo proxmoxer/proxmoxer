@@ -101,6 +101,8 @@ class CommandBaseSession:
                 command_arr = data_command
             elif "Windows" not in platform.platform():
                 command_arr = shell_split(data_command)
+            else:
+                command_arr = [data_command]
             for arg in command_arr:
                 option_pairs.append(("-command", arg))
         # expand the list of 2-tuples into a flat list

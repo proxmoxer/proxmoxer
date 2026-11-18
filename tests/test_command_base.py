@@ -168,6 +168,29 @@ class TestCommandBaseSession:
             "json",
         ]
 
+    def test_request_qemu_exec_windows(self, mock_exec):
+        with mock.patch(
+            "proxmoxer.backends.command_base.platform.platform",
+            return_value="Windows-10-10.0.19045-SP0",
+        ):
+            resp = self._session.request(
+                "POST",
+                self.base_url + "/node/node1/qemu/100/agent/exec",
+                data={"command": "echo 'hello world'"},
+            )
+
+        assert resp.status_code == 200
+        assert resp.exit_code == 201
+        assert resp.content == [
+            "pvesh",
+            "create",
+            self.base_url + "/node/node1/qemu/100/agent/exec",
+            "-command",
+            "echo 'hello world'",
+            "--output-format",
+            "json",
+        ]
+
     def test_request_qemu_exec_list(self, mock_exec):
         resp = self._session.request(
             "POST",
